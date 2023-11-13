@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from "react";
+import {
+  Keyboard,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import { Button } from "@rneui/themed";
 
 export default function App() {
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   // const handleSearchPress = () => {
   //   // 검색 버튼을 누를 때 키패드를 나타냅니다.
   //   Keyboard.dismiss();  // 기존에 열려있는 키패드가 있다면 닫습니다.
@@ -11,27 +17,11 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>안녕하세요, Expo!</Text>
+      <Button>Primary</Button>
+      <Button color="secondary">Secondary</Button>
+      <Button color="warning">Warning</Button>
+      <Button color="error">Error</Button>
 
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={() => handleButtonPress(1)}>
-          <Text style={styles.buttonText}>home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => handleButtonPress(2)}>
-          <Text style={styles.buttonText}>버튼 2</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => handleButtonPress(3)}>
-          <Text style={styles.buttonText}>버튼 3</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => handleButtonPress(4)}>
-          <Text style={styles.buttonText}>버튼 4</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 검색을 위한 TextInput 추가 */}
       <TextInput
         style={styles.searchInput}
         placeholder="검색어를 입력하세요"
@@ -45,34 +35,16 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     paddingTop: 60,
     paddingLeft: 20,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 650,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderColor: 'blue',
-  },
   searchInput: {
-    marginTop: -600,
     padding: 10,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 10,
-    width: '100%',
+    width: "100%",
   },
 });
