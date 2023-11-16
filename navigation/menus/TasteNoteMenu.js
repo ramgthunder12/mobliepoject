@@ -1,12 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import TasteNote from '../screens/TasteNote'
 
 export default function TasteNoteMenu({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text>
-        TasteNote
-      </Text>
+      <TasteNote navigation={navigation}/>
     </View>
   );
 }

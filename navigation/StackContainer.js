@@ -6,16 +6,18 @@ import TabContainer from './TabContainer';
 import Home from './screens/Home';
 import Search from './screens/Search';
 import TasteNote from './screens/TasteNote';
+import WriteDownNote from './screens/WriteDownNote';
 
 const Stack = createStackNavigator();
 
 export default function StackContainer() {
   return (
-    <Stack.Navigator>
-        <Stack.Screen name={'TabContainer'} component={TabContainer} options={{headerShown: false,}}/>
-        <Stack.Screen name={'Home'} component={Home} options={{headerShown: false,}}/>
-        <Stack.Screen name={'Search'} component={Search} options={{headerShown: false,}}/>
-        <Stack.Screen name={'TasteNote'} component={TasteNote} options={{headerShown: false,}}/>
+    <Stack.Navigator initialRouteName='TabContainer' screenOptions={{ headerShown: false }}>
+        <Stack.Screen name={'TabContainer'} component={TabContainer}/>
+        <Stack.Screen name={'Home'} component={Home}/>
+        <Stack.Screen name={'Search'} component={Search}/>
+        <Stack.Screen name={'TasteNote'} component={TasteNote}/>
+        <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
     </Stack.Navigator>
   );
 }

@@ -1,11 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import Search from '../screens/Search';
 
 export default function SearchMenu({ navigation }) {
   return (
     <View style={styles.container}>
-      <Search/>
+      <Search navigation={navigation}/>
     </View>
   );
 }

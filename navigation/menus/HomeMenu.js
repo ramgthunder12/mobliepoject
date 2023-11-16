@@ -4,7 +4,7 @@ import Home from '../screens/Home'
 export default function HomeMenu({ navigation }) {
   return (
     <View style={styles.container}>
-      <Home/>
+      <Home navigation={navigation}/>
     </View>
   );
 }
