@@ -11,27 +11,26 @@ import { Header, Icon, Card, Button, Dialog } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
 
-let buttonTitleLen; //느낌 버튼 길이
 let TasteId = 0; //느낌 버튼 id
 
 export default function WriteDownNote({ navigation }) {
-  const [buttonText, setButtonText] = useState(""); //버튼 이름
+  const [buttonText, setButtonText] = useState(""); //버튼 이름 => 최대 크기 정해야됨
 
-  const [textInputSize, setTextInputSize] = useState({ width: 0 });//textinput 크기 (느낌 버튼이 들어가는지 구하기)
   const [showTextInput, setshowTextInput] = useState([]); //textinput 생성 및 삭제
 
   const [Tastes, setTastes] = useState([]); //느낌 버튼 배열
-  const [TasteViews, setTasteViews] = useState([]); //느낌 버튼을 감싼 View
+  const [pressedButtonIds, setPressedButtonIds] = useState([]); //느낌 버튼을 누른 버튼id
 
-  const [pressedButtonIds, setPressedButtonIds] = useState([]);//느낌 버튼을 누른 버튼id
+  const [DeleteTaste, setDeleteTaste] = useState(false); //느낌 버튼 삭제 Dialog on/off
+  const [DeleteTasteId, setDeleteTasteId] = useState({ bId: 0 }); //삭제 시 느낌 버튼 id
 
-  const [DeleteTaste, setDeleteTaste] = useState(false); //느낌 버튼 삭제 Dialog
+  const [ratingValue, setRatingValue] = useState(2.5);
 
   const SaveNote = () => {
     //노트저장
     console.log("노트저장");
   };
-  const NoteMenu = () => {
+  const NoteExit = () => {
     //노트메뉴
     console.log("노트메뉴");
   };
@@ -42,68 +41,18 @@ export default function WriteDownNote({ navigation }) {
       //새로운 버튼 추가
       id: TasteId,
       text: buttonText,
-    }; //key겹침 해결해야됨
-
-    const newTasteView = {
-      //새로운 뷰 추가
-      id: TasteViews.length,
     };
 
     if (buttonText.length === 0) {
       //이름 입력 안하면 종료
-      //버튼이름길이 = 0
-      setshowTextInput(showTextInput.slice(1)); //textinput 제거
       return;
     }
 
-    buttonTitleLen += Math.floor(textInputSize.width);
-    /*
-    한글자 : 37 * 7 = 256
-    두글자 : 43 * 5 = 215
-    세글자 : 57 * 4
-    네글자 : 70 * 3
-    다섯글자 : 83 * 3 = 249
-    여섯글자 : 96 * 3
-    */
-    if (
-      buttonTitleLen > 264 ||
-      TasteViews.length === 0
-    ) {
-      setTasteViews((prevViews) => [...prevViews, newTasteView]); //다음줄로 넘어가기
-      setTastes((prevButtons) => {
-        const newArray = [...prevButtons];
-        let len;
-
-        // 두 번째 차원 배열이 존재하지 않으면 초기화
-        if (!newArray[TasteViews.length]) {
-          newArray[TasteViews.length] = [];
-          len = 0;
-        } else len = Tastes[TasteViews.length].length;
-
-        // 세 번째 차원 배열에 newTaste 추가
-        newArray[TasteViews.length][len] = newTaste;
-
-        return newArray;
-      });
-
-      setshowTextInput(showTextInput.slice(1)); //textinput 제거
-      buttonTitleLen = Math.floor(textInputSize.width); //초기화
-    } else {
-      //버튼만 추가
-      setTastes((prevButtons) => {
-        const newArray = [...prevButtons];
-        let len = Tastes[TasteViews.length - 1].length;
-
-        // 세 번째 차원 배열에 newTaste 추가
-        newArray[TasteViews.length - 1][len] = newTaste;
-
-        return newArray;
-      });
-      setshowTextInput(showTextInput.slice(1)); //textinput 제거
-    }
-
-    setButtonText(""); //버튼 이름 초기화
+    setTastes((prevTastes) => [...prevTastes, newTaste]); //느낌 버튼 추가
     TasteId++; //버튼 id 증가
+
+    setshowTextInput(showTextInput.slice(1)); //textinput 제거
+    setButtonText(""); //버튼 이름 초기화
   };
 
   const writeTaste = () => {
@@ -113,12 +62,8 @@ export default function WriteDownNote({ navigation }) {
     }
   };
 
-  const handleTextInputLayout = (event) => {//textinput 크기 구하기
-    const { width } = event.nativeEvent.layout;
-    setTextInputSize({ width });
-  };
-
-  const handlePress = (buttonId) => {//느낌 버튼을 누른 버튼id
+  const handlePress = (buttonId) => {
+    //느낌 버튼을 누른 버튼id
     // 토글 상태 변경
     setPressedButtonIds((prevPressedButtonIds) => {
       if (prevPressedButtonIds.includes(buttonId)) {
@@ -131,23 +76,46 @@ export default function WriteDownNote({ navigation }) {
     });
   };
 
-  const DeleteTasteDialogDown = () => {
-    //느낌 버튼 삭제 Dialog 없애기
+  const DeleteTasteDialog = (bId) => {
+    //느낌 버튼 삭제 Dialog on/off
+    setDeleteTasteId({ bId });
+    setDeleteTaste(!DeleteTaste);
+  };
+
+  const DeleteTasteBtn = () => {
+    //느낌 버튼 삭제하기
+    const updatedTastes = Tastes.filter(
+      (taste) => taste.id !== DeleteTasteId.bId
+    );
+    setTastes(updatedTastes);
     setDeleteTaste(!DeleteTaste);
   };
 
   const ratingCompleted = (rating) => {
     //별점
-    // console.log('Rating is: ' + rating);
+    if(ratingValue !== rating){
+      setRatingValue(rating);
+    }
   };
 
   useEffect(() => {
-    // 페이지가 반환될 때 호출되는 로직을 여기에 작성
-    buttonTitleLen = 0;
     //console.log('start');
+
+    const TasteData = [
+      { id: 0, text: "아몬드" },
+      { id: 1, text: "딸기" },
+      { id: 2, text: "귤" },
+      { id: 3, text: "레몬" },
+      { id: 4, text: "사과" },
+    ];
+
+    TasteData.forEach((taste) => {
+      setTastes((prevTastes) => [...prevTastes, taste]); //느낌 버튼 추가
+      TasteId++; //버튼 id 증가
+    });
+
     return () => {
-      // Clean-up 함수 (Optional): 페이지가 반환될 때 호출되는 추가 작업
-      buttonTitleLen = 0;
+      setDeleteTaste(false);
       //저장 후 종료 물어보기
       //console.log('end');
     };
@@ -158,8 +126,8 @@ export default function WriteDownNote({ navigation }) {
       <Header
         leftComponent={
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={NoteMenu}>
-              <Icon name="menu" color="black" />
+            <TouchableOpacity onPress={NoteExit}>
+              <Icon name="chevron-left" color="black" size={30} />
             </TouchableOpacity>
           </View>
         }
@@ -170,107 +138,87 @@ export default function WriteDownNote({ navigation }) {
             </TouchableOpacity>
           </View>
         }
-        centerComponent={{ text: "주류이름", style: styles.heading }}
+        centerComponent={{ text: "테이스팅 노트", style: styles.heading }}
         backgroundColor="rgb(255,255,255)"
       />
 
       <ScrollView style={styles.scrollView}>
+        <View
+          style={styles.noteTitleView}
+        >
+          <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
+        </View>
         <Card containerStyle={{ marginTop: 10 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 5,
-            }}
-          >
-            <Text style={styles.cardTitleText}>느낌</Text>
-            <TouchableOpacity onPress={writeTaste} style={{ marginTop: -5 }}>
-              <Icon name="add-circle-outline" size={30} />
-            </TouchableOpacity>
-          </View>
-
-          <Card.Divider />
-
           <View style={styles.tasteButtonView}>
-            <View
-              style={{ flexDirection: "column", justifyContent: "flex-start" }}
-            >
-              {TasteViews.map(
-                (
-                  views //느낌 버튼 추가
-                ) => (
-                  <View
-                    key={views.id}
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "flex-start",
-                      marginBottom: 5,
-                    }}
-                  >
-                    {Tastes[views.id].map((button) => (
-                      <View key={button.id} style={{ marginRight: 5 }}>
-                        <TouchableOpacity
-                          onPress={() => handlePress(button.id)}
-                          onLongPress={DeleteTasteDialogDown}
-                          style={{
-                            marginRight: 4,
-                            backgroundColor: pressedButtonIds.includes(button.id) ? "rgb(230,230,230)" : "rgb(104,201,170)", // 배경색 설정
-                            borderWidth: 1, // 테두리 두께 설정
-                            borderColor: pressedButtonIds.includes(button.id) ? "rgb(230,230,230)" : "rgb(104,201,170)", // 테두리 색상 설정
-                            borderRadius: 5, // 테두리의 둥근 정도 설정
-                            padding: 2,
-                            paddingLeft: 7,
-                            paddingRight: 7,
-                          }}
-                        >
-                          <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                            {button.text}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-                  </View>
-                )
-              )}
-            </View>
-            <View style={{ flexDirection: 'row', }}>
+            {Tastes.map((button) => (
+              <View key={button.id} style={{ marginRight: 5, marginBottom: 5 }}>
+                <TouchableOpacity
+                  onPress={() => handlePress(button.id)}
+                  onLongPress={() => DeleteTasteDialog(button.id)}
+                  style={[
+                    styles.tasteTouchableOpacity,
+                    {
+                      backgroundColor: pressedButtonIds.includes(button.id)
+                        ? "rgb(230,230,230)"
+                        : "rgb(104,201,170)", // 배경색 설정
+                      borderColor: pressedButtonIds.includes(button.id)
+                        ? "rgb(230,230,230)"
+                        : "rgb(104,201,170)", // 테두리 색상 설정
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
+                    {button.text}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+
             {showTextInput.map((textinput) => (
               <TextInput
                 key={textinput.id}
                 autoFocus={true}
-                onLayout={handleTextInputLayout}
+                multiline
                 onChangeText={(text) => setButtonText(text)}
                 onEndEditing={() => addTaste()}
-                style={{
-                fontSize: 20, 
-                backgroundColor: "rgb(104,201,170)",
-                borderWidth: 1, 
-                borderColor: "rgb(104,201,170)",
-                borderRadius: 5,
-                paddingLeft: 8,
-                paddingRight: 8,}}
+                style={styles.tasteTextInput}
               />
             ))}
-            </View>
+            <TouchableOpacity onPress={writeTaste}>
+              <Icon name="add-circle-outline" size={30} />
+            </TouchableOpacity>
           </View>
         </Card>
 
-        <View style={{ flexDirection: "column", justifyContent: "flex-start" }}>
-          <Text>별점</Text>
-          <Rating
-            showRating={true}
-            minValue={1}
-            fractions={2}
-            jumpValue={0.1}
-            onFinishRating={ratingCompleted}
-            style={{ paddingVertical: 10 }}
-          />
+        {/*별점 선택*/}
+        <View
+          style={styles.noteTitleView}
+        >
+          <Text style={styles.noteTitleText}>별점을 선택해주세요</Text>
         </View>
+        <Rating
+          startingValue={3}
+          onFinishRating={(rating) => ratingCompleted(rating)}
+          style={{ paddingVertical: 10 }}
+        />
+
+        {/*메모*/}
+        <View
+          style={styles.noteTitleView}
+        >
+          <Text style={styles.noteTitleText}>메모</Text>
+        </View>
+        
       </ScrollView>
 
       {/* 버튼 삭제 Dialog */}
-      <Dialog isVisible={DeleteTaste} onBackdropPress={DeleteTasteDialogDown}>
-        <Dialog.Title title="를 삭제하시겠습니까?" />
+      <Dialog
+        isVisible={DeleteTaste}
+        onBackdropPress={() => DeleteTasteDialog(0)}
+      >
+        <Dialog.Title
+          title={`${Tastes[DeleteTasteId.bId]?.text}를 삭제하시겠습니까?`}
+        />
 
         <Dialog.Actions>
           <View
@@ -282,10 +230,10 @@ export default function WriteDownNote({ navigation }) {
             <Dialog.Button
               title="삭제"
               onPress={() => {
-                DeleteTasteDialogDown();
+                DeleteTasteBtn();
               }}
             />
-            <Dialog.Button title="취소" onPress={DeleteTasteDialogDown} />
+            <Dialog.Button title="취소" onPress={() => DeleteTasteDialog(0)} />
           </View>
         </Dialog.Actions>
       </Dialog>
@@ -297,7 +245,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {},
+  scrollView: {
+    backgroundColor: "white",
+  },
   heading: {
     color: "black",
     fontSize: 22,
@@ -317,13 +267,38 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  cardTitleText: {
+  noteTitleView: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  noteTitleText: {
     fontSize: 20,
     fontWeight: "bold",
   },
   tasteButtonView: {
-    flexDirection: "column",
+    flexDirection: "row",
+    flexWrap: "wrap", //자동확장
     justifyContent: "flex-start",
+  },
+  tasteTouchableOpacity: {
+    marginRight: 4,
+    borderWidth: 1, // 테두리 두께 설정
+    borderRadius: 5, // 테두리의 둥근 정도 설정
+    padding: 2,
+    paddingLeft: 7,
+    paddingRight: 7,
+  },
+  tasteTextInput: {
+    fontSize: 20,
+    backgroundColor: "rgb(104,201,170)",
+    borderWidth: 1,
+    borderColor: "rgb(104,201,170)",
+    color: "rgb(80,80,80)",
+    borderRadius: 5,
+    paddingLeft: 8,
+    paddingRight: 8,
+    marginRight: 4,
   },
 });
 
