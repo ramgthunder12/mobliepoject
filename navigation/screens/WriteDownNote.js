@@ -5,8 +5,9 @@ import {
   SafeAreaView,
   ScrollView,
   View,
+  Animated,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Header, Icon, Card, Button, Dialog } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
@@ -14,7 +15,7 @@ import { Rating } from "react-native-ratings";
 let TasteId = 0; //느낌 버튼 id
 
 export default function WriteDownNote({ navigation }) {
-  const [buttonText, setButtonText] = useState(""); //버튼 이름 => 최대 크기 정해야됨
+  const [buttonText, setButtonText] = useState(""); //버튼 이름
 
   const [showTextInput, setshowTextInput] = useState([]); //textinput 생성 및 삭제
 
@@ -24,7 +25,11 @@ export default function WriteDownNote({ navigation }) {
   const [DeleteTaste, setDeleteTaste] = useState(false); //느낌 버튼 삭제 Dialog on/off
   const [DeleteTasteId, setDeleteTasteId] = useState({ bId: 0 }); //삭제 시 느낌 버튼 id
 
-  const [ratingValue, setRatingValue] = useState(2.5);
+  const [ratingValue, setRatingValue] = useState(3); //별점 구하기
+
+  const [memoExpanded, setMemoExpanded] = useState(false); //메모 기능 활성화
+  const memoHeightValue = useRef(new Animated.Value(0)).current; //메모 기능 확장 애니메이션
+  const [memoText, setMemoText] = useState("");//메모 내용
 
   const SaveNote = () => {
     //노트저장
@@ -45,6 +50,7 @@ export default function WriteDownNote({ navigation }) {
 
     if (buttonText.length === 0) {
       //이름 입력 안하면 종료
+      setshowTextInput(showTextInput.slice(1)); //textinput 제거
       return;
     }
 
@@ -93,9 +99,20 @@ export default function WriteDownNote({ navigation }) {
 
   const ratingCompleted = (rating) => {
     //별점
-    if(ratingValue !== rating){
+    if (ratingValue !== rating) {
       setRatingValue(rating);
     }
+  };
+
+  const handleMemoAnimate = () => {
+    //메모 창 내려가는 Animated
+    Animated.timing(memoHeightValue, {
+      toValue: memoExpanded ? 0 : 160, // Adjust the desired expanded height
+      duration: 500, // Adjust the animation duration
+      useNativeDriver: false,
+    }).start();
+
+    setMemoExpanded((prev) => !prev);
   };
 
   useEffect(() => {
@@ -143,9 +160,9 @@ export default function WriteDownNote({ navigation }) {
       />
 
       <ScrollView style={styles.scrollView}>
-        <View
-          style={styles.noteTitleView}
-        >
+        {/*느낌*/}
+        <Card.Divider style={{marginTop: 20, }}/>
+        <View style={styles.noteTitleView}>
           <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
         </View>
         <Card containerStyle={{ marginTop: 10 }}>
@@ -179,21 +196,21 @@ export default function WriteDownNote({ navigation }) {
                 key={textinput.id}
                 autoFocus={true}
                 multiline
+                maxLength={10}
                 onChangeText={(text) => setButtonText(text)}
                 onEndEditing={() => addTaste()}
                 style={styles.tasteTextInput}
               />
             ))}
             <TouchableOpacity onPress={writeTaste}>
-              <Icon name="add-circle-outline" size={30} />
+              <Icon name="add-circle-outline" color="rgb(150,150,150)" size={30} />
             </TouchableOpacity>
           </View>
         </Card>
 
         {/*별점 선택*/}
-        <View
-          style={styles.noteTitleView}
-        >
+        <Card.Divider style={{marginTop: 20, }}/>
+        <View style={styles.noteTitleView}>
           <Text style={styles.noteTitleText}>별점을 선택해주세요</Text>
         </View>
         <Rating
@@ -203,12 +220,37 @@ export default function WriteDownNote({ navigation }) {
         />
 
         {/*메모*/}
-        <View
-          style={styles.noteTitleView}
-        >
-          <Text style={styles.noteTitleText}>메모</Text>
+        <Card.Divider style={{marginTop: 10, }}/>
+        <View style={styles.noteExpandView}>
+          <View style={styles.noteExpandTitle}>
+            <Text style={[styles.noteTitleText, {marginLeft: 20, marginTop: -2, }]}>메모 작성하기</Text>
+            <TouchableOpacity onPress={handleMemoAnimate} style={{marginRight: 10, marginTop: -5, }}>
+              <Icon name="chevron-right" color="black" size={30} />
+            </TouchableOpacity>
+          </View>
+
+          <Animated.View
+            style={{ height: memoHeightValue, width: '100%', overflow: "hidden", /*borderWidth: 1,*/ }}
+          >
+            <Card containerStyle={{ marginTop: 10, }}>
+              <View style={{flexDirection: "row",
+    justifyContent: "flex-start", }}>
+              <TextInput
+                editable
+                multiline
+                numberOfLines={5}
+                maxLength={1000}
+                onEndEditing={(event) => setMemoText(event.nativeEvent.text)}
+                defaultValue={memoText}
+                style={{ fontSize: 20, textAlignVertical: 'top', textAlign: 'left', width: '100%', }}
+              />
+              </View>
+            </Card>
+          </Animated.View>
         </View>
-        
+
+        {/*첫 향 */}
+        <Card.Divider style={{marginTop: 10, }}/>
       </ScrollView>
 
       {/* 버튼 삭제 Dialog */}
@@ -270,7 +312,6 @@ const styles = StyleSheet.create({
   noteTitleView: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
   },
   noteTitleText: {
     fontSize: 20,
@@ -299,6 +340,15 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
     marginRight: 4,
+  },
+  noteExpandView: {
+    flexDirection: "column",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+  },
+  noteExpandTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
 
