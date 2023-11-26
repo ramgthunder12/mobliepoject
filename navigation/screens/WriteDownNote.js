@@ -12,6 +12,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
+import DateTimePickerModal from "react-native-modal-datetime-picker";//https://github.com/mmazzarolo/react-native-modal-datetime-picker
 
 let TasteId = 0; //느낌 버튼 id
 let ScentId = 0; //첫향 버튼 id
@@ -37,6 +38,8 @@ export default function WriteDownNote({ navigation }) {
   const [memoText, setMemoText] = useState(""); //메모 내용
 
   /*첫향*/
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);//날짜 및 시간 선택 모달
+  const [DateText, setDateText] = useState("00.00.00 00:00:00");
   const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
   const [Scents, setScents] = useState([]); //첫향 버튼 배열
   const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id
@@ -223,6 +226,24 @@ export default function WriteDownNote({ navigation }) {
     );
     setScents(updatedScents);
     setDeleteScent(!DeleteScent);
+  };
+
+  const showDatePicker = () => {//날짜 및 시간 선택 모달
+    setDatePickerVisibility(true);
+  };
+
+  const DatePickerConfirm = (date) => {//날짜 및 시간 선택한 값
+    // 날짜 객체에서 연도, 월, 일, 시간, 분, 초 추출
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    //const seconds = date.getSeconds();//초는 선택불가
+
+    setDateText(`${year}.${month}.${day} ${hours}:${minutes}`);
+
+    setDatePickerVisibility(false);
   };
   /********************첫향********************/
 
@@ -501,11 +522,11 @@ export default function WriteDownNote({ navigation }) {
                     styles.tasteTouchableOpacity,
                     {
                       backgroundColor: pressedTasteIds.includes(button.id)
-                        ? "rgb(230,230,230)"
-                        : "#C3CF53", // 배경색 설정
+                        ? "#C3CF53"
+                        : "rgb(230,230,230)", // 배경색 설정
                       borderColor: pressedTasteIds.includes(button.id)
-                        ? "rgb(230,230,230)"
-                        : "#C3CF53", // 테두리 색상 설정
+                        ? "#C3CF53"
+                        : "rgb(230,230,230)", // 테두리 색상 설정
                     },
                   ]}
                 >
@@ -575,13 +596,34 @@ export default function WriteDownNote({ navigation }) {
 
         {/********************첫향:노즈********************/}
         <Card.Divider style={{ marginTop: 20 }} />
+        <View style={{flexDirection: "row", justifyContent: "center", marginTop: -10, }}>
+        <Text style={{color: "rgb(150,150,150)",}}>
+          - 여기서부터는 필수 선택이 아닙니다 -
+        </Text>
+        </View>
+        <Card.Divider style={{ marginTop: 6 }} />
           <View style={styles.noteExpandTitle}>
             <Text
               style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
             >
               첫향 : 노즈
             </Text>
-            {/*날짜 및 시간*/}
+            <TouchableOpacity
+              onPress={showDatePicker}
+              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+            >
+              <Text style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                textDecorationLine: "underline",
+                color: "rgb(150,150,150)",
+                marginRight: 7,
+                paddingTop: 3,
+              }}>
+                {DateText}
+              </Text>
+              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
+            </TouchableOpacity>
           </View>
 
             <Card containerStyle={{ marginTop: 10 }}>
@@ -603,11 +645,11 @@ export default function WriteDownNote({ navigation }) {
                           styles.ScentTouchableOpacity,
                           {
                             backgroundColor: pressedScentIds.includes(button.id)
-                              ? "rgb(230,230,230)"
-                              : "rgb(104,201,170)", // 배경색 설정
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 배경색 설정
                             borderColor: pressedScentIds.includes(button.id)
-                              ? "rgb(230,230,230)"
-                              : "rgb(104,201,170)", // 테두리 색상 설정
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 테두리 색상 설정
                           },
                         ]}
                       >
@@ -684,11 +726,11 @@ export default function WriteDownNote({ navigation }) {
                           styles.GlassTouchableOpacity,
                           {
                             backgroundColor: pressedGlassIds.includes(button.id)
-                              ? "rgb(230,230,230)"
-                              : "rgb(104,201,170)", // 배경색 설정
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 배경색 설정
                             borderColor: pressedGlassIds.includes(button.id)
-                              ? "rgb(230,230,230)"
-                              : "rgb(104,201,170)", // 테두리 색상 설정
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 테두리 색상 설정
                           },
                         ]}
                       >
@@ -934,6 +976,14 @@ export default function WriteDownNote({ navigation }) {
         </Animated.View>
         <Card.Divider style={{ marginTop: 9 }} />
       </ScrollView>
+
+      {/********************날짜 및 시간 모달********************/}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="datetime"
+        onConfirm={DatePickerConfirm}
+        onCancel={() => setDatePickerVisibility(false)}
+      />
 
       {/********************느낌 버튼 삭제 Dialog********************/}
       <Dialog
