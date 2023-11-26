@@ -38,7 +38,7 @@ export default function App() {
             })
         }
     >
-        <Tab.Screen name={'검색'} component={SearchMenu} options={{headerShown: false, tabBarStyle: { height: 55, }, }} />
+        <Tab.Screen name={'검색'} component={SearchMenu} options={{headerShown: false,}} />
         <Tab.Screen name={'홈'} component={HomeMenu} options={{headerShown: false,}} />
         <Tab.Screen name={'바코드'} component={BarcodeScanMenu} options={{headerShown: false,}} />
         <Tab.Screen name={'테이스팅'} component={TasteNoteMenu} options={{headerShown: false,}} />

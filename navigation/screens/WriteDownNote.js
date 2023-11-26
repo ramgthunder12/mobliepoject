@@ -8,6 +8,7 @@ import {
   Animated,
   FlatList,
 } from "react-native";
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef } from "react";
 import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -454,6 +455,7 @@ export default function WriteDownNote({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar style="dark"/>
       <Header
         leftComponent={
           <View style={styles.headerLeft}>
