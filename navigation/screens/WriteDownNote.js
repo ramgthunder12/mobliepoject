@@ -9,15 +9,19 @@ import {
   FlatList,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
-import { Header, Icon, Card, Button, Dialog, Slider } from "@rneui/themed";
+import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
 
 let TasteId = 0; //느낌 버튼 id
+let ScentId = 0; //첫향 버튼 id
 let GlassId = 0; //글라스 버튼 id
 
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
+
+  /*전체공개*/
+  const [FullOpen, setFullOpen] = useState(false);
 
   /*느낌 */
   const [showTasteTextInput, setshowTasteTextInput] = useState([]); //textinput 생성 및 삭제
@@ -31,6 +35,13 @@ export default function WriteDownNote({ navigation }) {
 
   /*메모 */
   const [memoText, setMemoText] = useState(""); //메모 내용
+
+  /*첫향*/
+  const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
+  const [Scents, setScents] = useState([]); //첫향 버튼 배열
+  const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id
+  const [DeleteScent, setDeleteScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
+  const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
   /*글라스*/
   const [GlassExpanded, setGlassExpanded] = useState(false); //글라스 기능 활성화
@@ -155,6 +166,65 @@ export default function WriteDownNote({ navigation }) {
     }
   };
   /********************별점********************/
+
+  /********************첫향********************/
+  const addScent = () => {
+    //느낌추가
+    const newScent = {
+      //새로운 버튼 추가
+      id: ScentId,
+      text: buttonText,
+    };
+
+    if (buttonText.length === 0) {
+      //이름 입력 안하면 종료
+      setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
+      return;
+    }
+
+    setScents((prevScents) => [...prevScents, newScent]); //느낌 버튼 추가
+    ScentId++; //버튼 id 증가
+
+    setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
+    setButtonText(""); //버튼 이름 초기화
+  };
+
+  const writeScent = () => {
+    //버튼(느낌) 추가 전 textinput
+    if (showScentTextInput.length === 0) {
+      setshowScentTextInput([...showScentTextInput, { id: 1 }]);
+    }
+  };
+
+  const handlePressScent = (buttonId) => {
+    //느낌 버튼을 누른 버튼id
+    // 토글 상태 변경
+    setPressedScentIds((prevPressedButtonIds) => {
+      if (prevPressedButtonIds.includes(buttonId)) {
+        // 이미 눌린 경우, 제거
+        return prevPressedButtonIds.filter((id) => id !== buttonId);
+      } else {
+        // 눌리지 않은 경우, 추가
+        return [...prevPressedButtonIds, buttonId];
+      }
+    });
+  };
+
+  const DeleteScentDialog = (bId) => {
+    //느낌 버튼 삭제 Dialog on/off
+    setDeleteScentId({ bId });
+    setDeleteScent(!DeleteScent);
+  };
+
+  const DeleteScentBtn = () => {
+    //느낌 버튼 삭제하기
+    const updatedScents = Scents.filter(
+      (Scent) => Scent.id !== DeleteScentId.bId
+    );
+    setScents(updatedScents);
+    setDeleteScent(!DeleteScent);
+  };
+  /********************첫향********************/
 
   /********************글라스********************/
   const handleGlassAnimate = () => {
@@ -327,6 +397,20 @@ export default function WriteDownNote({ navigation }) {
       TasteId++; //버튼 id 증가
     });
 
+    /*첫향 초기화 */
+    const ScentData = [
+      { id: 0, text: "아몬드" },
+      { id: 1, text: "딸기" },
+      { id: 2, text: "귤" },
+      { id: 3, text: "레몬" },
+      { id: 4, text: "사과" },
+    ];
+
+    ScentData.forEach((Scent) => {
+      setScents((prevScents) => [...prevScents, Scent]); //첫향 버튼 추가
+      ScentId++; //버튼 id 증가
+    });
+
     /*글라스 초기화 */
     const GlassData = [
       { id: 0, text: "온더락" },
@@ -336,7 +420,7 @@ export default function WriteDownNote({ navigation }) {
     ];
 
     GlassData.forEach((Glass) => {
-      setGlasss((prevGlasss) => [...prevGlasss, Glass]); //느낌 버튼 추가
+      setGlasss((prevGlasss) => [...prevGlasss, Glass]); //첫향 버튼 추가
       GlassId++; //버튼 id 증가
     });
 
@@ -384,13 +468,30 @@ export default function WriteDownNote({ navigation }) {
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
       >
-        {/********************느낌********************/}
+        {/********************전체공개********************/}
         <Card.Divider style={{ marginTop: 20 }} />
+        <View style={{flexDirection: "row",
+    justifyContent: "flex-start",}}>
+          <Text
+            style={[styles.noteTitleText, { marginLeft: 20, }]}
+          >
+            전체공개
+          </Text>
+          <Switch
+            color="#000000"
+            value={FullOpen}
+            onValueChange={(value) => setFullOpen(value)}
+            style={{marginLeft: 10, marginTop: -10,}}
+          />
+        </View>
+
+        {/********************느낌********************/}
+        <Card.Divider style={{ marginTop: 3 }} />
         <View style={styles.noteTitleView}>
           <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
         </View>
         <Card containerStyle={{ marginTop: 10 }}>
-          <View style={styles.tasteButtonView}>
+          <View style={styles.addButtonView}>
             {Tastes.map((button) => (
               <View key={button.id} style={{ marginRight: 5, marginBottom: 5 }}>
                 <TouchableOpacity
@@ -472,6 +573,73 @@ export default function WriteDownNote({ navigation }) {
           </View>
         </Card>
 
+        {/********************첫향:노즈********************/}
+        <Card.Divider style={{ marginTop: 20 }} />
+          <View style={styles.noteExpandTitle}>
+            <Text
+              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+            >
+              첫향 : 노즈
+            </Text>
+            {/*날짜 및 시간*/}
+          </View>
+
+            <Card containerStyle={{ marginTop: 10 }}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+                style={{ height: 100 }}
+              >
+                <View style={styles.addButtonView}>
+                  {Scents.map((button) => (
+                    <View
+                      key={button.id}
+                      style={{ marginRight: 5, marginBottom: 5 }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => handlePressScent(button.id)}
+                        onLongPress={() => DeleteScentDialog(button.id)}
+                        style={[
+                          styles.ScentTouchableOpacity,
+                          {
+                            backgroundColor: pressedScentIds.includes(button.id)
+                              ? "rgb(230,230,230)"
+                              : "rgb(104,201,170)", // 배경색 설정
+                            borderColor: pressedScentIds.includes(button.id)
+                              ? "rgb(230,230,230)"
+                              : "rgb(104,201,170)", // 테두리 색상 설정
+                          },
+                        ]}
+                      >
+                        <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
+                          {button.text}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+
+                  {showScentTextInput.map((textinput) => (
+                    <TextInput
+                      key={textinput.id}
+                      autoFocus={true}
+                      multiline
+                      maxLength={10}
+                      onChangeText={(text) => setButtonText(text)}
+                      onEndEditing={() => addScent()}
+                      style={styles.ScentTextInput}
+                    />
+                  ))}
+                  <TouchableOpacity onPress={writeScent}>
+                    <Icon
+                      name="add-circle-outline"
+                      color="rgb(150,150,150)"
+                      size={30}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </Card>
+
         {/********************글라스********************/}
         <Card.Divider style={{ marginTop: 20 }} />
         <View style={styles.noteExpandView}>
@@ -500,9 +668,10 @@ export default function WriteDownNote({ navigation }) {
             <Card containerStyle={{ marginTop: 10 }}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                style={{ height: 100 }}
+                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+                style={{ height: "100%" }}
               >
-                <View style={styles.GlassButtonView}>
+                <View style={styles.addButtonView}>
                   {Glasss.map((button) => (
                     <View
                       key={button.id}
@@ -793,6 +962,33 @@ export default function WriteDownNote({ navigation }) {
         </Dialog.Actions>
       </Dialog>
 
+      {/********************첫향 버튼 삭제 Dialog********************/}
+      <Dialog
+        isVisible={DeleteScent}
+        onBackdropPress={() => DeleteScentDialog(0)}
+      >
+        <Dialog.Title
+          title={`${Scents[DeleteScentId.bId]?.text}를 삭제하시겠습니까?`}
+        />
+
+        <Dialog.Actions>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Dialog.Button
+              title="삭제"
+              onPress={() => {
+                DeleteScentBtn();
+              }}
+            />
+            <Dialog.Button title="취소" onPress={() => DeleteScentDialog(0)} />
+          </View>
+        </Dialog.Actions>
+      </Dialog>
+
       {/********************글라스 버튼 삭제 Dialog********************/}
       <Dialog
         isVisible={DeleteGlass}
@@ -858,7 +1054,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  tasteButtonView: {
+  addButtonView: {
     flexDirection: "row",
     flexWrap: "wrap", //자동확장
     justifyContent: "flex-start",
@@ -891,10 +1087,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  GlassButtonView: {
-    flexDirection: "row",
-    flexWrap: "wrap", //자동확장
-    justifyContent: "flex-start",
+  ScentTouchableOpacity: {
+    marginRight: 4,
+    borderWidth: 1, // 테두리 두께 설정
+    borderRadius: 5, // 테두리의 둥근 정도 설정
+    padding: 2,
+    paddingLeft: 7,
+    paddingRight: 7,
   },
   GlassTouchableOpacity: {
     marginRight: 4,
