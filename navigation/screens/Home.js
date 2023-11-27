@@ -5,13 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { Tab, TabView } from '@rneui/themed';
 
+
 function MenuSeparator() {
   return <View style={styles.menuSeparator} />;
 }
 
-export default function HomeMenu() {
+export default function Home() {
   const navigation = useNavigation();
-
   const [index, setIndex] = React.useState(0);
 
   const getMenuItems = () => {
@@ -28,7 +28,7 @@ export default function HomeMenu() {
         ];
       case 1:
         return [
-          { id: 6, title: '메뉴 6unction MenuSepa', image: require('../../images/alcholicons/sd.jpg') },
+          { id: 6, title: '메뉴 6', image: require('../../images/alcholicons/sd.jpg') },
           { id: 7, title: '메뉴 7', image: require('../../images/alcholicons/sd.jpg') },
           { id: 8, title: '메뉴 8', image: require('../../images/alcholicons/sd.jpg') },
           { id: 9, title: '메뉴 9', image: require('../../images/alcholicons/sd.jpg') },
@@ -49,7 +49,7 @@ export default function HomeMenu() {
   };
 
   const handleMenuItemPress = (itemId) => {
-    navigation.navigate('Detail', { itemId });
+    navigation.navigate('Detail', { id: itemId, });
   };
 
   return (
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: StatusBar.currentHeight,
-    paddingTop: 10,
+    paddingTop: -10,
     
   },
   scrollView: {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   additionalMenu: {
     flexDirection: 'row',
-    padding: 20,
+    padding: 10,
     backgroundColor: '#EFEFEF',
     borderRadius: 10,
     marginTop: 10, // Tab 바로 아래로 이동시키기 위한 marginTop 추가

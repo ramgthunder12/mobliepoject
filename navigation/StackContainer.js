@@ -7,6 +7,7 @@ import Home from './screens/Home';
 import Search from './screens/Search';
 import TasteNote from './screens/TasteNote';
 import WriteDownNote from './screens/WriteDownNote';
+import Detail from './screens/Detail';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ export default function StackContainer() {
         <Stack.Screen name={'Search'} component={Search}/>
         <Stack.Screen name={'TasteNote'} component={TasteNote}/>
         <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
+        <Stack.Screen name={'Detail'} component={Detail}/>
     </Stack.Navigator>
   );
 }
@@ -25,3 +27,4 @@ export default function StackContainer() {
 const styles = StyleSheet.create({
   
 });
+ <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
