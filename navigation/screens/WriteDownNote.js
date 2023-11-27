@@ -6,9 +6,12 @@ import {
   ScrollView,
   View,
   Animated,
+  Image,
+  ImageBackground,
   FlatList,
 } from "react-native";
 import { StatusBar } from 'expo-status-bar';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useEffect, useRef } from "react";
 import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -21,6 +24,10 @@ let GlassId = 0; //글라스 버튼 id
 
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
+
+  /*주류 이미지*/
+  const [SelectedImage, setSelectedImage] = useState(null);
+  const [ImageHasPermission, setImageHasPermission] = useState(false);
 
   /*전체공개*/
   const [FullOpen, setFullOpen] = useState(false);
@@ -102,6 +109,58 @@ export default function WriteDownNote({ navigation }) {
     //노트 나가기
     navigation.goBack();
   };
+
+  /********************주류 이미지********************/
+  const requestImagePermission = async () => {//이미지 접근 권한 요청
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    setImageHasPermission(status === "granted");
+    //alert('이미지 피커 권한이 필요합니다.');
+  };
+
+  const pickImage = async () => {//선택한 이미지 불러오기
+    if(!ImageHasPermission) {
+      requestImagePermission();
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  const showImage = () => {//이미지 출력
+    if(SelectedImage){
+      return (
+        <View style={{ flex: 1, borderRadius: 10, borderWidth: 1, overflow: 'hidden' }}>
+          <Image source={{ uri: SelectedImage }} style={{ flex: 1, resizeMode: 'contain', height: "100%",}} />
+        </View>
+      );
+    }
+    else{
+      return (
+          <TouchableOpacity onPress={() => pickImage()}>
+          <View style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgb(230,230,230)", 
+            height: "100%", 
+            width: 180,
+            borderRadius: 10,
+          }}>
+            <Icon name="pluscircleo" type="antdesign" size={30} color="rgb(255,255,255)"/>
+          </View>
+          </TouchableOpacity>
+      );
+    }
+  };
+  /********************주류 이미지********************/
 
   /********************느낌********************/
   const addTaste = () => {
@@ -405,6 +464,8 @@ export default function WriteDownNote({ navigation }) {
   /********************당도********************/
 
   useEffect(() => {
+    requestImagePermission();//이미지 접근 권한 요청
+
     /*느낌 초기화 */
     const TasteData = [
       { id: 0, text: "아몬드" },
@@ -492,7 +553,6 @@ export default function WriteDownNote({ navigation }) {
         style={styles.scrollView}
       >
         {/********************전체공개********************/}
-        <Card.Divider style={{ marginTop: 20 }} />
         <View style={{flexDirection: "row",
     justifyContent: "flex-start",}}>
           <Text
@@ -506,6 +566,16 @@ export default function WriteDownNote({ navigation }) {
             onValueChange={(value) => setFullOpen(value)}
             style={{marginLeft: 10, marginTop: -10,}}
           />
+        </View>
+
+        {/********************주류 이미지********************/}
+        <View style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          height: 250,
+        }}>
+          {showImage()}
         </View>
 
         {/********************느낌********************/}

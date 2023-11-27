@@ -1,6 +1,6 @@
 // screens/DetailScreen.js
 import React from 'react';
-import { View, Text, Image, StyleSheet,Button } from 'react-native';
+import { View, Text, Image, StyleSheet,Button, useState } from 'react-native';
 
 const Detail  = ({ navigation }) => {
   const [itemDetail, setItemDetail] = useState({
