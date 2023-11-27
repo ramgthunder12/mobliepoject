@@ -1,0 +1,247 @@
+[
+    {
+      "title": "Red Fruit",
+      "titleColor": "#C22328",
+      "subColor": "#E7A48F",
+      "subTitle": [
+        "Cranberry",
+        "Red Plum",
+        "Pomegranate",
+        "Sour Cherry",
+        "Strawberry",
+        "Cherry",
+        "Raspberry"
+      ]
+    },
+    {
+      "title": "Black Fruit",
+      "titleColor": "#000000",
+      "subColor": "#888888",
+      "subTitle": [
+        "Boysenberry",
+        "Black Currant",
+        "Black Cherry",
+        "Plum",
+        "Blackberry",
+        "Blueberry",
+        "Olive"
+      ]
+    },
+    {
+      "title": "Dried Fruit",
+      "titleColor": "#D4A321",
+      "subColor": "#654321",
+      "subTitle": [
+        "Raisin",
+        "Fig",
+        "Date",
+        "Fruitcake"
+      ]
+    },
+    {
+      "title": "Noble Rot",
+      "titleColor": "#A569BD",
+      "subColor": "#F8C471",
+      "subTitle": [
+        "Beeswax",
+        "Ginger",
+        "Saffron"
+      ]
+    },
+    {
+      "title": "Spice",
+      "titleColor": "#D35400",
+      "subColor": "#3498DB",
+      "subTitle": [
+        "White Pepper",
+        "Red Pepper",
+        "Black Pepper",
+        "Cinnamon",
+        "Anise",
+        "Asian 5-Spice",
+        "Fennel",
+        "Eucalyptus",
+        "Mint",
+        "Thyme"
+      ]
+    },
+    {
+      "title": "Vegetable",
+      "titleColor": "#27AE60",
+      "subColor": "#E74C3C",
+      "subTitle": [
+        "Black Tea",
+        "Sun Dried Tomato",
+        "Tomato",
+        "Green Almond",
+        "Jalapeno",
+        "Bell Pepper",
+        "Gooseberry",
+        "Tomato Leaf",
+        "Grass"
+      ]
+    },
+    {
+      "title": "Earth",
+      "titleColor": "#8E44AD",
+      "subColor": "#2980B9",
+      "subTitle": [
+        "Petroleum",
+        "Volcanic Rocks",
+        "Red Beet",
+        "Potting Soil",
+        "Wet Gravel",
+        "Slate",
+        "Clay Pot"
+      ]
+    },
+    {
+      "title": "Microbial",
+      "titleColor": "#3498DB",
+      "subColor": "#E74C3C",
+      "subTitle": [
+        "Mushroom",
+        "Truffle",
+        "Lager",
+        "Sourdough",
+        "Cream",
+        "Butter"
+      ]
+    },
+    {
+      "title": "Oak Aging",
+      "titleColor": "#D35400",
+      "subColor": "#27AE60",
+      "subTitle": [
+        "Dill",
+        "Smoke",
+        "Cigar Box",
+        "Baking Spices",
+        "Coconut",
+        "Vanilla"
+      ]
+    },
+    {
+      "title": "General Aging",
+      "titleColor": "#E74C3C",
+      "subColor": "#3498DB",
+      "subTitle": [
+        "Leather",
+        "Cocoa",
+        "Coffee",
+        "Tobacco",
+        "Nuts",
+        "Dried Fruit"
+      ]
+    },
+    {
+      "title": "Tca (Corked)",
+      "titleColor": "#8E44AD",
+      "subColor": "#27AE60",
+      "subTitle": [
+        "Wet Dog",
+        "Musty Cardboard"
+      ]
+    },
+    {
+      "title": "Sulfides & Mercaptans",
+      "titleColor": "#3498DB",
+      "subColor": "#E74C3C",
+      "subTitle": [
+        "Cat Pee",
+        "Onion",
+        "Garlic",
+        "Match Box",
+        "Burnt Rubber",
+        "Boiled Eggs",
+        "Cured Meat"
+      ]
+    },
+    {
+      "title": "Brettanomyces",
+      "titleColor": "#D35400",
+      "subColor": "#27AE60",
+      "subTitle": [
+        "Horse Manure",
+        "Sweaty Leather Saddle",
+        "Band-Aid",
+        "Black Cardamom"
+      ]
+    },
+    {
+      "title": "Cooked",
+      "titleColor": "#E74C3C",
+      "subColor": "#8E44AD",
+      "subTitle": [
+        "Stewed Fruit",
+        "Toffee"
+      ]
+    },
+    {
+      "title": "Volatile Acidity",
+      "titleColor": "#E74C3C",
+      "subColor": "#3498DB",
+      "subTitle": [
+        "Balsamic",
+        "Vinegar"
+      ]
+    },
+    {
+      "title": "Flower",
+      "titleColor": "#8E44AD",
+      "subColor": "#27AE60",
+      "subTitle": [
+        "Iris",
+        "Peony",
+        "Elderflower",
+        "Acacia",
+        "Lilac",
+        "Jasmine",
+        "Honeysuckle",
+        "Violet",
+        "Lavender",
+        "Rose",
+        "Potpourri",
+        "Hibiscus"
+      ]
+    },
+    {
+      "title": "Citrus",
+      "titleColor": "#3498DB",
+      "subColor": "#E74C3C",
+      "subTitle": [
+        "Lime",
+        "Lemon",
+        "Grapefruit",
+        "Orange",
+        "Marmalade"
+      ]
+    },
+    {
+      "title": "Tree Fruit",
+      "titleColor": "#D35400",
+      "subColor": "#27AE60",
+      "subTitle": [
+        "Quince",
+        "Apple",
+        "Pear",
+        "Nectarine",
+        "Peach",
+        "Apricot",
+        "Persimmon"
+      ]
+    },
+    {
+      "title": "Tropical Fruit",
+      "titleColor": "#E74C3C",
+      "subColor": "#8E44AD",
+      "subTitle": [
+        "Pineapple",
+        "Mango",
+        "Guava",
+        "Kiwi",
+        "Lychee",
+        "Bubblegum"
+      ]
+    }
+  ]
