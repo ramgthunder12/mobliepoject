@@ -1,5 +1,6 @@
 [
   {
+    "id": 0,
     "title": "빨간 과일",
     "titleColor": "#C22328",
     "subColor": "#E7A48F",
@@ -14,9 +15,10 @@
     ]
   },
   {
+    "id": 1,
     "title": "검은 과일",
-    "titleColor": "#000000",
-    "subColor": "#888888",
+    "titleColor": "#911F38",
+    "subColor": "#E3A7A5",
     "subTitle": [
         "보이젠베리",
         "검은 포도",
@@ -28,9 +30,10 @@
     ]
   },
   {
+    "id": 2,
     "title": "건조 과일",
-    "titleColor": "#D4A321",
-    "subColor": "#654321",
+    "titleColor": "#C36391",
+    "subColor": "#E9BED0",
     "subTitle": [
         "건포도",
         "무화과",
@@ -39,9 +42,10 @@
     ]
   },
   {
+    "id": 3,
     "title": "Noble Rot(고귀한 곰팡이, 귀부, 고귀한 부패)",
-    "titleColor": "#A569BD",
-    "subColor": "#F8C471",
+    "titleColor": "#3D97D4",
+    "subColor": "#B7D2ED",
     "subTitle": [
       "밀랍",
       "생강",
@@ -49,16 +53,16 @@
   ]
   },
   {
+    "id": 4,
     "title": "향신료",
-    "titleColor": "#D35400",
-    "subColor": "#3498DB",
+    "titleColor": "#09B9AF",
+    "subColor": "#C4E6E5",
     "subTitle": [
       "화이트 페퍼",
       "레드 페퍼",
       "블랙 페퍼",
       "시나몬",
       "아니스",
-      "Asian 5-Spice(아시안 5 스파이스)",
       "펜넬",
       "유칼립투스",
       "민트",
@@ -66,28 +70,26 @@
     ]
   },
   {
+    "id": 5,
     "title": "채소",
-    "titleColor": "#27AE60",
-    "subColor": "#E74C3C",
+    "titleColor": "#249448",
+    "subColor": "#CBE4C4",
     "subTitle": [
       "홍차",
-      "햇볕에 말린 토마토",
       "토마토",
-      "초록 아몬드",
       "할라피뇨",
       "피망",
       "구즈베리",
-      "토마토 잎",
-      "Grass(잔디, 풀)"
+      "풀"
     ]
   },
   {
+    "id": 6,
     "title": "땅",
-    "titleColor": "#8E44AD",
-    "subColor": "#2980B9",
+    "titleColor": "#78A643",
+    "subColor": "#D8EABA",
     "subTitle": [
       "석유",
-      "화산암",
       "빨간 비트",
       "화분 토양",
       "습한 자갈",
@@ -96,9 +98,10 @@
     ]
   },
   {
+    "id": 7,
     "title": "미생물",
-    "titleColor": "#3498DB",
-    "subColor": "#E74C3C",
+    "titleColor": "#BFBE32",
+    "subColor": "#EDEDB1",
     "subTitle": [
       "버섯",
       "트러플",
@@ -109,22 +112,23 @@
     ]
   },
   {
-    "title": "Oak Aging(오크 숙성)",
-    "titleColor": "#D35400",
-    "subColor": "#27AE60",
+    "id": 8,
+    "title": "숙성",
+    "titleColor": "#BF922D",
+    "subColor": "#E7D1A2",
     "subTitle": [
-      "딜",
       "스모크",
-      "시가 박스",
+      "시가",
       "베이킹 스파이스",
       "코코넛",
       "바닐라"
     ]
   },
   {
+    "id": 9,
     "title": "General Aging(일반 숙성)",
-    "titleColor": "#E74C3C",
-    "subColor": "#3498DB",
+    "titleColor": "#DC8536",
+    "subColor": "#F6CCA4",
     "subTitle": [
       "가죽",
       "코코아",
@@ -135,18 +139,20 @@
     ]
   },
   {
+    "id": 10,
     "title": "Tca (코르크)",
-    "titleColor": "#8E44AD",
-    "subColor": "#27AE60",
+    "titleColor": "#BF8172",
+    "subColor": "#EAC9C0",
     "subTitle": [
       "젖은 개",
       "습기 나는 판지 상자"
     ]
   },
   {
+    "id": 11,
     "title": "아황산염 & Mercaptans(메르캅탄)",
-    "titleColor": "#3498DB",
-    "subColor": "#E74C3C",
+    "titleColor": "#C76E42",
+    "subColor": "#ECC0A5",
     "subTitle": [
       "고양이 소변",
       "양파",
@@ -158,9 +164,10 @@
     ]
   },
   {
+    "id": 12,
     "title": "브레타노마이세스",
-    "titleColor": "#D35400",
-    "subColor": "#27AE60",
+    "titleColor": "#B54D4C",
+    "subColor": "#E5B3AA",
     "subTitle": [
       "말 똥",
       "땀에 젖은 가죽 안장",
@@ -169,27 +176,30 @@
     ]
   },
   {
+    "id": 13,
     "title": "요리됨",
-    "titleColor": "#E74C3C",
-    "subColor": "#8E44AD",
+    "titleColor": "#B63375",
+    "subColor": "#E0ABBD",
     "subTitle": [
       "과일조림",
       "토피"
     ]
   },
   {
+    "id": 14,
     "title": "휘발성 산도",
-    "titleColor": "#E74C3C",
-    "subColor": "#3498DB",
+    "titleColor": "#994F9E",
+    "subColor": "#D4B0D2",
     "subTitle": [
       "발사믹",
       "식초"
     ]
   },
   {
+    "id": 15,
     "title": "꽃",
-    "titleColor": "#8E44AD",
-    "subColor": "#27AE60",
+    "titleColor": "#6972B5",
+    "subColor": "#BBBEDF",
     "subTitle": [
       "아이리스",
       "모란",
@@ -206,9 +216,10 @@
     ]
   },
   {
+    "id": 16,
     "title": "감귤류",
-    "titleColor": "#3498DB",
-    "subColor": "#E74C3C",
+    "titleColor": "#82C046",
+    "subColor": "#CEE4B3",
     "subTitle": [
       "라임",
       "레몬",
@@ -218,9 +229,10 @@
     ]
   },
   {
+    "id": 17,
     "title": "나무 열매",
-    "titleColor": "#D35400",
-    "subColor": "#27AE60",
+    "titleColor": "#F0A355",
+    "subColor": "#FDD9B5",
     "subTitle": [
       "모과",
       "사과",
@@ -232,9 +244,10 @@
     ]
   },
   {
+    "id": 18,
     "title": "열대 과일",
-    "titleColor": "#E74C3C",
-    "subColor": "#8E44AD",
+    "titleColor": "#F15A2D",
+    "subColor": "#FABA9E",
     "subTitle": [
       "파인애플",
       "망고",

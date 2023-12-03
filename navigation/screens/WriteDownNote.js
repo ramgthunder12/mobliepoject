@@ -17,21 +17,31 @@ import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/theme
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
 import DateTimePickerModal from "react-native-modal-datetime-picker";//https://github.com/mmazzarolo/react-native-modal-datetime-picker
+import FirstScent from "../../json/firstScent.json";
 
 let TasteId = 0; //느낌 버튼 id
 let ScentId = 0; //첫향 버튼 id
+let MTasteId = 0; //중간맛 버튼 id
+let FScentId = 0; //끝향 버튼 id
 let GlassId = 0; //글라스 버튼 id
 
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
 
+  /*전체공개*/
+  const [FullOpen, setFullOpen] = useState(false);
+  
   /*주류 이미지*/
   const [SelectedImage, setSelectedImage] = useState(null);
   const [ImageHasPermission, setImageHasPermission] = useState(false);
 
-  /*전체공개*/
-  const [FullOpen, setFullOpen] = useState(false);
+  /*주류 이름*/
+  const [Name, setName] = useState("");
 
+  /*시음일*/
+  const [isTastingDayVisible, setTastingDayVisible] = useState(false);//날짜 및 시간 선택 모달
+  const [TastingDay, setTastingDay] = useState("0000. 00. 00");
+  
   /*느낌 */
   const [showTasteTextInput, setshowTasteTextInput] = useState([]); //textinput 생성 및 삭제
   const [Tastes, setTastes] = useState([]); //느낌 버튼 배열
@@ -53,6 +63,24 @@ export default function WriteDownNote({ navigation }) {
   const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id
   const [DeleteScent, setDeleteScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
+
+  /*중간맛*/
+  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);//시간 선택 모달
+  const [TimeText, setTimeText] = useState("00:00");
+  const [showMTasteTextInput, setshowMTasteTextInput] = useState([]); //textinput 생성 및 삭제
+  const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열
+  const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id
+  const [DeleteMTaste, setDeleteMTaste] = useState(false); //중간맛 버튼 삭제 Dialog on/off
+  const [DeleteMTasteId, setDeleteMTasteId] = useState({ bId: 0 }); //삭제 시 중간맛 버튼 id
+
+  /*끝향*/
+  const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false);//날짜 및 시간 선택 모달
+  const [FTimeText, setFTimeText] = useState("00:00");
+  const [showFScentTextInput, setshowFScentTextInput] = useState([]); //textinput 생성 및 삭제
+  const [FScents, setFScents] = useState([]); //첫향 버튼 배열
+  const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id
+  const [DeleteFScent, setDeleteFScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
+  const [DeleteFScentId, setDeleteFScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
   /*글라스*/
   const [GlassExpanded, setGlassExpanded] = useState(false); //글라스 기능 활성화
@@ -126,6 +154,7 @@ export default function WriteDownNote({ navigation }) {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
+      aspect: [3, 4],
       quality: 1,
     });
 
@@ -137,9 +166,8 @@ export default function WriteDownNote({ navigation }) {
   const showImage = () => {//이미지 출력
     if(SelectedImage){
       return (
-        <View style={{ flex: 1, borderRadius: 10, borderWidth: 1, overflow: 'hidden' }}>
-          <Image source={{ uri: SelectedImage }} style={{ flex: 1, resizeMode: 'contain', height: "100%",}} />
-        </View>
+          <Image source={{ uri: SelectedImage }} style={{ /*flex: 1, resizeMode: 'contain',*/ height: 230, width: 172, borderRadius: 10, borderWidth: 1,}} />
+        
       );
     }
     else{
@@ -161,6 +189,19 @@ export default function WriteDownNote({ navigation }) {
     }
   };
   /********************주류 이미지********************/
+
+  /********************시음일********************/
+  const TastingDayConfirm = (date) => {//날짜 선택한 값
+    // 날짜 객체에서 연도, 월, 일 추출
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
+    const day = date.getDate();
+
+    setTastingDay(`${year}. ${month}. ${day}`);
+
+    setTastingDayVisible(false);
+  };
+  /********************시음일********************/
 
   /********************느낌********************/
   const addTaste = () => {
@@ -231,34 +272,6 @@ export default function WriteDownNote({ navigation }) {
   /********************별점********************/
 
   /********************첫향********************/
-  const addScent = () => {
-    //느낌추가
-    const newScent = {
-      //새로운 버튼 추가
-      id: ScentId,
-      text: buttonText,
-    };
-
-    if (buttonText.length === 0) {
-      //이름 입력 안하면 종료
-      setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
-      return;
-    }
-
-    setScents((prevScents) => [...prevScents, newScent]); //느낌 버튼 추가
-    ScentId++; //버튼 id 증가
-
-    setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
-    setButtonText(""); //버튼 이름 초기화
-  };
-
-  const writeScent = () => {
-    //버튼(느낌) 추가 전 textinput
-    if (showScentTextInput.length === 0) {
-      setshowScentTextInput([...showScentTextInput, { id: 1 }]);
-    }
-  };
-
   const handlePressScent = (buttonId) => {
     //느낌 버튼을 누른 버튼id
     // 토글 상태 변경
@@ -271,21 +284,6 @@ export default function WriteDownNote({ navigation }) {
         return [...prevPressedButtonIds, buttonId];
       }
     });
-  };
-
-  const DeleteScentDialog = (bId) => {
-    //느낌 버튼 삭제 Dialog on/off
-    setDeleteScentId({ bId });
-    setDeleteScent(!DeleteScent);
-  };
-
-  const DeleteScentBtn = () => {
-    //느낌 버튼 삭제하기
-    const updatedScents = Scents.filter(
-      (Scent) => Scent.id !== DeleteScentId.bId
-    );
-    setScents(updatedScents);
-    setDeleteScent(!DeleteScent);
   };
 
   const showDatePicker = () => {//날짜 및 시간 선택 모달
@@ -306,6 +304,152 @@ export default function WriteDownNote({ navigation }) {
     setDatePickerVisibility(false);
   };
   /********************첫향********************/
+
+  /********************중간맛********************/
+  const addMTaste = () => {
+    //느낌추가
+    const newMTaste = {
+      //새로운 버튼 추가
+      id: MTasteId,
+      text: buttonText,
+    };
+
+    if (buttonText.length === 0) {
+      //이름 입력 안하면 종료
+      setshowMTasteTextInput(showMTasteTextInput.slice(1)); //textinput 제거
+      return;
+    }
+
+    setMTastes((prevMTastes) => [...prevMTastes, newMTaste]); //느낌 버튼 추가
+    MTasteId++; //버튼 id 증가
+
+    setshowMTasteTextInput(showMTasteTextInput.slice(1)); //textinput 제거
+    setButtonText(""); //버튼 이름 초기화
+  };
+
+  const writeMTaste = () => {
+    //버튼(느낌) 추가 전 textinput
+    if (showMTasteTextInput.length === 0) {
+      setshowMTasteTextInput([...showMTasteTextInput, { id: 1 }]);
+    }
+  };
+
+  const handlePressMTaste = (buttonId) => {
+    //느낌 버튼을 누른 버튼id
+    // 토글 상태 변경
+    setPressedMTasteIds((prevPressedButtonIds) => {
+      if (prevPressedButtonIds.includes(buttonId)) {
+        // 이미 눌린 경우, 제거
+        return prevPressedButtonIds.filter((id) => id !== buttonId);
+      } else {
+        // 눌리지 않은 경우, 추가
+        return [...prevPressedButtonIds, buttonId];
+      }
+    });
+  };
+
+  const DeleteMTasteDialog = (bId) => {
+    //느낌 버튼 삭제 Dialog on/off
+    setDeleteMTasteId({ bId });
+    setDeleteMTaste(!DeleteMTaste);
+  };
+
+  const DeleteMTasteBtn = () => {
+    //느낌 버튼 삭제하기
+    const updatedMTastes = MTastes.filter(
+      (MTaste) => MTaste.id !== DeleteMTasteId.bId
+    );
+    setMTastes(updatedMTastes);
+    setDeleteMTaste(!DeleteMTaste);
+  };
+
+  const showTimePicker = () => {//날짜 및 시간 선택 모달
+    setTimePickerVisibility(true);
+  };
+
+  const TimePickerConfirm = (time) => {//시간 선택한 값
+    const hours = time.getHours();
+    const minutes = time.getMinutes().toString().padStart(2, '0');
+    //const seconds = time.getSeconds();//초는 선택불가
+
+    setTimeText(`${hours}:${minutes}`);
+
+    setTimePickerVisibility(false);
+  };
+  /********************중간맛********************/
+
+  /********************끝향********************/
+  const addFScent = () => {
+    //느낌추가
+    const newFScent = {
+      //새로운 버튼 추가
+      id: FScentId,
+      text: buttonText,
+    };
+
+    if (buttonText.length === 0) {
+      //이름 입력 안하면 종료
+      setshowFScentTextInput(showFScentTextInput.slice(1)); //textinput 제거
+      return;
+    }
+
+    setFScents((prevFScents) => [...prevFScents, newFScent]); //느낌 버튼 추가
+    FScentId++; //버튼 id 증가
+
+    setshowFScentTextInput(showFScentTextInput.slice(1)); //textinput 제거
+    setButtonText(""); //버튼 이름 초기화
+  };
+
+  const writeFScent = () => {
+    //버튼(느낌) 추가 전 textinput
+    if (showFScentTextInput.length === 0) {
+      setshowFScentTextInput([...showFScentTextInput, { id: 1 }]);
+    }
+  };
+
+  const handlePressFScent = (buttonId) => {
+    //느낌 버튼을 누른 버튼id
+    // 토글 상태 변경
+    setPressedFScentIds((prevPressedButtonIds) => {
+      if (prevPressedButtonIds.includes(buttonId)) {
+        // 이미 눌린 경우, 제거
+        return prevPressedButtonIds.filter((id) => id !== buttonId);
+      } else {
+        // 눌리지 않은 경우, 추가
+        return [...prevPressedButtonIds, buttonId];
+      }
+    });
+  };
+
+  const DeleteFScentDialog = (bId) => {
+    //느낌 버튼 삭제 Dialog on/off
+    setDeleteFScentId({ bId });
+    setDeleteFScent(!DeleteFScent);
+  };
+
+  const DeleteFScentBtn = () => {
+    //느낌 버튼 삭제하기
+    const updatedFScents = FScents.filter(
+      (FScent) => FScent.id !== DeleteFScentId.bId
+    );
+    setFScents(updatedFScents);
+    setDeleteFScent(!DeleteFScent);
+  };
+
+  const showFTimePicker = () => {//시간 선택 모달
+    setFTimePickerVisibility(true);
+  };
+
+  const FTimePickerConfirm = (FTime) => {//시간 선택한 값
+    const hours = FTime.getHours();
+    const minutes = FTime.getMinutes().toString().padStart(2, '0');
+    //const seconds = FTime.getSeconds();//초는 선택불가
+
+    setFTimeText(`${hours}:${minutes}`);
+
+    setFTimePickerVisibility(false);
+  };
+  /********************끝향********************/
 
   /********************글라스********************/
   const handleGlassAnimate = () => {
@@ -481,7 +625,13 @@ export default function WriteDownNote({ navigation }) {
     });
 
     /*첫향 초기화 */
-    const ScentData = [
+    FirstScent.forEach((Scent) => {
+      setScents((prevScents) => [...prevScents, Scent]); //첫향 버튼 추가
+      ScentId++; //버튼 id 증가
+    });
+
+    /*중간맛 초기화 */
+    const MTasteData = [
       { id: 0, text: "아몬드" },
       { id: 1, text: "딸기" },
       { id: 2, text: "귤" },
@@ -489,9 +639,23 @@ export default function WriteDownNote({ navigation }) {
       { id: 4, text: "사과" },
     ];
 
-    ScentData.forEach((Scent) => {
-      setScents((prevScents) => [...prevScents, Scent]); //첫향 버튼 추가
-      ScentId++; //버튼 id 증가
+    MTasteData.forEach((MTaste) => {
+      setMTastes((prevMTastes) => [...prevMTastes, MTaste]); //중간맛 버튼 추가
+      MTasteId++; //버튼 id 증가
+    });
+
+    /*끝향 초기화 */
+    const FScentData = [
+      { id: 0, text: "아몬드" },
+      { id: 1, text: "딸기" },
+      { id: 2, text: "귤" },
+      { id: 3, text: "레몬" },
+      { id: 4, text: "사과" },
+    ];
+
+    FScentData.forEach((FScent) => {
+      setFScents((prevFScents) => [...prevFScents, FScent]); //끝향 버튼 추가
+      FScentId++; //버튼 id 증가
     });
 
     /*글라스 초기화 */
@@ -578,8 +742,66 @@ export default function WriteDownNote({ navigation }) {
           {showImage()}
         </View>
 
+        {/********************주류 이름********************/}
+        <Card.Divider style={{ marginTop: 20, }} />
+        <View style={{flexDirection: "row",
+          justifyContent: "center",
+          marginLeft: 35,
+          marginRight: 35,
+          }}>
+          <Text
+            style={[styles.noteTitleText, {marginTop: 5,}]}
+          >
+            이름
+          </Text>
+          <TextInput
+                autoFocus={false}
+                onChangeText={(text) => setName(text)}
+                value={Name}
+                placeholder="어떤 술인가요?"
+                style={{
+                  borderWidth: 1,
+                  borderRadius: 5,
+                  borderColor: "rgb(230,230,230)",
+                  backgroundColor: "rgb(230,230,230)",
+                  fontSize: 20,
+                  width: "100%",
+                  height: 40,
+                  marginLeft: 15,
+                  padding: 10,
+                  }}
+              />
+        </View>
+
+        {/********************시음일********************/}
+        <Card.Divider style={{ marginTop: 13, }} />
+        <View style={{flexDirection: "row",
+          justifyContent: "space-between",
+          marginLeft: 20,
+          marginRight: 20,
+          }}>
+          <Text
+            style={styles.noteTitleText}
+          >
+            시음일
+          </Text>
+          <TouchableOpacity
+              onPress={() => setTastingDayVisible(true)}
+              style={{ flexDirection: "row", marginTop: -5 }}
+            >
+              <Text style={{
+                fontSize: 25,
+                marginRight: 15,
+                paddingTop: 1,
+              }}>
+                {TastingDay}
+              </Text>
+              <Icon name="calendar"  type="feather" size={25} />
+            </TouchableOpacity>
+          </View>
+
         {/********************느낌********************/}
-        <Card.Divider style={{ marginTop: 3 }} />
+        <Card.Divider style={{ marginTop: 14 }} />
         <View style={styles.noteTitleView}>
           <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
         </View>
@@ -699,27 +921,114 @@ export default function WriteDownNote({ navigation }) {
           </View>
 
             <Card containerStyle={{ marginTop: 10 }}>
+              <ScrollView horizontal
+                showsHorizontalScrollIndicator={false}
+                //nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+                style={{ height: 230 }}
+              >
+                <View style={styles.ScentView}>
+                  {Scents.map((item) => (
+                    <View
+                      key={item.id}
+                      style={{ flexDirection: "column", justifyContent: "flex-start", marginRight: 5, marginBottom: 5 }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => handlePressScent(item.id)}
+                        style={[
+                          styles.ScentTouchableOpacity,
+                          {
+                            alignItems: "center",
+                            backgroundColor: pressedScentIds.includes(item.id)
+                              ? item.titleColor
+                              : "rgb(230,230,230)", // 배경색 설정
+                            borderColor: pressedScentIds.includes(item.id)
+                              ? item.titleColor
+                              : "rgb(230,230,230)", // 테두리 색상 설정
+                          },
+                        ]}
+                      >
+                        <Text style={{ fontSize: 20, color: pressedScentIds.includes(item.id) ? "rgb(255,255,255)" : "rgb(80,80,80)" }}>
+                          {item.title}
+                        </Text>
+                        
+                          <View 
+                            style={{
+                              flexDirection: "column",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                              width: "100%",
+                              marginBottom: 5,
+                              borderRadius: 5,
+                              backgroundColor: pressedScentIds.includes(item.id)
+                              ? item.subColor
+                              : "rgb(255,255,255)", // 배경색 설정
+                            borderColor: pressedScentIds.includes(item.id)
+                              ? item.subColor
+                              : "rgb(255,255,255)", // 테두리 색상 설정
+                              }}>
+                                {item.subTitle.map((text, id) => (
+                            <Text key={id} style={{
+                              fontSize: 20,
+                              color: "rgb(120,120,120)", 
+                              marginRight: 5,
+                              marginLeft: 5,}}>{text}</Text>
+                              ))}
+                              </View>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </Card>
+
+        {/********************중간맛 : 팔레트********************/}
+        <Card.Divider style={{ marginTop: 20 }} />
+          <View style={styles.noteExpandTitle}>
+            <Text
+              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+            >
+              중간맛 : 팔레트
+            </Text>
+            <TouchableOpacity
+              onPress={showTimePicker}
+              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+            >
+              <Text style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                textDecorationLine: "underline",
+                color: "rgb(150,150,150)",
+                marginRight: 7,
+                paddingTop: 3,
+              }}>
+                {TimeText}
+              </Text>
+              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
+            </TouchableOpacity>
+          </View>
+
+            <Card containerStyle={{ marginTop: 10 }}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 nestedScrollEnabled={true}//중첩 스크롤뷰 인식
                 style={{ height: 100 }}
               >
                 <View style={styles.addButtonView}>
-                  {Scents.map((button) => (
+                  {MTastes.map((button) => (
                     <View
                       key={button.id}
                       style={{ marginRight: 5, marginBottom: 5 }}
                     >
                       <TouchableOpacity
-                        onPress={() => handlePressScent(button.id)}
-                        onLongPress={() => DeleteScentDialog(button.id)}
+                        onPress={() => handlePressMTaste(button.id)}
+                        onLongPress={() => DeleteMTasteDialog(button.id)}
                         style={[
-                          styles.ScentTouchableOpacity,
+                          styles.MTasteTouchableOpacity,
                           {
-                            backgroundColor: pressedScentIds.includes(button.id)
+                            backgroundColor: pressedMTasteIds.includes(button.id)
                               ? "rgb(104,201,170)"
                               : "rgb(230,230,230)", // 배경색 설정
-                            borderColor: pressedScentIds.includes(button.id)
+                            borderColor: pressedMTasteIds.includes(button.id)
                               ? "rgb(104,201,170)"
                               : "rgb(230,230,230)", // 테두리 색상 설정
                           },
@@ -732,18 +1041,100 @@ export default function WriteDownNote({ navigation }) {
                     </View>
                   ))}
 
-                  {showScentTextInput.map((textinput) => (
+                  {showMTasteTextInput.map((textinput) => (
                     <TextInput
                       key={textinput.id}
                       autoFocus={true}
                       multiline
                       maxLength={10}
                       onChangeText={(text) => setButtonText(text)}
-                      onEndEditing={() => addScent()}
-                      style={styles.ScentTextInput}
+                      onEndEditing={() => addMTaste()}
+                      style={styles.MTasteTextInput}
                     />
                   ))}
-                  <TouchableOpacity onPress={writeScent}>
+                  <TouchableOpacity onPress={writeMTaste}>
+                    <Icon
+                      name="add-circle-outline"
+                      color="rgb(150,150,150)"
+                      size={30}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </Card>
+
+        {/********************끝향 : 피니쉬********************/}
+        <Card.Divider style={{ marginTop: 20 }} />
+          <View style={styles.noteExpandTitle}>
+            <Text
+              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+            >
+              끝향 : 피니쉬
+            </Text>
+            <TouchableOpacity
+              onPress={showFTimePicker}
+              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+            >
+              <Text style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                textDecorationLine: "underline",
+                color: "rgb(150,150,150)",
+                marginRight: 7,
+                paddingTop: 3,
+              }}>
+                {FTimeText}
+              </Text>
+              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
+            </TouchableOpacity>
+          </View>
+
+            <Card containerStyle={{ marginTop: 10 }}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+                style={{ height: 100 }}
+              >
+                <View style={styles.addButtonView}>
+                  {FScents.map((button) => (
+                    <View
+                      key={button.id}
+                      style={{ marginRight: 5, marginBottom: 5 }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => handlePressFScent(button.id)}
+                        onLongPress={() => DeleteFScentDialog(button.id)}
+                        style={[
+                          styles.FScentTouchableOpacity,
+                          {
+                            backgroundColor: pressedFScentIds.includes(button.id)
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 배경색 설정
+                            borderColor: pressedFScentIds.includes(button.id)
+                              ? "rgb(104,201,170)"
+                              : "rgb(230,230,230)", // 테두리 색상 설정
+                          },
+                        ]}
+                      >
+                        <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
+                          {button.text}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+
+                  {showFScentTextInput.map((textinput) => (
+                    <TextInput
+                      key={textinput.id}
+                      autoFocus={true}
+                      multiline
+                      maxLength={10}
+                      onChangeText={(text) => setButtonText(text)}
+                      onEndEditing={() => addFScent()}
+                      style={styles.FScentTextInput}
+                    />
+                  ))}
+                  <TouchableOpacity onPress={writeFScent}>
                     <Icon
                       name="add-circle-outline"
                       color="rgb(150,150,150)"
@@ -1049,12 +1440,36 @@ export default function WriteDownNote({ navigation }) {
         <Card.Divider style={{ marginTop: 9 }} />
       </ScrollView>
 
+      {/********************시음일 날짜 모달********************/}
+      <DateTimePickerModal
+        isVisible={isTastingDayVisible}
+        mode="date"
+        onConfirm={TastingDayConfirm}
+        onCancel={() => setTastingDayVisible(false)}
+      />
+
       {/********************날짜 및 시간 모달********************/}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="datetime"
         onConfirm={DatePickerConfirm}
         onCancel={() => setDatePickerVisibility(false)}
+      />
+
+      {/********************시간 모달 - 중간맛********************/}
+      <DateTimePickerModal
+        isVisible={isTimePickerVisible}
+        mode="time"
+        onConfirm={TimePickerConfirm}
+        onCancel={() => setTimePickerVisibility(false)}
+      />
+
+      {/********************시간 모달 - 끝향********************/}
+      <DateTimePickerModal
+        isVisible={isFTimePickerVisible}
+        mode="time"
+        onConfirm={FTimePickerConfirm}
+        onCancel={() => setFTimePickerVisibility(false)}
       />
 
       {/********************느낌 버튼 삭제 Dialog********************/}
@@ -1084,13 +1499,13 @@ export default function WriteDownNote({ navigation }) {
         </Dialog.Actions>
       </Dialog>
 
-      {/********************첫향 버튼 삭제 Dialog********************/}
+      {/********************중간맛 버튼 삭제 Dialog********************/}
       <Dialog
-        isVisible={DeleteScent}
-        onBackdropPress={() => DeleteScentDialog(0)}
+        isVisible={DeleteMTaste}
+        onBackdropPress={() => DeleteMTasteDialog(0)}
       >
         <Dialog.Title
-          title={`${Scents[DeleteScentId.bId]?.text}를 삭제하시겠습니까?`}
+          title={`${MTastes[DeleteMTasteId.bId]?.text}를 삭제하시겠습니까?`}
         />
 
         <Dialog.Actions>
@@ -1103,10 +1518,37 @@ export default function WriteDownNote({ navigation }) {
             <Dialog.Button
               title="삭제"
               onPress={() => {
-                DeleteScentBtn();
+                DeleteMTasteBtn();
               }}
             />
-            <Dialog.Button title="취소" onPress={() => DeleteScentDialog(0)} />
+            <Dialog.Button title="취소" onPress={() => DeleteMTasteDialog(0)} />
+          </View>
+        </Dialog.Actions>
+      </Dialog>
+
+      {/********************끝향 버튼 삭제 Dialog********************/}
+      <Dialog
+        isVisible={DeleteFScent}
+        onBackdropPress={() => DeleteFScentDialog(0)}
+      >
+        <Dialog.Title
+          title={`${FScents[DeleteFScentId.bId]?.text}를 삭제하시겠습니까?`}
+        />
+
+        <Dialog.Actions>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Dialog.Button
+              title="삭제"
+              onPress={() => {
+                DeleteFScentBtn();
+              }}
+            />
+            <Dialog.Button title="취소" onPress={() => DeleteFScentDialog(0)} />
           </View>
         </Dialog.Actions>
       </Dialog>
@@ -1181,6 +1623,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", //자동확장
     justifyContent: "flex-start",
   },
+  ScentView: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+  },
   tasteTouchableOpacity: {
     marginRight: 4,
     borderWidth: 1, // 테두리 두께 설정
@@ -1190,6 +1636,39 @@ const styles = StyleSheet.create({
     paddingRight: 7,
   },
   tasteTextInput: {
+    fontSize: 20,
+    backgroundColor: "#C3CF53",
+    borderWidth: 1,
+    borderColor: "#C3CF53",
+    color: "rgb(80,80,80)",
+    borderRadius: 5,
+    paddingLeft: 8,
+    paddingRight: 8,
+    marginRight: 4,
+  },
+  ScentTextInput: {
+    fontSize: 20,
+    backgroundColor: "#C3CF53",
+    borderWidth: 1,
+    borderColor: "#C3CF53",
+    color: "rgb(80,80,80)",
+    borderRadius: 5,
+    paddingLeft: 8,
+    paddingRight: 8,
+    marginRight: 4,
+  },
+  MTasteTextInput: {
+    fontSize: 20,
+    backgroundColor: "#C3CF53",
+    borderWidth: 1,
+    borderColor: "#C3CF53",
+    color: "rgb(80,80,80)",
+    borderRadius: 5,
+    paddingLeft: 8,
+    paddingRight: 8,
+    marginRight: 4,
+  },
+  FScentTextInput: {
     fontSize: 20,
     backgroundColor: "#C3CF53",
     borderWidth: 1,
@@ -1210,6 +1689,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   ScentTouchableOpacity: {
+    marginRight: 4,
+    borderWidth: 1, // 테두리 두께 설정
+    borderRadius: 5, // 테두리의 둥근 정도 설정
+    padding: 2,
+    paddingLeft: 7,
+    paddingRight: 7,
+  },
+  MTasteTouchableOpacity: {
+    marginRight: 4,
+    borderWidth: 1, // 테두리 두께 설정
+    borderRadius: 5, // 테두리의 둥근 정도 설정
+    padding: 2,
+    paddingLeft: 7,
+    paddingRight: 7,
+  },
+  FScentTouchableOpacity: {
     marginRight: 4,
     borderWidth: 1, // 테두리 두께 설정
     borderRadius: 5, // 테두리의 둥근 정도 설정
