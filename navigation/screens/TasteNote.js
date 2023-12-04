@@ -13,7 +13,6 @@ export default function Category({ navigation }) {
         <Image source={require('../../images/menuicons/note_focus.png')} style={{ width: 25, height: 25, marginRight: 10, margin: 10,}} />
         <Text style={styles.headerText}>테이스팅 노트</Text>
       </View>
-      <Card.Divider/>
       <View style={{height: 200,}}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           
@@ -25,7 +24,6 @@ export default function Category({ navigation }) {
           </TouchableOpacity>
         </ScrollView>
       </View>
-      <Card.Divider style={{marginTop: 15,}}/>
     </SafeAreaView>
   );
 }
