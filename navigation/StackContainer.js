@@ -9,6 +9,8 @@ import TasteNote from './screens/TasteNote';
 import WriteDownNote from './screens/WriteDownNote';
 import Detail from './screens/Detail';
 import MyPage from './screens/MyPage';
+import UserInfo from './screens/UserInfo';
+import ViewTasteNote from './screens/ViewTasteNote';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,8 @@ export default function StackContainer() {
         <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
         <Stack.Screen name={'Detail'} component={Detail}/>
         <Stack.Screen name={'MyPage'} component={MyPage}/>
+        <Stack.Screen name={'UserInfo'} component={UserInfo}/>
+        <Stack.Screen name={'ViewTasteNote'} component={ViewTasteNote}/>
     </Stack.Navigator>
   );
 }

@@ -43,7 +43,7 @@
   },
   {
     "id": 3,
-    "title": "Noble Rot(고귀한 곰팡이, 귀부, 고귀한 부패)",
+    "title": "곰팡이, 부패",
     "titleColor": "#3D97D4",
     "subColor": "#B7D2ED",
     "subTitle": [
@@ -126,7 +126,7 @@
   },
   {
     "id": 9,
-    "title": "General Aging(일반 숙성)",
+    "title": "일반 숙성",
     "titleColor": "#DC8536",
     "subColor": "#F6CCA4",
     "subTitle": [
@@ -140,7 +140,7 @@
   },
   {
     "id": 10,
-    "title": "Tca (코르크)",
+    "title": "Tca",
     "titleColor": "#BF8172",
     "subColor": "#EAC9C0",
     "subTitle": [
@@ -150,7 +150,7 @@
   },
   {
     "id": 11,
-    "title": "아황산염 & Mercaptans(메르캅탄)",
+    "title": "아황산염 & 메르캅탄",
     "titleColor": "#C76E42",
     "subColor": "#ECC0A5",
     "subTitle": [

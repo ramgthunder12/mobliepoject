@@ -186,6 +186,11 @@ const Detail = ({ route, navigation }) => {
         <Text style={styles.reviewItemText}>
           별점: {item.rating}, 리뷰: {item.comment}
         </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
+          <Image source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+            style={{ width: 24, height: 24, marginLeft: 10 }}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => handleLike(item.id)}>
           <Ionicons
             name={'heart'}
