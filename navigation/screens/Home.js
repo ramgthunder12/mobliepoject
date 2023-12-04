@@ -56,7 +56,13 @@ export default function Home() {
     <SafeAreaView style={styles.container}>
       
       <ScrollView style={styles.scrollView}>
-      <Text style={styles.headerText}>첫술</Text>
+        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+          <Text style={styles.headerText}>첫술</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('MyPage')} style={{margin: 5,}}>
+          <Image source={require('../../images/profile/defaultProfile.png')} style={{width: 40, height: 40, borderRadius: 20, marginRight: 10, marginTop: 10}}/>
+          </TouchableOpacity>
+        </View>
+      
 
       <Tab
   value={index}
