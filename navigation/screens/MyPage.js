@@ -11,6 +11,8 @@ import {
 import { Text, Icon } from "@rneui/themed";
 import * as ImagePicker from "expo-image-picker";
 
+/*로그아웃, 뒤로가기*/
+
 export default function MyPage() {
   /*프로필 이미지*/
   const [SelectedImage, setSelectedImage] = useState(null);
