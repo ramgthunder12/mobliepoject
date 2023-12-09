@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
-
+import { AppContext } from "../../AppContext";
 import {
   StyledContainer,
   PageLogo,
@@ -32,7 +32,7 @@ import { Formik } from "formik";
 const { darkLight, brand, primary } = Colors;
 
 // icon
-import { Octicons, Fontisto, Ionicons } from "@expo/vector-icons";
+import { Octicons, Fontisto, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvodingWrapper";
 
@@ -43,27 +43,24 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
+  const { setId } = useContext(AppContext);//전역변수
+
   const handleLogin = async (credentials, setSubmitting) => {
     //이메일, 비밀번호 확인
     handleMessage(null);
-    const url = "https://715d-210-119-34-14.ngrok-free.app/users/";//email과 pw 비교하는 api 필요
+    const url = "https://715d-210-119-34-14.ngrok-free.app/members/";
 
     const data = {
-      email: credentials.email,
-      name: "jae",
+      id: credentials.id,
+      password: credentials.password
     };
 
     try {
-      const response = await axios.get(url);
+      const response = await axios.post(url, data);
 
-      // 응답으로 받은 데이터에서 이메일을 비교하여 일치하는 사용자 찾기
-      const matchingUser = response.data.find(
-        (user) => user.email === credentials.email
-      );
-
-      if (matchingUser) {
-        // 로그인 성공 처리 로직
-        navigation.navigate("TabContainer");
+      if (response.data) {
+        setId(credentials.id);//전역변수 id 저장
+        navigation.navigate('TabContainer');
       }
       setSubmitting(false);
     } catch (error) {
@@ -72,28 +69,6 @@ const Login = ({ navigation }) => {
       setSubmitting(false);
       handleMessage("An error occurred. Check your network and try again");
     }
-
-    /*
-    axios
-      .post(url, credentials)
-      .then((respone) => {
-        const result = respone.data;
-        console.log(result);
-        const { message, status, data } = result;
-
-        if (status !== "SUCESS") {
-          handleMessage(message, status);
-        } else {
-          navigation.navigate("Welcome", { ...data[0] });
-        }
-        setSubmitting(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        setSubmitting(false);
-        handleMessage("An error occurred. Check your network and try again");
-      });
-      */
   };
 
   const handleMessage = (message, type = "FAILED") => {
@@ -107,17 +82,17 @@ const Login = ({ navigation }) => {
         <StatusBar style="dark" />
         <InnerContainer>
           <PageLogo
-            resizeMode="cover"
+            resizeMode="contain"
             source={require("../../assets/expo-bg1.png")}
           />
           <PageTitle>First Drink</PageTitle>
           <SubTitle>Account Login</SubTitle>
 
           <Formik
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ id: "", password: "" }}
             onSubmit={(values, { setSubmitting }) => {
               //로그인을 눌렀을 때
-              if (values.email == "" || values.password == "") {
+              if (values.id == "" || values.password == "") {
                 handleMessage("Please fill all th fields");
                 setSubmitting(false);
               } else {
@@ -134,18 +109,18 @@ const Login = ({ navigation }) => {
             }) => (
               <StyledFormArea>
                 <MyTextInput
-                  label="Email Address"
-                  icon="mail"
-                  placeholder="andy@gmail.com"
+                  label="id"
+                  icon="perm-identity"
+                  placeholder="Please enter your ID"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
+                  onChangeText={handleChange("id")}
+                  onBlur={handleBlur("id")}
+                  value={values.id}
                   keyboardType="email-address"
                 />
 
                 <MyTextInput
-                  label="Password"
+                  label="password"
                   icon="lock"
                   placeholder="* * * * * * * *"
                   placeholderTextColor={darkLight}
@@ -196,8 +171,8 @@ const MyTextInput = ({
 }) => {
   return (
     <View>
-      <LeftIcon>
-        <Octicons name={icon} size={30} color={brand} />
+      <LeftIcon style={{top: 35, left: 10}}>
+        <MaterialIcons name={icon} size={30} color={brand} />
       </LeftIcon>
       <StyledInputLabel>{label}</StyledInputLabel>
       <StyledTextInput {...props} />

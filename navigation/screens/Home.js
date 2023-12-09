@@ -1,9 +1,10 @@
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, Text, Card, SafeAreaView, ScrollView, TouchableOpacity, Image, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { Tab, TabView } from '@rneui/themed';
+import { AppContext } from "../../AppContext";
 
 
 function MenuSeparator() {
@@ -15,6 +16,8 @@ export default function Home() {
   const [index, setIndex] = React.useState(0);
   const [additionalMenuIndex, setAdditionalMenuIndex] = React.useState(0);
   const [additionalMenuItems, setAdditionalMenuItems] = React.useState(['맥주', '리큐르', '와인', '막걸리']);
+
+  const { profileImage } = useContext(AppContext);//전역변수
 
   const handleMenuItemPress = (itemId) => {
     navigation.navigate('Detail', { id: itemId });
@@ -29,11 +32,11 @@ export default function Home() {
     switch (index) {
       case 0:
         return [
-          { id: 1, title: '데이터 1', image: require('../../images/alcholicons/sd.jpg') },
-          { id: 2, title: '데이터 2', image: require('../../images/alcholicons/sd.jpg') },
-          { id: 3, title: '데이터 3', image: require('../../images/alcholicons/sd.jpg') },
-          { id: 4, title: '데이터 4', image: require('../../images/alcholicons/sd.jpg') },
-          { id: 5, title: '데이터 5', image: require('../../images/alcholicons/sd.jpg') },
+          { id: 1, title: '테라', image: require('../../images/alcholicons/terra.png') },
+          { id: 2, title: '스텔라 아르투아', image: require('../../images/alcholicons/stella.png') },
+          { id: 3, title: '버드와이저', image: require('../../images/alcholicons/bird.png') },
+          { id: 4, title: '1664 블랑', image: require('../../images/alcholicons/blanc.png') },
+          { id: 5, title: '호가든', image: require('../../images/alcholicons/hoegaarden.png') },
           { id: 6, title: '데이터 6', image: require('../../images/alcholicons/sd.jpg') },
           { id: 7, title: '데이터 7', image: require('../../images/alcholicons/sd.jpg') },
         ];
@@ -62,6 +65,25 @@ export default function Home() {
     
   };
 
+  const showImage = () => {
+    //이미지 출력
+    if (profileImage) {
+      return (
+        <Image
+          source={{ uri: profileImage }}
+          style={{width: 40, height: 40, borderRadius: 20, marginRight: 10, marginTop: 10, borderRadius: 50}}
+        />
+      );
+    } else {
+      return (
+        <Image
+          source={require("../../images/profile/defaultProfile.png")}
+          style={{width: 40, height: 40, borderRadius: 20, marginRight: 10, marginTop: 10}}
+        />
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       
@@ -69,7 +91,7 @@ export default function Home() {
         <View style={{flexDirection: "row", justifyContent: "space-between"}}>
           <Text style={styles.headerText}>첫술</Text>
           <TouchableOpacity onPress={() => navigation.navigate('MyPage')} style={{margin: 5,}}>
-          <Image source={require('../../images/profile/defaultProfile.png')} style={{width: 40, height: 40, borderRadius: 20, marginRight: 10, marginTop: 10}}/>
+          {showImage()}
           </TouchableOpacity>
         </View>
       

@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigation } from '@react-navigation/native';
 import {
   StyleSheet,
   View,
@@ -9,9 +10,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Text, Icon } from "@rneui/themed";
-import * as ImagePicker from "expo-image-picker";
 
 export default function UserInfo() {
+  const navigation = useNavigation();
   /*프로필 이미지*/
   const [SelectedImage, setSelectedImage] = useState(null);
 
@@ -40,20 +41,15 @@ export default function UserInfo() {
 
         {/*프로필 상단*/}
         <View style={styles.titleView}>
-          <View
-            style={{
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{
               flexDirection: "row",
               justifyContent: "flex-start",
-              marginTop: 5,
-              marginLeft: 10,
-            }}
-          >
-            <Image
-              source={require("../../images/profile/mypage.png")}
-              style={{ width: 30, height: 30, margin: 10 }}
-            />
-          </View>
+              margin: 10,
+            }}>
+              <Icon name="chevron-back" type="ionicon" size={30}/>
+            </TouchableOpacity>
         </View>
+
         {/*프로필*/}
         <View style={styles.profileView}>
             <View

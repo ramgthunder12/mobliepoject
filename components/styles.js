@@ -37,7 +37,6 @@ export const WelcomeContainer = styled(InnerContainer)`
 `;
 
 export const PageLogo = styled.Image`
-  width: 250px;
   height: 200px;
 `;
 

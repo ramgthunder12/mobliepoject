@@ -8,10 +8,10 @@ import { Rating } from "react-native-ratings";
 const Detail = ({ route, navigation }) => {
   const itemDetail = {
     id: 1,
-    image: require('../../images/alcholicons/sd.jpg'),
-    name: '가상의 술',
-    price: 10000,
-    description: '가상의 술에 대한 설명이 들어갑니다.',
+    image: require('../../images/alcholicons/terra.png'),
+    name: '테라',
+    price: 4500,
+    description: '술에 대한 설명',
   };
 
   // 리뷰 목록과 리뷰 작성 상태
@@ -125,7 +125,7 @@ const Detail = ({ route, navigation }) => {
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.homeButton}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
@@ -288,13 +288,7 @@ const styles = StyleSheet.create({
   },
   homeButton: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 5,
-    borderRadius: 5,
-    marginTop: 10,
-    width: 30,
-    height: 50,
+    marginTop: 15,
   },//좋아요 순위=추천순
   noteTitleView: {
     alignItems: 'center',

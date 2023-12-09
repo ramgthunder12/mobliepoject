@@ -1,5 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { AppContext } from "../../AppContext";
+import { useNavigation } from '@react-navigation/native';
 import {
   StyleSheet,
   View,
@@ -14,9 +16,12 @@ import * as ImagePicker from "expo-image-picker";
 /*로그아웃, 뒤로가기*/
 
 export default function MyPage() {
+  const navigation = useNavigation();
+
   /*프로필 이미지*/
-  const [SelectedImage, setSelectedImage] = useState(null);
   const [ImageHasPermission, setImageHasPermission] = useState(false);
+
+  const { id, profileImage , setProfileImage } = useContext(AppContext);//전역변수
 
   /*프로필 이미지*/
   const requestImagePermission = async () => {
@@ -41,16 +46,16 @@ export default function MyPage() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      setProfileImage(result.assets[0].uri);
     }
   };
 
   const showImage = () => {
     //이미지 출력
-    if (SelectedImage) {
+    if (profileImage) {
       return (
         <Image
-          source={{ uri: SelectedImage }}
+          source={{ uri: profileImage }}
           style={{ width: "100%", height: "100%", borderRadius: 50 }}
         />
       );
@@ -78,11 +83,10 @@ export default function MyPage() {
               marginLeft: 10,
             }}
           >
-            <Image
-              source={require("../../images/profile/mypage.png")}
-              style={{ width: 30, height: 30, margin: 10 }}
-            />
-            <Text style={{ fontSize: 30, fontWeight: "100", marginTop: 5 }}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 8,}}>
+              <Icon name="chevron-back" type="ionicon" size={30}/>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 30, fontWeight: "100", marginTop: 5, marginLeft: 5, }}>
               마이페이지
             </Text>
           </View>
