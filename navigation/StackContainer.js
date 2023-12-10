@@ -19,7 +19,7 @@ const Stack = createStackNavigator();
 
 export default function StackContainer() {
   return (
-    <Stack.Navigator initialRouteName='TabContainer' screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
         <Stack.Screen name={'TabContainer'} component={TabContainer}/>
         <Stack.Screen name={'Home'} component={Home}/>
         <Stack.Screen name={'Search'} component={Search}/>

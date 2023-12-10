@@ -43,12 +43,12 @@ const Signup = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
-  const { setId } = useContext(AppContext);//전역변수
+  const { setId, apiUrl } = useContext(AppContext);//전역변수
 
   const handleSignup = async (credentials, setSubmitting) => {
     //회원가입 시키기
     handleMessage(null);
-    const url = "https://715d-210-119-34-14.ngrok-free.app/members/";
+    const url = apiUrl+"members/signup";
 
     const data = {
       nickname: credentials.nickname,

@@ -43,12 +43,12 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
-  const { setId } = useContext(AppContext);//전역변수
+  const { setId, apiUrl } = useContext(AppContext);//전역변수
 
   const handleLogin = async (credentials, setSubmitting) => {
     //이메일, 비밀번호 확인
     handleMessage(null);
-    const url = "https://715d-210-119-34-14.ngrok-free.app/members/";
+    const url = apiUrl+"members/login";
 
     const data = {
       id: credentials.id,
@@ -61,6 +61,9 @@ const Login = ({ navigation }) => {
       if (response.data) {
         setId(credentials.id);//전역변수 id 저장
         navigation.navigate('TabContainer');
+      }
+      else{
+        handleMessage("No user information");
       }
       setSubmitting(false);
     } catch (error) {
