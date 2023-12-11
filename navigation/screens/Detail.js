@@ -16,7 +16,7 @@ const Detail = ({ route, navigation }) => {
 
   // 리뷰 목록과 리뷰 작성 상태
   const [reviews, setReviews] = useState([]);
-  const [ratingValue, setRatingValue] = useState(3);
+  const [ratingValue, setRatingValue] = useState(0);
   const [review, setReview] = useState('');
   const [visibleReviews, setVisibleReviews] = useState([]);
   const [visibleReviewCount, setVisibleReviewCount] = useState(2); // Initial number of visible reviews
@@ -193,6 +193,13 @@ const Detail = ({ route, navigation }) => {
             color={item.liked ? 'red' : 'black'}
           />
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('MyPage')}>
+                <Image
+                  source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+                  style={{ width: 24, height: 24, marginLeft: 10, justifyContent: 'flex-start',
+                 }}
+                />
+              </TouchableOpacity>
       </View>
      )}
       

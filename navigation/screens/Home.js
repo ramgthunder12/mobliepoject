@@ -13,7 +13,7 @@ function MenuSeparator() {
 export default function Home() {
   const navigation = useNavigation();
   const [index, setIndex] = React.useState(0);
-  const [additionalMenuIndex, setAdditionalMenuIndex] = React.useState(0);
+  const [additionalMenuIndex, setAdditionalMenuIndex] = React.useState(4);
   const [additionalMenuItems, setAdditionalMenuItems] = React.useState(['맥주', '리큐르', '와인', '막걸리']);
 
   const handleMenuItemPress = (itemId) => {
@@ -23,9 +23,11 @@ export default function Home() {
 
   const handleAdditionalMenuPress = (menuIndex) => {
     setAdditionalMenuIndex(menuIndex);
+    getadditionalMenuItems()
   };
 
-  const getMenuItems = () => {
+  const getadditionalMenuItems = () => {
+    let sortedMenuItems = [];
     switch (index) {
       case 0:
         return [
@@ -37,15 +39,20 @@ export default function Home() {
           { id: 6, title: '데이터 6', image: require('../../images/alcholicons/sd.jpg') },
           { id: 7, title: '데이터 7', image: require('../../images/alcholicons/sd.jpg') },
         ];
+        break;  
       case 1:
-        return [
+        const dummyDataCase1 = [
           { id: 6, title: '데이터 6', image: require('../../images/alcholicons/sd.jpg') },
           { id: 7, title: '데이터 7', image: require('../../images/alcholicons/sd.jpg') },
           { id: 8, title: '데이터 8', image: require('../../images/alcholicons/sd.jpg') },
           { id: 9, title: '데이터 9', image: require('../../images/alcholicons/sd.jpg') },
           { id: 10, title: '데이터 10', image: require('../../images/alcholicons/sd.jpg') },
+
+          
           
         ];
+        sortedMenuItems = dummyDataCase1.sort((a, b) => b.rating - a.rating);
+        break;
       case 2:
         return [
           { id: 11, title: '메뉴 11', image: require('../../images/alcholicons/sd.jpg') },
@@ -54,11 +61,12 @@ export default function Home() {
           { id: 14, title: '메뉴 14', image: require('../../images/alcholicons/sd.jpg') },
           { id: 15, title: '메뉴 15', image: require('../../images/alcholicons/sd.jpg') },
         ];
-        
-      default:
-        return [];
+        break;
+        default:
+          sortedMenuItems = [];
         
     }
+    return sortedMenuItems;
     
   };
 
@@ -120,7 +128,7 @@ export default function Home() {
 
           <MenuSeparator />
         
-          {getMenuItems().map((menuItem) => (
+          {getadditionalMenuItems().map((menuItem) => (
   <TouchableOpacity
     key={menuItem.id}
     style={[styles.menuItem, { height: 70 }]}
