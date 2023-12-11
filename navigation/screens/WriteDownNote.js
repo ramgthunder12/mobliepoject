@@ -9,14 +9,23 @@ import {
   Image,
   ImageBackground,
   FlatList,
+  Dimensions,
 } from "react-native";
-import { StatusBar } from 'expo-status-bar';
-import * as ImagePicker from 'expo-image-picker';
+import { StatusBar } from "expo-status-bar";
+import * as ImagePicker from "expo-image-picker";
 import React, { useState, useEffect, useRef } from "react";
-import { Header, Icon, Card, Button, Dialog, Slider, Switch } from "@rneui/themed";
+import {
+  Header,
+  Icon,
+  Card,
+  Button,
+  Dialog,
+  Slider,
+  Switch,
+} from "@rneui/themed";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
-import DateTimePickerModal from "react-native-modal-datetime-picker";//https://github.com/mmazzarolo/react-native-modal-datetime-picker
+import DateTimePickerModal from "react-native-modal-datetime-picker"; //https://github.com/mmazzarolo/react-native-modal-datetime-picker
 import FirstScent from "../../json/firstScent.json";
 
 let TasteId = 0; //느낌 버튼 id
@@ -27,10 +36,11 @@ let GlassId = 0; //글라스 버튼 id
 
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
+  const screenWidth = Dimensions.get("window").width; //화면 가로길이
 
   /*전체공개*/
   const [FullOpen, setFullOpen] = useState(false);
-  
+
   /*주류 이미지*/
   const [SelectedImage, setSelectedImage] = useState(null);
   const [ImageHasPermission, setImageHasPermission] = useState(false);
@@ -39,9 +49,9 @@ export default function WriteDownNote({ navigation }) {
   const [Name, setName] = useState("");
 
   /*시음일*/
-  const [isTastingDayVisible, setTastingDayVisible] = useState(false);//날짜 및 시간 선택 모달
+  const [isTastingDayVisible, setTastingDayVisible] = useState(false); //날짜 및 시간 선택 모달
   const [TastingDay, setTastingDay] = useState("0000. 00. 00");
-  
+
   /*느낌 */
   const [showTasteTextInput, setshowTasteTextInput] = useState([]); //textinput 생성 및 삭제
   const [Tastes, setTastes] = useState([]); //느낌 버튼 배열
@@ -56,7 +66,7 @@ export default function WriteDownNote({ navigation }) {
   const [memoText, setMemoText] = useState(""); //메모 내용
 
   /*첫향*/
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);//날짜 및 시간 선택 모달
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [DateText, setDateText] = useState("00.00.00 00:00:00");
   const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
   const [Scents, setScents] = useState([]); //첫향 버튼 배열
@@ -65,7 +75,7 @@ export default function WriteDownNote({ navigation }) {
   const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
   /*중간맛*/
-  const [isTimePickerVisible, setTimePickerVisibility] = useState(false);//시간 선택 모달
+  const [isTimePickerVisible, setTimePickerVisibility] = useState(false); //시간 선택 모달
   const [TimeText, setTimeText] = useState("00:00");
   const [showMTasteTextInput, setshowMTasteTextInput] = useState([]); //textinput 생성 및 삭제
   const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열
@@ -74,7 +84,7 @@ export default function WriteDownNote({ navigation }) {
   const [DeleteMTasteId, setDeleteMTasteId] = useState({ bId: 0 }); //삭제 시 중간맛 버튼 id
 
   /*끝향*/
-  const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false);//날짜 및 시간 선택 모달
+  const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [FTimeText, setFTimeText] = useState("00:00");
   const [showFScentTextInput, setshowFScentTextInput] = useState([]); //textinput 생성 및 삭제
   const [FScents, setFScents] = useState([]); //첫향 버튼 배열
@@ -139,14 +149,16 @@ export default function WriteDownNote({ navigation }) {
   };
 
   /********************주류 이미지********************/
-  const requestImagePermission = async () => {//이미지 접근 권한 요청
+  const requestImagePermission = async () => {
+    //이미지 접근 권한 요청
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     setImageHasPermission(status === "granted");
     //alert('이미지 피커 권한이 필요합니다.');
   };
 
-  const pickImage = async () => {//선택한 이미지 불러오기
-    if(!ImageHasPermission) {
+  const pickImage = async () => {
+    //선택한 이미지 불러오기
+    if (!ImageHasPermission) {
       requestImagePermission();
       return;
     }
@@ -163,35 +175,52 @@ export default function WriteDownNote({ navigation }) {
     }
   };
 
-  const showImage = () => {//이미지 출력
-    if(SelectedImage){
+  const showImage = () => {
+    //이미지 출력
+    if (SelectedImage) {
       return (
-          <Image source={{ uri: SelectedImage }} style={{ /*flex: 1, resizeMode: 'contain',*/ height: 230, width: 172, borderRadius: 10, borderWidth: 1,}} />
-        
+        <View style={{ width: 110 }}>
+          <Image
+            source={{ uri: SelectedImage }}
+            style={{
+              /*flex: 1, resizeMode: 'contain',*/ height: "100%",
+              width: 110,
+              borderRadius: 10,
+              borderWidth: 1,
+            }}
+          />
+        </View>
       );
-    }
-    else{
+    } else {
       return (
-          <TouchableOpacity onPress={() => pickImage()}>
-          <View style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgb(230,230,230)", 
-            height: "100%", 
-            width: 180,
-            borderRadius: 10,
-          }}>
-            <Icon name="pluscircleo" type="antdesign" size={30} color="rgb(255,255,255)"/>
+        <TouchableOpacity onPress={() => pickImage()}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgb(230,230,230)",
+              height: "100%",
+              width: 110,
+              borderRadius: 10,
+            }}
+          >
+            <Icon
+              name="pluscircleo"
+              type="antdesign"
+              size={30}
+              color="rgb(255,255,255)"
+            />
           </View>
-          </TouchableOpacity>
+        </TouchableOpacity>
       );
     }
   };
   /********************주류 이미지********************/
 
   /********************시음일********************/
-  const TastingDayConfirm = (date) => {//날짜 선택한 값
+  const TastingDayConfirm = (date) => {
+    //날짜 선택한 값
     // 날짜 객체에서 연도, 월, 일 추출
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
@@ -286,17 +315,19 @@ export default function WriteDownNote({ navigation }) {
     });
   };
 
-  const showDatePicker = () => {//날짜 및 시간 선택 모달
+  const showDatePicker = () => {
+    //날짜 및 시간 선택 모달
     setDatePickerVisibility(true);
   };
 
-  const DatePickerConfirm = (date) => {//날짜 및 시간 선택한 값
+  const DatePickerConfirm = (date) => {
+    //날짜 및 시간 선택한 값
     // 날짜 객체에서 연도, 월, 일, 시간, 분, 초 추출
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
     const day = date.getDate();
     const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, "0");
     //const seconds = date.getSeconds();//초는 선택불가
 
     setDateText(`${year}.${month}.${day} ${hours}:${minutes}`);
@@ -363,13 +394,15 @@ export default function WriteDownNote({ navigation }) {
     setDeleteMTaste(!DeleteMTaste);
   };
 
-  const showTimePicker = () => {//날짜 및 시간 선택 모달
+  const showTimePicker = () => {
+    //날짜 및 시간 선택 모달
     setTimePickerVisibility(true);
   };
 
-  const TimePickerConfirm = (time) => {//시간 선택한 값
+  const TimePickerConfirm = (time) => {
+    //시간 선택한 값
     const hours = time.getHours();
-    const minutes = time.getMinutes().toString().padStart(2, '0');
+    const minutes = time.getMinutes().toString().padStart(2, "0");
     //const seconds = time.getSeconds();//초는 선택불가
 
     setTimeText(`${hours}:${minutes}`);
@@ -436,13 +469,15 @@ export default function WriteDownNote({ navigation }) {
     setDeleteFScent(!DeleteFScent);
   };
 
-  const showFTimePicker = () => {//시간 선택 모달
+  const showFTimePicker = () => {
+    //시간 선택 모달
     setFTimePickerVisibility(true);
   };
 
-  const FTimePickerConfirm = (FTime) => {//시간 선택한 값
+  const FTimePickerConfirm = (FTime) => {
+    //시간 선택한 값
     const hours = FTime.getHours();
-    const minutes = FTime.getMinutes().toString().padStart(2, '0');
+    const minutes = FTime.getMinutes().toString().padStart(2, "0");
     //const seconds = FTime.getSeconds();//초는 선택불가
 
     setFTimeText(`${hours}:${minutes}`);
@@ -608,7 +643,7 @@ export default function WriteDownNote({ navigation }) {
   /********************당도********************/
 
   useEffect(() => {
-    requestImagePermission();//이미지 접근 권한 요청
+    requestImagePermission(); //이미지 접근 권한 요청
 
     /*느낌 초기화 */
     const TasteData = [
@@ -680,7 +715,7 @@ export default function WriteDownNote({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark"/>
+      <StatusBar style="dark" />
       <Header
         leftComponent={
           <View style={styles.headerLeft}>
@@ -717,88 +752,78 @@ export default function WriteDownNote({ navigation }) {
         style={styles.scrollView}
       >
         {/********************전체공개********************/}
-        <View style={{flexDirection: "row",
-    justifyContent: "flex-start",}}>
-          <Text
-            style={[styles.noteTitleText, { marginLeft: 20, }]}
-          >
+        <View style={{ flexDirection: "row", justifyContent: "flex-start" }}>
+          <Text style={[styles.noteTitleText, { marginLeft: 20 }]}>
             전체공개
           </Text>
           <Switch
             color="#000000"
             value={FullOpen}
             onValueChange={(value) => setFullOpen(value)}
-            style={{marginLeft: 10, marginTop: -10,}}
+            style={{ marginLeft: 10, marginTop: -10 }}
           />
         </View>
 
-        {/********************주류 이미지********************/}
-        <View style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          height: 250,
-        }}>
-          {showImage()}
-        </View>
+        {/********************주류 정보********************/}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            height: 170,
+            width: screenWidth,
+          }}
+        >
+          {/********************주류 이미지********************/}
+          <View style={{ marginLeft: 18 }}>{showImage()}</View>
 
-        {/********************주류 이름********************/}
-        <Card.Divider style={{ marginTop: 20, }} />
-        <View style={{flexDirection: "row",
-          justifyContent: "center",
-          marginLeft: 35,
-          marginRight: 35,
-          }}>
-          <Text
-            style={[styles.noteTitleText, {marginTop: 5,}]}
+          {/********************주류 이름********************/}
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              marginLeft: 20,
+              marginRight: 18,
+            }}
           >
-            이름
-          </Text>
-          <TextInput
-                autoFocus={false}
-                onChangeText={(text) => setName(text)}
-                value={Name}
-                placeholder="어떤 술인가요?"
-                style={{
-                  borderWidth: 1,
-                  borderRadius: 5,
-                  borderColor: "rgb(230,230,230)",
-                  backgroundColor: "rgb(230,230,230)",
-                  fontSize: 20,
-                  width: "100%",
-                  height: 40,
-                  marginLeft: 15,
-                  padding: 10,
+            <Text style={styles.noteTitleText}>주류명</Text>
+            <TextInput
+              autoFocus={false}
+              onChangeText={(text) => setName(text)}
+              value={Name}
+              placeholder="어떤 술인가요?"
+              style={{
+                borderWidth: 1,
+                borderRadius: 5,
+                borderColor: "rgb(230,230,230)",
+                backgroundColor: "rgb(230,230,230)",
+                fontSize: 20,
+                width: "100%",
+                height: 40,
+                padding: 10,
+                marginTop: 10,
+              }}
+            />
+
+            {/********************시음일********************/}
+              <Text style={[styles.noteTitleText, {marginTop: 30,}]}>시음일</Text>
+              <TouchableOpacity
+                onPress={() => setTastingDayVisible(true)}
+                style={{ flexDirection: "row", justifyContent: "flex-start", marginTop: 10 }}
+              >
+                <Icon name="calendar" type="feather" size={25} />
+                <Text
+                  style={{
+                    fontSize: 25,
+                    paddingTop: 1,
+                    marginLeft: 10,
                   }}
-              />
+                >
+                  {TastingDay}
+                </Text>
+              </TouchableOpacity>
+            </View>
         </View>
-
-        {/********************시음일********************/}
-        <Card.Divider style={{ marginTop: 13, }} />
-        <View style={{flexDirection: "row",
-          justifyContent: "space-between",
-          marginLeft: 20,
-          marginRight: 20,
-          }}>
-          <Text
-            style={styles.noteTitleText}
-          >
-            시음일
-          </Text>
-          <TouchableOpacity
-              onPress={() => setTastingDayVisible(true)}
-              style={{ flexDirection: "row", marginTop: -5 }}
-            >
-              <Text style={{
-                fontSize: 25,
-                marginRight: 15,
-                paddingTop: 1,
-              }}>
-                {TastingDay}
-              </Text>
-              <Icon name="calendar"  type="feather" size={25} />
-            </TouchableOpacity>
-          </View>
 
         {/********************느낌********************/}
         <Card.Divider style={{ marginTop: 14 }} />
@@ -890,260 +915,308 @@ export default function WriteDownNote({ navigation }) {
 
         {/********************첫향:노즈********************/}
         <Card.Divider style={{ marginTop: 20 }} />
-        <View style={{flexDirection: "row", justifyContent: "center", marginTop: -10, }}>
-        <Text style={{color: "rgb(150,150,150)",}}>
-          - 여기서부터는 필수 선택이 아닙니다 -
-        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: -10,
+          }}
+        >
+          <Text style={{ color: "rgb(255,50,50)" }}>
+            - 여기서부터는 필수 선택이 아닙니다 -
+          </Text>
         </View>
         <Card.Divider style={{ marginTop: 6 }} />
-          <View style={styles.noteExpandTitle}>
+        <View style={styles.noteExpandTitle}>
+          <Text
+            style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+          >
+            첫향 : 노즈
+          </Text>
+          <TouchableOpacity
+            onPress={showDatePicker}
+            style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+          >
             <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              첫향 : 노즈
-            </Text>
-            <TouchableOpacity
-              onPress={showDatePicker}
-              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
-            >
-              <Text style={{
+              style={{
                 fontSize: 20,
                 fontWeight: "bold",
                 textDecorationLine: "underline",
                 color: "rgb(150,150,150)",
                 marginRight: 7,
                 paddingTop: 3,
-              }}>
-                {DateText}
-              </Text>
-              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
-            </TouchableOpacity>
-          </View>
+              }}
+            >
+              {DateText}
+            </Text>
+            <Icon
+              name="calendar"
+              type="feather"
+              color="rgb(150,150,150)"
+              size={25}
+            />
+          </TouchableOpacity>
+        </View>
 
-            <Card containerStyle={{ marginTop: 10 }}>
-              <ScrollView horizontal
-                showsHorizontalScrollIndicator={false}
-                //nestedScrollEnabled={true}//중첩 스크롤뷰 인식
-                style={{ height: 230 }}
-              >
-                <View style={styles.ScentView}>
-                  {Scents.map((item) => (
-                    <View
-                      key={item.id}
-                      style={{ flexDirection: "column", justifyContent: "flex-start", marginRight: 5, marginBottom: 5 }}
+        <Card containerStyle={{ marginTop: 10 }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            //nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+            style={{ height: 230 }}
+          >
+            <View style={styles.ScentView}>
+              {Scents.map((item) => (
+                <View
+                  key={item.id}
+                  style={{
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                    marginRight: 5,
+                    marginBottom: 5,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => handlePressScent(item.id)}
+                    style={[
+                      styles.ScentTouchableOpacity,
+                      {
+                        alignItems: "center",
+                        backgroundColor: pressedScentIds.includes(item.id)
+                          ? item.titleColor
+                          : "rgb(230,230,230)", // 배경색 설정
+                        borderColor: pressedScentIds.includes(item.id)
+                          ? item.titleColor
+                          : "rgb(230,230,230)", // 테두리 색상 설정
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        color: pressedScentIds.includes(item.id)
+                          ? "rgb(255,255,255)"
+                          : "rgb(80,80,80)",
+                        padding: 2,
+                      }}
                     >
-                      <TouchableOpacity
-                        onPress={() => handlePressScent(item.id)}
-                        style={[
-                          styles.ScentTouchableOpacity,
-                          {
-                            alignItems: "center",
-                            backgroundColor: pressedScentIds.includes(item.id)
-                              ? item.titleColor
-                              : "rgb(230,230,230)", // 배경색 설정
-                            borderColor: pressedScentIds.includes(item.id)
-                              ? item.titleColor
-                              : "rgb(230,230,230)", // 테두리 색상 설정
-                          },
-                        ]}
-                      >
-                        <Text style={{ fontSize: 20, color: pressedScentIds.includes(item.id) ? "rgb(255,255,255)" : "rgb(80,80,80)" }}>
-                          {item.title}
+                      {item.title}
+                    </Text>
+
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                        width: "100%",
+                        marginBottom: 5,
+                        borderRadius: 5,
+                        backgroundColor: pressedScentIds.includes(item.id)
+                          ? item.subColor
+                          : "rgb(255,255,255)", // 배경색 설정
+                        borderColor: pressedScentIds.includes(item.id)
+                          ? item.subColor
+                          : "rgb(255,255,255)", // 테두리 색상 설정
+                      }}
+                    >
+                      {item.subTitle.map((text, id) => (
+                        <Text
+                          key={id}
+                          style={{
+                            fontSize: 20,
+                            color: pressedScentIds.includes(item.id) ? "rgb(255,255,255)" : "rgb(120,120,120)",
+                            marginRight: 9,
+                            marginLeft: 9,
+                          }}
+                        >
+                          {text}
                         </Text>
-                        
-                          <View 
-                            style={{
-                              flexDirection: "column",
-                              justifyContent: "flex-start",
-                              alignItems: "center",
-                              width: "100%",
-                              marginBottom: 5,
-                              borderRadius: 5,
-                              backgroundColor: pressedScentIds.includes(item.id)
-                              ? item.subColor
-                              : "rgb(255,255,255)", // 배경색 설정
-                            borderColor: pressedScentIds.includes(item.id)
-                              ? item.subColor
-                              : "rgb(255,255,255)", // 테두리 색상 설정
-                              }}>
-                                {item.subTitle.map((text, id) => (
-                            <Text key={id} style={{
-                              fontSize: 20,
-                              color: "rgb(120,120,120)", 
-                              marginRight: 5,
-                              marginLeft: 5,}}>{text}</Text>
-                              ))}
-                              </View>
-                      </TouchableOpacity>
+                      ))}
                     </View>
-                  ))}
+                  </TouchableOpacity>
                 </View>
-              </ScrollView>
-            </Card>
+              ))}
+            </View>
+          </ScrollView>
+        </Card>
 
         {/********************중간맛 : 팔레트********************/}
         <Card.Divider style={{ marginTop: 20 }} />
-          <View style={styles.noteExpandTitle}>
+        <View style={styles.noteExpandTitle}>
+          <Text
+            style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+          >
+            중간맛 : 팔레트
+          </Text>
+          <TouchableOpacity
+            onPress={showTimePicker}
+            style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+          >
             <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              중간맛 : 팔레트
-            </Text>
-            <TouchableOpacity
-              onPress={showTimePicker}
-              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
-            >
-              <Text style={{
+              style={{
                 fontSize: 20,
                 fontWeight: "bold",
                 textDecorationLine: "underline",
                 color: "rgb(150,150,150)",
                 marginRight: 7,
                 paddingTop: 3,
-              }}>
-                {TimeText}
-              </Text>
-              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
-            </TouchableOpacity>
-          </View>
+              }}
+            >
+              {TimeText}
+            </Text>
+            <Icon
+              name="calendar"
+              type="feather"
+              color="rgb(150,150,150)"
+              size={25}
+            />
+          </TouchableOpacity>
+        </View>
 
-            <Card containerStyle={{ marginTop: 10 }}>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
-                style={{ height: 100 }}
-              >
-                <View style={styles.addButtonView}>
-                  {MTastes.map((button) => (
-                    <View
-                      key={button.id}
-                      style={{ marginRight: 5, marginBottom: 5 }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => handlePressMTaste(button.id)}
-                        onLongPress={() => DeleteMTasteDialog(button.id)}
-                        style={[
-                          styles.MTasteTouchableOpacity,
-                          {
-                            backgroundColor: pressedMTasteIds.includes(button.id)
-                              ? "rgb(104,201,170)"
-                              : "rgb(230,230,230)", // 배경색 설정
-                            borderColor: pressedMTasteIds.includes(button.id)
-                              ? "rgb(104,201,170)"
-                              : "rgb(230,230,230)", // 테두리 색상 설정
-                          },
-                        ]}
-                      >
-                        <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                          {button.text}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-
-                  {showMTasteTextInput.map((textinput) => (
-                    <TextInput
-                      key={textinput.id}
-                      autoFocus={true}
-                      multiline
-                      maxLength={10}
-                      onChangeText={(text) => setButtonText(text)}
-                      onEndEditing={() => addMTaste()}
-                      style={styles.MTasteTextInput}
-                    />
-                  ))}
-                  <TouchableOpacity onPress={writeMTaste}>
-                    <Icon
-                      name="add-circle-outline"
-                      color="rgb(150,150,150)"
-                      size={30}
-                    />
+        <Card containerStyle={{ marginTop: 10 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
+            style={{ height: 100 }}
+          >
+            <View style={styles.addButtonView}>
+              {MTastes.map((button) => (
+                <View
+                  key={button.id}
+                  style={{ marginRight: 5, marginBottom: 5 }}
+                >
+                  <TouchableOpacity
+                    onPress={() => handlePressMTaste(button.id)}
+                    onLongPress={() => DeleteMTasteDialog(button.id)}
+                    style={[
+                      styles.MTasteTouchableOpacity,
+                      {
+                        backgroundColor: pressedMTasteIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 배경색 설정
+                        borderColor: pressedMTasteIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 테두리 색상 설정
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
+                      {button.text}
+                    </Text>
                   </TouchableOpacity>
                 </View>
-              </ScrollView>
-            </Card>
+              ))}
+
+              {showMTasteTextInput.map((textinput) => (
+                <TextInput
+                  key={textinput.id}
+                  autoFocus={true}
+                  multiline
+                  maxLength={10}
+                  onChangeText={(text) => setButtonText(text)}
+                  onEndEditing={() => addMTaste()}
+                  style={styles.MTasteTextInput}
+                />
+              ))}
+              <TouchableOpacity onPress={writeMTaste}>
+                <Icon
+                  name="add-circle-outline"
+                  color="rgb(150,150,150)"
+                  size={30}
+                />
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Card>
 
         {/********************끝향 : 피니쉬********************/}
         <Card.Divider style={{ marginTop: 20 }} />
-          <View style={styles.noteExpandTitle}>
+        <View style={styles.noteExpandTitle}>
+          <Text
+            style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
+          >
+            끝향 : 피니쉬
+          </Text>
+          <TouchableOpacity
+            onPress={showFTimePicker}
+            style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
+          >
             <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              끝향 : 피니쉬
-            </Text>
-            <TouchableOpacity
-              onPress={showFTimePicker}
-              style={{ flexDirection: "row", marginRight: 15, marginTop: -5 }}
-            >
-              <Text style={{
+              style={{
                 fontSize: 20,
                 fontWeight: "bold",
                 textDecorationLine: "underline",
                 color: "rgb(150,150,150)",
                 marginRight: 7,
                 paddingTop: 3,
-              }}>
-                {FTimeText}
-              </Text>
-              <Icon name="calendar"  type="feather" color="rgb(150,150,150)" size={25} />
-            </TouchableOpacity>
-          </View>
+              }}
+            >
+              {FTimeText}
+            </Text>
+            <Icon
+              name="calendar"
+              type="feather"
+              color="rgb(150,150,150)"
+              size={25}
+            />
+          </TouchableOpacity>
+        </View>
 
-            <Card containerStyle={{ marginTop: 10 }}>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
-                style={{ height: 100 }}
-              >
-                <View style={styles.addButtonView}>
-                  {FScents.map((button) => (
-                    <View
-                      key={button.id}
-                      style={{ marginRight: 5, marginBottom: 5 }}
-                    >
-                      <TouchableOpacity
-                        onPress={() => handlePressFScent(button.id)}
-                        onLongPress={() => DeleteFScentDialog(button.id)}
-                        style={[
-                          styles.FScentTouchableOpacity,
-                          {
-                            backgroundColor: pressedFScentIds.includes(button.id)
-                              ? "rgb(104,201,170)"
-                              : "rgb(230,230,230)", // 배경색 설정
-                            borderColor: pressedFScentIds.includes(button.id)
-                              ? "rgb(104,201,170)"
-                              : "rgb(230,230,230)", // 테두리 색상 설정
-                          },
-                        ]}
-                      >
-                        <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                          {button.text}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-
-                  {showFScentTextInput.map((textinput) => (
-                    <TextInput
-                      key={textinput.id}
-                      autoFocus={true}
-                      multiline
-                      maxLength={10}
-                      onChangeText={(text) => setButtonText(text)}
-                      onEndEditing={() => addFScent()}
-                      style={styles.FScentTextInput}
-                    />
-                  ))}
-                  <TouchableOpacity onPress={writeFScent}>
-                    <Icon
-                      name="add-circle-outline"
-                      color="rgb(150,150,150)"
-                      size={30}
-                    />
+        <Card containerStyle={{ marginTop: 10 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
+            style={{ height: 100 }}
+          >
+            <View style={styles.addButtonView}>
+              {FScents.map((button) => (
+                <View
+                  key={button.id}
+                  style={{ marginRight: 5, marginBottom: 5 }}
+                >
+                  <TouchableOpacity
+                    onPress={() => handlePressFScent(button.id)}
+                    onLongPress={() => DeleteFScentDialog(button.id)}
+                    style={[
+                      styles.FScentTouchableOpacity,
+                      {
+                        backgroundColor: pressedFScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 배경색 설정
+                        borderColor: pressedFScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 테두리 색상 설정
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
+                      {button.text}
+                    </Text>
                   </TouchableOpacity>
                 </View>
-              </ScrollView>
-            </Card>
+              ))}
+
+              {showFScentTextInput.map((textinput) => (
+                <TextInput
+                  key={textinput.id}
+                  autoFocus={true}
+                  multiline
+                  maxLength={10}
+                  onChangeText={(text) => setButtonText(text)}
+                  onEndEditing={() => addFScent()}
+                  style={styles.FScentTextInput}
+                />
+              ))}
+              <TouchableOpacity onPress={writeFScent}>
+                <Icon
+                  name="add-circle-outline"
+                  color="rgb(150,150,150)"
+                  size={30}
+                />
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Card>
 
         {/********************글라스********************/}
         <Card.Divider style={{ marginTop: 20 }} />
@@ -1173,7 +1246,7 @@ export default function WriteDownNote({ navigation }) {
             <Card containerStyle={{ marginTop: 10 }}>
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                nestedScrollEnabled={true}//중첩 스크롤뷰 인식
+                nestedScrollEnabled={true} //중첩 스크롤뷰 인식
                 style={{ height: "100%" }}
               >
                 <View style={styles.addButtonView}>
@@ -1252,7 +1325,11 @@ export default function WriteDownNote({ navigation }) {
               overflow: "hidden",
             }}
           >
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginTop: 10, }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 10 }}
+            >
               {ColorArray.map((color, index) => (
                 <TouchableOpacity
                   key={index}
@@ -1260,7 +1337,8 @@ export default function WriteDownNote({ navigation }) {
                     backgroundColor: color,
                     padding: 15,
                     margin: 5,
-                    borderColor: ColorSelected === index ? "rgb(0,0,0)" : "transparent",
+                    borderColor:
+                      ColorSelected === index ? "rgb(0,0,0)" : "transparent",
                     borderWidth: 3,
                   }}
                   onPress={() => setColorSelected(index)}
@@ -1693,8 +1771,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, // 테두리 두께 설정
     borderRadius: 5, // 테두리의 둥근 정도 설정
     padding: 2,
-    paddingLeft: 7,
-    paddingRight: 7,
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   MTasteTouchableOpacity: {
     marginRight: 4,

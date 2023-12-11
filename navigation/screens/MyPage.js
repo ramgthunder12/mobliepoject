@@ -1,5 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { AppContext } from "../../AppContext";
+import { useNavigation } from '@react-navigation/native';
 import {
   StyleSheet,
   View,
@@ -7,14 +9,34 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { Text, Icon } from "@rneui/themed";
+import ProgressBar from 'react-native-progress/Bar';
 import * as ImagePicker from "expo-image-picker";
 
+/*로그아웃, 뒤로가기*/
+
 export default function MyPage() {
+  const navigation = useNavigation();
+
   /*프로필 이미지*/
-  const [SelectedImage, setSelectedImage] = useState(null);
   const [ImageHasPermission, setImageHasPermission] = useState(false);
+
+  /*포인트 바*/
+  const [pointProgress, setPointProgress] = useState(1);
+  const minValue = 0;
+  const maxValue = 15;
+  const currentValue = 7; // 현재 값, 원하는 값으로 변경
+  const progress = currentValue / maxValue;
+
+  // 화면의 너비 가져오기
+  const screenWidth = Dimensions.get('window').width;
+
+  // ProgressBar의 원하는 너비 계산
+  const progressBarWidth = screenWidth * 0.9;
+
+  const { id, profileImage , setProfileImage } = useContext(AppContext);//전역변수
 
   /*프로필 이미지*/
   const requestImagePermission = async () => {
@@ -39,16 +61,16 @@ export default function MyPage() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      setProfileImage(result.assets[0].uri);
     }
   };
 
   const showImage = () => {
     //이미지 출력
-    if (SelectedImage) {
+    if (profileImage) {
       return (
         <Image
-          source={{ uri: SelectedImage }}
+          source={{ uri: profileImage }}
           style={{ width: "100%", height: "100%", borderRadius: 50 }}
         />
       );
@@ -76,11 +98,10 @@ export default function MyPage() {
               marginLeft: 10,
             }}
           >
-            <Image
-              source={require("../../images/profile/mypage.png")}
-              style={{ width: 30, height: 30, margin: 10 }}
-            />
-            <Text style={{ fontSize: 30, fontWeight: "100", marginTop: 5 }}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 8,}}>
+              <Icon name="chevron-back" type="ionicon" size={30}/>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 30, fontWeight: "100", marginTop: 5, marginLeft: 5, }}>
               마이페이지
             </Text>
           </View>
@@ -119,6 +140,20 @@ export default function MyPage() {
               <Text style={{fontSize: 20, }}>알콜프리 근데 취해</Text>
             </View>
           </View>
+        </View>
+        
+        {/*포인트 바*/}
+        <View style={{flexDirection: "row", justifyContent: "center", marginTop: 20,}}>
+      <ProgressBar
+        progress={progress}
+        width={progressBarWidth} // 바의 너비
+        height={10} // 바의 높이
+        color="#00FF00" // 바의 색상
+        unfilledColor="#fff" // 바의 비어있는 부분의 색상
+        borderWidth={1} // 바의 테두리 두께
+        borderColor="#000000" // 바의 테두리 색상
+        borderRadius={10} // 바의 모서리 반경
+      />
         </View>
 
         {/*나의 리뷰, 포인트, 테이스팅 노트 수*/}
