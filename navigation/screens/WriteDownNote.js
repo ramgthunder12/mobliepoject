@@ -10,10 +10,11 @@ import {
   ImageBackground,
   FlatList,
   Dimensions,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   Header,
   Icon,
@@ -26,7 +27,8 @@ import {
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Rating } from "react-native-ratings";
 import DateTimePickerModal from "react-native-modal-datetime-picker"; //https://github.com/mmazzarolo/react-native-modal-datetime-picker
-import FirstScent from "../../json/firstScent.json";
+import { AppContext } from "../../AppContext";
+import axios from "axios";
 
 let TasteId = 0; //느낌 버튼 id
 let ScentId = 0; //첫향 버튼 id
@@ -37,6 +39,7 @@ let GlassId = 0; //글라스 버튼 id
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
   const screenWidth = Dimensions.get("window").width; //화면 가로길이
+  const { id, apiUrl } = useContext(AppContext);//전역변수
 
   /*전체공개*/
   const [FullOpen, setFullOpen] = useState(false);
@@ -69,7 +72,7 @@ export default function WriteDownNote({ navigation }) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [DateText, setDateText] = useState("00.00.00 00:00:00");
   const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
-  const [Scents, setScents] = useState([]); //첫향 버튼 배열
+  const [Scents, setScents] = useState([]); //첫향 버튼 배열 { id, name, value }
   const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id
   const [DeleteScent, setDeleteScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
@@ -78,7 +81,7 @@ export default function WriteDownNote({ navigation }) {
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false); //시간 선택 모달
   const [TimeText, setTimeText] = useState("00:00");
   const [showMTasteTextInput, setshowMTasteTextInput] = useState([]); //textinput 생성 및 삭제
-  const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열
+  const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열 { id, name, value }
   const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id
   const [DeleteMTaste, setDeleteMTaste] = useState(false); //중간맛 버튼 삭제 Dialog on/off
   const [DeleteMTasteId, setDeleteMTasteId] = useState({ bId: 0 }); //삭제 시 중간맛 버튼 id
@@ -87,7 +90,7 @@ export default function WriteDownNote({ navigation }) {
   const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [FTimeText, setFTimeText] = useState("00:00");
   const [showFScentTextInput, setshowFScentTextInput] = useState([]); //textinput 생성 및 삭제
-  const [FScents, setFScents] = useState([]); //첫향 버튼 배열
+  const [FScents, setFScents] = useState([]); //첫향 버튼 배열 { id, name, value }
   const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id
   const [DeleteFScent, setDeleteFScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteFScentId, setDeleteFScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
@@ -105,26 +108,25 @@ export default function WriteDownNote({ navigation }) {
   const [ColorExpanded, setColorExpanded] = useState(false); //색상 기능 활성화
   const ColorHeightValue = useRef(new Animated.Value(0)).current; //색상 기능 확장 애니메이션
   const ColorArray = [
-    "#FF0000",
-    "#ff4000",
-    "#ff8000",
-    "#ffbf00",
-    "#ffff00",
-    "#bfff00",
-    "#80ff00",
-    "#00ff00",
-    "#00ff80",
-    "#00ffbf",
-    "#00ffff",
-    "#00bfff",
-    "#0080ff",
-    "#0000ff",
-    "#4000ff",
-    "#8000ff",
-    "#bf00ff",
-    "#ff00ff",
-    "#ff00bf",
-    "#ff0080",
+    "#fffcdd",
+    "#fded96",
+    "#fbea78",
+    "#fbe166",
+    "#f9db55",
+    "#fad64a",
+    "#f9ce4b",
+    "#f5c94c",
+    "#f7c13b",
+    "#f5bd32",
+    "#eaad07",
+    "#e59301",
+    "#dc7317",
+    "#e06529",
+    "#cc4f2f",
+    "#b02f29",
+    "#9f241d",
+    "#712c1d",
+    "#421b0a"
   ];
   const [ColorSelected, setColorSelected] = useState(-1);
 
@@ -179,12 +181,12 @@ export default function WriteDownNote({ navigation }) {
     //이미지 출력
     if (SelectedImage) {
       return (
-        <View style={{ width: 110 }}>
+        <View style={{ width: 140 }}>
           <Image
             source={{ uri: SelectedImage }}
             style={{
               /*flex: 1, resizeMode: 'contain',*/ height: "100%",
-              width: 110,
+              width: 140,
               borderRadius: 10,
               borderWidth: 1,
             }}
@@ -201,7 +203,7 @@ export default function WriteDownNote({ navigation }) {
               alignItems: "center",
               backgroundColor: "rgb(230,230,230)",
               height: "100%",
-              width: 110,
+              width: 140,
               borderRadius: 10,
             }}
           >
@@ -300,7 +302,55 @@ export default function WriteDownNote({ navigation }) {
   };
   /********************별점********************/
 
+  /********************반절 색칠하는 버튼 UI********************/
+  const SeperateColorButton = ({ onPress, onLongPress, style, percentFilled, fillColor, text, textStyle }) => {//1~10
+    const containerStyle = {
+      flexDirection: 'row',
+      backgroundColor: '#fff', // 전체 배경 색상
+      borderRadius: 8,
+      overflow: 'hidden',
+    };
+  
+    const filledAreaStyle = {
+      flex: percentFilled / 10,
+      backgroundColor: fillColor, // 채워진 영역의 배경 색상
+    };
+  
+    const emptyAreaStyle = {
+      flex: (10 - percentFilled) / 10,
+      backgroundColor: 'transparent', // 비어있는 영역의 배경 색상
+    };
+  
+    return (
+      <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={style}>
+        <View style={filledAreaStyle}></View>
+        <View style={emptyAreaStyle}></View>
+        <Text style={textStyle}>{text}</Text>
+      </TouchableOpacity>
+    );
+  };
+  /********************반절 색칠하는 버튼 UI********************/
+
   /********************첫향********************/
+  const addScent = () => {
+    //느낌추가
+    const newScent = {
+      //새로운 버튼 추가
+      id: ScentId,
+      name: buttonText,
+      value: 0
+    };
+    if (buttonText.length === 0) {
+      //이름 입력 안하면 종료
+      setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
+      return;
+    }
+    setScents((prevScents) => [...prevScents, newScent]); //느낌 버튼 추가
+    ScentId++; //버튼 id 증가
+    setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
+    setButtonText(""); //버튼 이름 초기화
+  };
+
   const handlePressScent = (buttonId) => {
     //느낌 버튼을 누른 버튼id
     // 토글 상태 변경
@@ -313,6 +363,13 @@ export default function WriteDownNote({ navigation }) {
         return [...prevPressedButtonIds, buttonId];
       }
     });
+  };
+
+  const writeScent = () => {
+    //버튼(느낌) 추가 전 textinput
+    if (showScentTextInput.length === 0) {
+      setshowScentTextInput([...showScentTextInput, { id: 1 }]);
+    }
   };
 
   const showDatePicker = () => {
@@ -334,6 +391,20 @@ export default function WriteDownNote({ navigation }) {
 
     setDatePickerVisibility(false);
   };
+
+  const DeleteScentDialog = (bId) => {
+    //느낌 버튼 삭제 Dialog on/off
+    setDeleteScentId({ bId });
+    setDeleteScent(!DeleteScent);
+  };
+  const DeleteScentBtn = () => {
+    //느낌 버튼 삭제하기
+    const updatedScents = Scents.filter(
+      (Scent) => Scent.id !== DeleteScentId.bId
+    );
+    setScents(updatedScents);
+    setDeleteScent(!DeleteScent);
+  };
   /********************첫향********************/
 
   /********************중간맛********************/
@@ -342,7 +413,8 @@ export default function WriteDownNote({ navigation }) {
     const newMTaste = {
       //새로운 버튼 추가
       id: MTasteId,
-      text: buttonText,
+      name: buttonText,
+      value: 0
     };
 
     if (buttonText.length === 0) {
@@ -365,13 +437,15 @@ export default function WriteDownNote({ navigation }) {
     }
   };
 
-  const handlePressMTaste = (buttonId) => {
-    //느낌 버튼을 누른 버튼id
+  const handlePressMTaste = (buttonId) => {//중간맛 버튼 눌렀을 때
     // 토글 상태 변경
     setPressedMTasteIds((prevPressedButtonIds) => {
       if (prevPressedButtonIds.includes(buttonId)) {
         // 이미 눌린 경우, 제거
         return prevPressedButtonIds.filter((id) => id !== buttonId);
+      } else if(pressedMTasteIds.length === 8){
+        Alert.alert('알림', '최대 8개만 선택 가능합니다');
+        return prevPressedButtonIds;
       } else {
         // 눌리지 않은 경우, 추가
         return [...prevPressedButtonIds, buttonId];
@@ -417,7 +491,8 @@ export default function WriteDownNote({ navigation }) {
     const newFScent = {
       //새로운 버튼 추가
       id: FScentId,
-      text: buttonText,
+      name: buttonText,
+      value: 0
     };
 
     if (buttonText.length === 0) {
@@ -642,6 +717,40 @@ export default function WriteDownNote({ navigation }) {
   };
   /********************당도********************/
 
+  /********************api********************/
+  const getScents = async () => {
+    const url = apiUrl + "scent/";
+
+    try {
+      const response = await axios.get(url);
+
+      if (response.data) {
+        const limitedArray = response.data.slice(0, 40);
+        const transformedData = limitedArray.map(item => ({
+          id: item.scentNumber,
+          name: item.scentInfo,
+          value: 0
+        }));
+
+        /*첫향 초기화 */
+        setScents(transformedData);
+        ScentId=transformedData.length;
+
+        /*중간맛 초기화 */
+        setMTastes(transformedData);
+        MTasteId=transformedData.length;
+
+        /*끝향 초기화 */
+        setFScents(transformedData);
+        FScentId=transformedData.length;
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log(error);
+    }
+  }
+  /********************api********************/
+
   useEffect(() => {
     requestImagePermission(); //이미지 접근 권한 요청
 
@@ -659,39 +768,8 @@ export default function WriteDownNote({ navigation }) {
       TasteId++; //버튼 id 증가
     });
 
-    /*첫향 초기화 */
-    FirstScent.forEach((Scent) => {
-      setScents((prevScents) => [...prevScents, Scent]); //첫향 버튼 추가
-      ScentId++; //버튼 id 증가
-    });
-
-    /*중간맛 초기화 */
-    const MTasteData = [
-      { id: 0, text: "아몬드" },
-      { id: 1, text: "딸기" },
-      { id: 2, text: "귤" },
-      { id: 3, text: "레몬" },
-      { id: 4, text: "사과" },
-    ];
-
-    MTasteData.forEach((MTaste) => {
-      setMTastes((prevMTastes) => [...prevMTastes, MTaste]); //중간맛 버튼 추가
-      MTasteId++; //버튼 id 증가
-    });
-
-    /*끝향 초기화 */
-    const FScentData = [
-      { id: 0, text: "아몬드" },
-      { id: 1, text: "딸기" },
-      { id: 2, text: "귤" },
-      { id: 3, text: "레몬" },
-      { id: 4, text: "사과" },
-    ];
-
-    FScentData.forEach((FScent) => {
-      setFScents((prevFScents) => [...prevFScents, FScent]); //끝향 버튼 추가
-      FScentId++; //버튼 id 증가
-    });
+    /*scent api*/
+    getScents();
 
     /*글라스 초기화 */
     const GlassData = [
@@ -769,7 +847,7 @@ export default function WriteDownNote({ navigation }) {
           style={{
             flexDirection: "row",
             justifyContent: "flex-start",
-            height: 170,
+            height: 200,
             width: screenWidth,
           }}
         >
@@ -782,7 +860,7 @@ export default function WriteDownNote({ navigation }) {
               flex: 1,
               flexDirection: "column",
               justifyContent: "flex-start",
-              marginLeft: 20,
+              marginLeft: 15,
               marginRight: 18,
             }}
           >
@@ -806,28 +884,34 @@ export default function WriteDownNote({ navigation }) {
             />
 
             {/********************시음일********************/}
-              <Text style={[styles.noteTitleText, {marginTop: 30,}]}>시음일</Text>
-              <TouchableOpacity
-                onPress={() => setTastingDayVisible(true)}
-                style={{ flexDirection: "row", justifyContent: "flex-start", marginTop: 10 }}
+            <Text style={[styles.noteTitleText, { marginTop: 30 }]}>
+              시음일
+            </Text>
+            <TouchableOpacity
+              onPress={() => setTastingDayVisible(true)}
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-start",
+                marginTop: 10,
+              }}
+            >
+              <Icon name="calendar" type="feather" size={25} />
+              <Text
+                style={{
+                  fontSize: 25,
+                  paddingTop: 1,
+                  marginLeft: 10,
+                }}
               >
-                <Icon name="calendar" type="feather" size={25} />
-                <Text
-                  style={{
-                    fontSize: 25,
-                    paddingTop: 1,
-                    marginLeft: 10,
-                  }}
-                >
-                  {TastingDay}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {TastingDay}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/********************느낌********************/}
-        <Card.Divider style={{ marginTop: 14 }} />
-        <View style={styles.noteTitleView}>
+        <Card.Divider style={{ marginTop: 10 }} />
+        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
           <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
         </View>
         <Card containerStyle={{ marginTop: 10 }}>
@@ -878,8 +962,8 @@ export default function WriteDownNote({ navigation }) {
         </Card>
 
         {/********************별점********************/}
-        <Card.Divider style={{ marginTop: 20 }} />
-        <View style={styles.noteTitleView}>
+        <Card.Divider style={{ marginTop: 10 }} />
+        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
           <Text style={styles.noteTitleText}>별점을 선택해주세요</Text>
         </View>
         <Rating
@@ -889,9 +973,9 @@ export default function WriteDownNote({ navigation }) {
         />
 
         {/********************메모********************/}
-        <Card.Divider style={{ marginTop: 10 }} />
+        <Card.Divider/>
 
-        <View style={styles.noteTitleView}>
+        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
           <Text style={styles.noteTitleText}>메모를 작성해주세요</Text>
         </View>
 
@@ -914,7 +998,7 @@ export default function WriteDownNote({ navigation }) {
         </Card>
 
         {/********************첫향:노즈********************/}
-        <Card.Divider style={{ marginTop: 20 }} />
+        <Card.Divider style={{ marginTop: 10 }} />
         <View
           style={{
             flexDirection: "row",
@@ -962,80 +1046,56 @@ export default function WriteDownNote({ navigation }) {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            //nestedScrollEnabled={true}//중첩 스크롤뷰 인식
-            style={{ height: 230 }}
+            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
+            style={{ height: 100 }}
           >
-            <View style={styles.ScentView}>
-              {Scents.map((item) => (
+            <View style={styles.addScentView}>
+
+            {Scents.map((button) => (
                 <View
-                  key={item.id}
-                  style={{
-                    flexDirection: "column",
-                    justifyContent: "flex-start",
-                    marginRight: 5,
-                    marginBottom: 5,
-                  }}
+                  key={`${button.id}-${button.name}`}
+                  style={{ marginRight: 5 }}
                 >
-                  <TouchableOpacity
-                    onPress={() => handlePressScent(item.id)}
+                  <SeperateColorButton
+                    onPress={() => handlePressScent(button.id)}
+                    onLongPress={() => DeleteScentDialog(button.id)}
                     style={[
                       styles.ScentTouchableOpacity,
                       {
-                        alignItems: "center",
-                        backgroundColor: pressedScentIds.includes(item.id)
-                          ? item.titleColor
+                        backgroundColor: pressedScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
                           : "rgb(230,230,230)", // 배경색 설정
-                        borderColor: pressedScentIds.includes(item.id)
-                          ? item.titleColor
+                        borderColor: pressedScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
                           : "rgb(230,230,230)", // 테두리 색상 설정
+                          alignItems: 'center',
                       },
                     ]}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 20,
-                        color: pressedScentIds.includes(item.id)
-                          ? "rgb(255,255,255)"
-                          : "rgb(80,80,80)",
-                        padding: 2,
-                      }}
-                    >
-                      {item.title}
-                    </Text>
-
-                    <View
-                      style={{
-                        flexDirection: "column",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                        width: "100%",
-                        marginBottom: 5,
-                        borderRadius: 5,
-                        backgroundColor: pressedScentIds.includes(item.id)
-                          ? item.subColor
-                          : "rgb(255,255,255)", // 배경색 설정
-                        borderColor: pressedScentIds.includes(item.id)
-                          ? item.subColor
-                          : "rgb(255,255,255)", // 테두리 색상 설정
-                      }}
-                    >
-                      {item.subTitle.map((text, id) => (
-                        <Text
-                          key={id}
-                          style={{
-                            fontSize: 20,
-                            color: pressedScentIds.includes(item.id) ? "rgb(255,255,255)" : "rgb(120,120,120)",
-                            marginRight: 9,
-                            marginLeft: 9,
-                          }}
-                        >
-                          {text}
-                        </Text>
-                      ))}
-                    </View>
-                  </TouchableOpacity>
+                    percentFilled={7}
+                    text={button.name}
+                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
+                  />
                 </View>
               ))}
+
+              {showScentTextInput.map((textinput) => (
+                <TextInput
+                  key={textinput.id}
+                  autoFocus={true}
+                  multiline
+                  maxLength={10}
+                  onChangeText={(text) => setButtonText(text)}
+                  onEndEditing={() => addScent()}
+                  style={styles.ScentTextInput}
+                />
+              ))}
+              <TouchableOpacity onPress={writeScent}>
+                <Icon
+                  name="add-circle-outline"
+                  color="rgb(150,150,150)"
+                  size={30}
+                />
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </Card>
@@ -1075,17 +1135,18 @@ export default function WriteDownNote({ navigation }) {
 
         <Card containerStyle={{ marginTop: 10 }}>
           <ScrollView
-            showsVerticalScrollIndicator={false}
+            horizontal
+            showsHorizontalScrollIndicator={false}
             nestedScrollEnabled={true} //중첩 스크롤뷰 인식
             style={{ height: 100 }}
           >
-            <View style={styles.addButtonView}>
+            <View style={styles.addScentView}>
               {MTastes.map((button) => (
                 <View
-                  key={button.id}
-                  style={{ marginRight: 5, marginBottom: 5 }}
+                key={`${button.id}-${button.name}`}
+                  style={{ marginRight: 5 }}
                 >
-                  <TouchableOpacity
+                  <SeperateColorButton
                     onPress={() => handlePressMTaste(button.id)}
                     onLongPress={() => DeleteMTasteDialog(button.id)}
                     style={[
@@ -1097,15 +1158,16 @@ export default function WriteDownNote({ navigation }) {
                         borderColor: pressedMTasteIds.includes(button.id)
                           ? "rgb(104,201,170)"
                           : "rgb(230,230,230)", // 테두리 색상 설정
+                          alignItems: 'center',
                       },
                     ]}
-                  >
-                    <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                      {button.text}
-                    </Text>
-                  </TouchableOpacity>
+                    fillColor={"rgb(104,201,170)"}
+                    percentFilled={7}
+                    text={button.name}
+                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
+                  />
                 </View>
-              ))}
+                  ))}
 
               {showMTasteTextInput.map((textinput) => (
                 <TextInput
@@ -1164,17 +1226,18 @@ export default function WriteDownNote({ navigation }) {
 
         <Card containerStyle={{ marginTop: 10 }}>
           <ScrollView
-            showsVerticalScrollIndicator={false}
+            horizontal
+            showsHorizontalScrollIndicator={false}
             nestedScrollEnabled={true} //중첩 스크롤뷰 인식
             style={{ height: 100 }}
           >
-            <View style={styles.addButtonView}>
+            <View style={styles.addScentView}>
               {FScents.map((button) => (
                 <View
-                  key={button.id}
-                  style={{ marginRight: 5, marginBottom: 5 }}
+                key={`${button.id}-${button.name}`}
+                  style={{ marginRight: 5 }}
                 >
-                  <TouchableOpacity
+                  <SeperateColorButton
                     onPress={() => handlePressFScent(button.id)}
                     onLongPress={() => DeleteFScentDialog(button.id)}
                     style={[
@@ -1186,13 +1249,33 @@ export default function WriteDownNote({ navigation }) {
                         borderColor: pressedFScentIds.includes(button.id)
                           ? "rgb(104,201,170)"
                           : "rgb(230,230,230)", // 테두리 색상 설정
+                          alignItems: 'center',
+                      },
+                    ]}
+                    percentFilled={7}
+                    text={button.name}
+                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
+                  />
+                  {/*<TouchableOpacity
+                    onPress={() => handlePressFScent(button.id)}
+                    onLongPress={() => DeleteFScentDialog(button.id)}
+                    style={[
+                      styles.FScentTouchableOpacity,
+                      {
+                        backgroundColor: pressedFScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 배경색 설정
+                        borderColor: pressedFScentIds.includes(button.id)
+                          ? "rgb(104,201,170)"
+                          : "rgb(230,230,230)", // 테두리 색상 설정
+                          alignItems: 'center',
                       },
                     ]}
                   >
                     <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                      {button.text}
+                      {button.name}
                     </Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity>*/}
                 </View>
               ))}
 
@@ -1221,19 +1304,27 @@ export default function WriteDownNote({ navigation }) {
         {/********************글라스********************/}
         <Card.Divider style={{ marginTop: 20 }} />
         <View style={styles.noteExpandView}>
-          <View style={styles.noteExpandTitle}>
-            <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              글라스
-            </Text>
-            <TouchableOpacity
-              onPress={handleGlassAnimate}
-              style={{ marginRight: 10, marginTop: -5 }}
-            >
-              <Icon name="chevron-right" color="black" size={30} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={handleGlassAnimate}
+          >
+            <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+              <Text
+                style={[
+                  styles.noteTitleText,
+                  { marginLeft: 20, marginTop: -2 },
+                ]}
+              >
+                글라스
+              </Text>
+
+              <Icon
+                name="chevron-right"
+                color="black"
+                size={30}
+                style={{ marginRight: 10, marginTop: -5 }}
+              />
+            </View>
+          </TouchableOpacity>
 
           <Animated.View
             style={{
@@ -1304,19 +1395,24 @@ export default function WriteDownNote({ navigation }) {
         {/********************색상********************/}
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
-          <View style={styles.noteExpandTitle}>
-            <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              색상
-            </Text>
-            <TouchableOpacity
-              onPress={handleColorAnimate}
-              style={{ marginRight: 10, marginTop: -5 }}
-            >
-              <Icon name="chevron-right" color="black" size={30} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={handleColorAnimate}>
+          <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+              <Text
+                style={[
+                  styles.noteTitleText,
+                  { marginLeft: 20, marginTop: -2 },
+                ]}
+              >
+                색상
+              </Text>
+              <Icon
+                name="chevron-right"
+                color="black"
+                size={30}
+                style={{ marginRight: 10, marginTop: -5 }}
+              />
+            </View>
+          </TouchableOpacity>
 
           <Animated.View
             style={{
@@ -1351,19 +1447,24 @@ export default function WriteDownNote({ navigation }) {
         {/********************점도********************/}
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
-          <View style={styles.noteExpandTitle}>
-            <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              점도
-            </Text>
-            <TouchableOpacity
-              onPress={handleViscosityAnimate}
-              style={{ marginRight: 10, marginTop: -5 }}
-            >
-              <Icon name="chevron-right" color="black" size={30} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={handleViscosityAnimate}>
+            <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+              <Text
+                style={[
+                  styles.noteTitleText,
+                  { marginLeft: 20, marginTop: -2 },
+                ]}
+              >
+                점도
+              </Text>
+              <Icon
+                name="chevron-right"
+                color="black"
+                size={30}
+                style={{ marginRight: 10, marginTop: -5 }}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
         <Animated.View
           style={{
@@ -1435,19 +1536,24 @@ export default function WriteDownNote({ navigation }) {
         {/********************당도********************/}
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
-          <View style={styles.noteExpandTitle}>
-            <Text
-              style={[styles.noteTitleText, { marginLeft: 20, marginTop: -2 }]}
-            >
-              당도
-            </Text>
-            <TouchableOpacity
-              onPress={handleSugarAnimate}
-              style={{ marginRight: 10, marginTop: -5 }}
-            >
-              <Icon name="chevron-right" color="black" size={30} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={handleSugarAnimate}>
+          <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+              <Text
+                style={[
+                  styles.noteTitleText,
+                  { marginLeft: 20, marginTop: -2 },
+                ]}
+              >
+                당도
+              </Text>
+              <Icon
+                name="chevron-right"
+                color="black"
+                size={30}
+                style={{ marginRight: 10, marginTop: -5 }}
+              />
+            </View>
+          </TouchableOpacity>
         </View>
         <Animated.View
           style={{
@@ -1550,6 +1656,33 @@ export default function WriteDownNote({ navigation }) {
         onCancel={() => setFTimePickerVisibility(false)}
       />
 
+      {/********************첫향, 중간맛, 끝향 바 조절 Dialog********************/}
+      <Dialog
+        isVisible={DeleteTaste}
+        onBackdropPress={() => DeleteTasteDialog(0)}
+      >
+        <Dialog.Title
+          title={`${Tastes[DeleteTasteId.bId]?.text}를 삭제하시겠습니까?`}
+        />
+
+        <Dialog.Actions>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Dialog.Button
+              title="삭제"
+              onPress={() => {
+                DeleteTasteBtn();
+              }}
+            />
+            <Dialog.Button title="취소" onPress={() => DeleteTasteDialog(0)} />
+          </View>
+        </Dialog.Actions>
+      </Dialog>
+
       {/********************느낌 버튼 삭제 Dialog********************/}
       <Dialog
         isVisible={DeleteTaste}
@@ -1577,13 +1710,39 @@ export default function WriteDownNote({ navigation }) {
         </Dialog.Actions>
       </Dialog>
 
+      {/********************첫향 버튼 삭제 Dialog********************/}
+      <Dialog
+        isVisible={DeleteScent}
+        onBackdropPress={() => DeleteScentDialog(0)}
+      >
+        <Dialog.Title
+          title={`${Scents[DeleteScentId.bId]?.name}를 삭제하시겠습니까?`}
+        />
+        <Dialog.Actions>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <Dialog.Button
+              title="삭제"
+              onPress={() => {
+                DeleteScentBtn();
+              }}
+            />
+            <Dialog.Button title="취소" onPress={() => DeleteScentDialog(0)} />
+          </View>
+        </Dialog.Actions>
+      </Dialog>
+
       {/********************중간맛 버튼 삭제 Dialog********************/}
       <Dialog
         isVisible={DeleteMTaste}
         onBackdropPress={() => DeleteMTasteDialog(0)}
       >
         <Dialog.Title
-          title={`${MTastes[DeleteMTasteId.bId]?.text}를 삭제하시겠습니까?`}
+          title={`${MTastes[DeleteMTasteId.bId]?.name}를 삭제하시겠습니까?`}
         />
 
         <Dialog.Actions>
@@ -1610,7 +1769,7 @@ export default function WriteDownNote({ navigation }) {
         onBackdropPress={() => DeleteFScentDialog(0)}
       >
         <Dialog.Title
-          title={`${FScents[DeleteFScentId.bId]?.text}를 삭제하시겠습니까?`}
+          title={`${FScents[DeleteFScentId.bId]?.name}를 삭제하시겠습니까?`}
         />
 
         <Dialog.Actions>
@@ -1701,6 +1860,12 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", //자동확장
     justifyContent: "flex-start",
   },
+  addScentView: {
+    flexDirection: "column",
+    flexWrap: "wrap", //자동확장
+    justifyContent: "space-between",
+    height: 100,
+  },
   ScentView: {
     flexDirection: "row",
     justifyContent: "flex-start",
@@ -1771,8 +1936,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, // 테두리 두께 설정
     borderRadius: 5, // 테두리의 둥근 정도 설정
     padding: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingLeft: 7,
+    paddingRight: 7,
   },
   MTasteTouchableOpacity: {
     marginRight: 4,
@@ -1810,29 +1975,3 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
 });
-
-/*
-import { StyleSheet, Text, View } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-
-export default function App() {
-  const route = useRoute();
-  const { id, otherParam } = route.params;
-
-  return (
-    <View style={styles.container}>
-      <Text>{id}</Text>
-      <Text>{otherParam}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-*/

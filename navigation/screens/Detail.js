@@ -1,26 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { View, Image, StyleSheet, TextInput, Alert, FlatList, ScrollView } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Text, Card } from "@rneui/themed";
 import { Rating } from "react-native-ratings";
+import { AppContext } from "../../AppContext";
+import axios from "axios";
 
-const Detail = ({ route, navigation }) => {
+const Detail  = ({ navigation }) => {
+  const { id, apiUrl } = useContext(AppContext);//전역변수
+
+  const route = useRoute();
+  const { alcholId } = route.params;
+
+
+  const [reviews, setReviews] = useState([]); // 리뷰 목록을 저장할 상태
+  const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
+  const [ratingValue, setRatingValue] = useState(1);
+  const [visibleReviewCount, setVisibleReviewCount] = useState(2); // 초기에 보이는 리뷰 개수
+  const [showLoadMore, setShowLoadMore] = useState(true); // 더 불러오기 버튼 보이기 여부
+
+  const [review, setReview] = useState('');
+  const [addReviewText, setAddReviewText] = useState('');
+
   const itemDetail = {
     id: 1,
-    image: require('../../images/alcholicons/terra.png'),
-    name: '테라',
-    price: 4500,
-    description: '술에 대한 설명',
+    image: require('../../images/alcholicons/sd.jpg'),
+    name: '가상의 술', // 이미지 파일의 경로에 맞게 수정
+    price: 10000,
+    description: '가상의 술에 대한 설명이 들어갑니다.',
+  };
+  const fetchReviews = async () => {//주류 리뷰 데이터 불러오기
+    const url = apiUrl+"review/"+alcholId;
+
+    try {
+      const response = await axios.get(url);
+      
+
+      if (response.data) {
+        const fetchedReviews = response.data;
+        setReviews(fetchedReviews);
+        const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+        setVisibleReviews(firstVisibleReviews);
+        setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+       
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+    }
+
+  };
+
+  const addReviews = async (common, starpoint, num, info) => {//리뷰 등록
+    const url = apiUrl+"review/";
+
+    const data={
+      id: id,
+      common : common,
+      review_starpoint : starpoint,
+      creation_date : "2023-12-10T00:00:00",//시간 데이터 넣을수있는지
+      alcohol_number : num,
+      review_info : info
+    };
+
+    try {
+      const response = await axios.post(url, data);
+
+      if (response.data) {
+        const fetchedReviews = response.data;
+        setReviews(fetchedReviews);
+        const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+        setVisibleReviews(firstVisibleReviews);
+        setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+       
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+    }
+
   };
 
   // 리뷰 목록과 리뷰 작성 상태
-  const [reviews, setReviews] = useState([]);
-  const [ratingValue, setRatingValue] = useState(3);
-  const [review, setReview] = useState('');
-  const [visibleReviews, setVisibleReviews] = useState([]);
-  const [visibleReviewCount, setVisibleReviewCount] = useState(2); // Initial number of visible reviews
-  const [showLoadMore, setShowLoadMore] = useState(true);
+
 
   // 리뷰 평균 별점 계산 함수
   const calculateAverageRating = () => {
@@ -56,9 +118,9 @@ const Detail = ({ route, navigation }) => {
   const handleLike = (reviewId) => {
     // Find the review by ID
     const updatedReviews = reviews.map((review) =>
-      review.id === reviewId
-        ? { ...review, liked: !review.liked }
-        : review
+      reviews.id === reviewId
+        ? { ...reviews, liked: !review.liked }
+        : reviews
     );
   
     // Update the reviews state
@@ -90,36 +152,6 @@ const Detail = ({ route, navigation }) => {
 
     
   };
-
-
-  useEffect(() => {
-    // 리뷰 목록을 가져오는 비동기 함수 (예: 서버에서 데이터를 가져오는 로직)
-    const fetchReviews = async () => {
-      try {
-        // 실제로는 여기에 API 호출이나 데이터베이스에서 리뷰를 가져오는 로직을 추가해야 합니다.
-        // 임시로 몇 개의 더미 리뷰를 추가하겠습니다.
-        const dummyReviews = [
-          { id: 1, rating: 4, comment: '좋아요' },
-          { id: 2, rating: 5, comment: '정말 맛있어요!' },
-          { id: 3, rating: 3, comment: '보통이에요' },
-          { id: 4, rating: 2, comment: '별로에요' },
-          // Add more dummy reviews if needed
-        ];
-
-        setReviews(dummyReviews);
-        const firstVisibleReviews = dummyReviews.slice(0, visibleReviewCount);
-        setVisibleReviews(firstVisibleReviews);
-
-        // Toggle the "Load More" button based on whether more reviews are available
-        setShowLoadMore(visibleReviewCount < dummyReviews.length);
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-      }
-    };
-
-    fetchReviews();
-  }, [route.params?.itemId, visibleReviewCount]); // Update when the count changes
-
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -183,19 +215,27 @@ const Detail = ({ route, navigation }) => {
     keyExtractor={(item) => item.id.toString()}
     renderItem={({ item }) => (
       <View style={styles.reviewItem}>
+                <TouchableOpacity onPress={() => navigation.navigate('MyPage')}>
+                <Image
+                  source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+                  style={{ width: 24, height: 24, marginTop: 10, justifyContent: 'flex-start',
+                 }}
+                />
+              </TouchableOpacity>
+
         <Text style={styles.reviewItemText}>
           별점: {item.rating}, 리뷰: {item.comment}
-        </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
-          <Image source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
-            style={{ width: 24, height: 24, marginLeft: 10 }}
-          />
-        </TouchableOpacity>
+        </Text>  
         <TouchableOpacity onPress={() => handleLike(item.id)}>
           <Ionicons
             name={'heart'}
             size={24}
             color={item.liked ? 'red' : 'black'}
+          />
+        </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
+          <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+            style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}
           />
         </TouchableOpacity>
       </View>
@@ -258,7 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    height: 100,
+    height: 70,
   },
   reviewButton: {
     backgroundColor: '#4CAF50',
@@ -266,7 +306,7 @@ const styles = StyleSheet.create({
     width: 350,
     borderRadius: 5,
     alignItems: 'center',
-    height: 70,
+    height: 50,
   },
   reviewButtonText: {
     color: 'white',

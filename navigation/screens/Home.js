@@ -106,7 +106,7 @@ export default function Home({ navigation }) {
   };
 
   const handleMenuItemPress = (itemId) => {
-    navigation.navigate("Detail", { id: itemId });
+    navigation.navigate("Detail", { alcholId: itemId });
   };
 
   const handleAdditionalMenuPress = (menuIndex) => {
@@ -121,7 +121,7 @@ export default function Home({ navigation }) {
     return itemsToSort;
   };
 
-  const handleItemsToSortStar = (array) => {//이름순 정렬
+  const handleItemsToSortStar = (array) => {//별점순 정렬
     let itemsToSort = array;
     itemsToSort.sort((a, b) => {
       return b.avgStar - a.avgStar;
