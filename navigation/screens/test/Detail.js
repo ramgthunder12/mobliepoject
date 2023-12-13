@@ -1,8 +1,14 @@
 // screens/DetailScreen.js
 import React from 'react';
 import { View, Text, Image, StyleSheet,Button } from 'react-native';
+import { AppContext } from "../../AppContext";
 
 const Detail  = ({ navigation }) => {
+  const { id, apiUrl } = useContext(AppContext);//전역변수
+
+  const route = useRoute();
+  const { alcholId } = route.params;
+
   const itemDetail = {
     id: 1,
     image: require('../../images/alcholicons/sd.jpg'),
@@ -10,7 +16,21 @@ const Detail  = ({ navigation }) => {
     price: 10000,
     description: '가상의 술에 대한 설명이 들어갑니다.',
   };
+  const handleReview = async () => {
+    const url = apiUrl+"review/"+alcholId;
 
+    
+
+    try {
+      const response = await axios.get(url);
+
+      if (response.data) {
+        
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+    }
+  };
   return (
     
     <View style={styles.container}>

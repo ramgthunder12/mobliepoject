@@ -43,7 +43,7 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
-  const { setId, apiUrl } = useContext(AppContext);//전역변수
+  const { setId, apiUrl, setNickname, setGrade ,setPoint, setCommon, setView_Num, setTastenote_Num, setStar_point} = useContext(AppContext);//전역변수
 
   const handleLogin = async (credentials, setSubmitting) => {
     //이메일, 비밀번호 확인
@@ -59,6 +59,29 @@ const Login = ({ navigation }) => {
       const response = await axios.post(url, data);
 
       if (response.data) {
+        const getUserUrl = apiUrl+"members/"+credentials.id;
+
+        try{
+          const UserResponse = await axios.get(getUserUrl);
+
+          if(UserResponse){
+            
+            const data = UserResponse.data;
+            setId(data.id);
+            setPoint(data.point);
+            setNickname(data.nickname);
+            setGrade(data.grade);
+            setCommon(data.common);
+            setView_Num(data.view_num);
+            setTastenote_Num(data.tastenote_num);
+            setStar_Point(data.starpoint);
+          
+          
+          }
+        } catch(error){
+          console.log(error);
+        }
+
         setId(credentials.id);//전역변수 id 저장
         navigation.navigate('TabContainer');
       }

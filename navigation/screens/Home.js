@@ -106,7 +106,7 @@ export default function Home({ navigation }) {
   };
 
   const handleMenuItemPress = (itemId) => {
-    navigation.navigate("Detail", { id: itemId });
+    navigation.navigate("Detail", { alcholId: itemId });
   };
 
   const handleAdditionalMenuPress = (menuIndex) => {
@@ -129,8 +129,7 @@ export default function Home({ navigation }) {
     return itemsToSort;
   };
 
-  const getadditionalMenuItems = () => {
-    let sortedMenuItems = [];
+  const getMenuItems = () => {
     switch (index) {
       case 0://이름순
         if(CategoryIndex === 0){//전체
