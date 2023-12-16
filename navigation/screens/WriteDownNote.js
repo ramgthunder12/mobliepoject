@@ -7,19 +7,16 @@ import {
   View,
   Animated,
   Image,
-  ImageBackground,
-  FlatList,
   Dimensions,
   Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext, useMemo } from "react";
 import {
   Header,
   Icon,
   Card,
-  Button,
   Dialog,
   Slider,
   Switch,
@@ -68,12 +65,16 @@ export default function WriteDownNote({ navigation }) {
   /*메모 */
   const [memoText, setMemoText] = useState(""); //메모 내용
 
+  /*첫중끝 공통*/
+  const [slideVisible, setSlideVisible] = useState({index: 0, id: 0, b: false});//첫중끝 구별, 버튼id, 슬라이더보이게
+  const [slideValue, setSlideValue] = useState(1);//슬라이더로 받은 값
+
   /*첫향*/
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [DateText, setDateText] = useState("00.00.00 00:00:00");
   const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
-  const [Scents, setScents] = useState([]); //첫향 버튼 배열 { id, name, value }
-  const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id
+  const [Scents, setScents] = useState([]); //첫향 버튼 배열 { id, name }
+  const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, value }
   const [DeleteScent, setDeleteScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
@@ -81,8 +82,8 @@ export default function WriteDownNote({ navigation }) {
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false); //시간 선택 모달
   const [TimeText, setTimeText] = useState("00:00");
   const [showMTasteTextInput, setshowMTasteTextInput] = useState([]); //textinput 생성 및 삭제
-  const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열 { id, name, value }
-  const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id
+  const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열 { id, name }
+  const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id { btnId, value }
   const [DeleteMTaste, setDeleteMTaste] = useState(false); //중간맛 버튼 삭제 Dialog on/off
   const [DeleteMTasteId, setDeleteMTasteId] = useState({ bId: 0 }); //삭제 시 중간맛 버튼 id
 
@@ -90,8 +91,8 @@ export default function WriteDownNote({ navigation }) {
   const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
   const [FTimeText, setFTimeText] = useState("00:00");
   const [showFScentTextInput, setshowFScentTextInput] = useState([]); //textinput 생성 및 삭제
-  const [FScents, setFScents] = useState([]); //첫향 버튼 배열 { id, name, value }
-  const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id
+  const [FScents, setFScents] = useState([]); //첫향 버튼 배열 { id, name }
+  const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, value }
   const [DeleteFScent, setDeleteFScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteFScentId, setDeleteFScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
@@ -303,42 +304,127 @@ export default function WriteDownNote({ navigation }) {
   /********************별점********************/
 
   /********************반절 색칠하는 버튼 UI********************/
-  const SeperateColorButton = ({ onPress, onLongPress, style, percentFilled, fillColor, text, textStyle }) => {//1~10
+  const SeperateColorButton = ({ onPress, onLongPress, percentFilled, fillColor, borderColor, text}) => {//1~10
     const containerStyle = {
       flexDirection: 'row',
-      backgroundColor: '#fff', // 전체 배경 색상
-      borderRadius: 8,
+      justifyContent: 'center',
+      backgroundColor: 'rgb(230,230,230)', // 전체 배경 색상
+      height: 27,
+      width: 75,
+      marginRight: 4,
+      borderWidth: 1, // 테두리 두께 설정
+      borderRadius: 5, // 테두리의 둥근 정도 설정
       overflow: 'hidden',
     };
   
     const filledAreaStyle = {
       flex: percentFilled / 10,
       backgroundColor: fillColor, // 채워진 영역의 배경 색상
+      borderColor: borderColor,
     };
   
     const emptyAreaStyle = {
       flex: (10 - percentFilled) / 10,
       backgroundColor: 'transparent', // 비어있는 영역의 배경 색상
     };
+
+    const textStyle={ fontSize: 20, color: "rgb(80,80,80)", backgroundColor: 'transparent', position: 'absolute'};
   
     return (
-      <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={style}>
+      <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={containerStyle}>
         <View style={filledAreaStyle}></View>
-        <View style={emptyAreaStyle}></View>
         <Text style={textStyle}>{text}</Text>
+        <View style={emptyAreaStyle}></View>
       </TouchableOpacity>
     );
   };
   /********************반절 색칠하는 버튼 UI********************/
 
+  /********************첫향, 중간맛, 끝향 공통********************/
+
+  const handlePressScent = () => {//value : 슬라이더로 받은 값
+    //느낌 버튼을 누른 버튼id
+    const buttonId = slideVisible.id;
+    
+    if(slideVisible.index === 0){//첫 향
+
+      setPressedScentIds((prevPressedButtonIds) => {
+        if (pressedScentIds.some(item => item.btnId === buttonId)) {
+          // 이미 눌린 경우, 제거
+          return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
+        } else {
+          // 눌리지 않은 경우, 추가
+          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+        }
+      });
+
+    } else if(slideVisible.index === 1){//중간맛
+
+      setPressedMTasteIds((prevPressedButtonIds) => {
+        if (pressedMTasteIds.some(item => item.btnId === buttonId)) {
+          // 이미 눌린 경우, 제거
+          return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
+        } else {
+          // 눌리지 않은 경우, 추가
+          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+        }
+      });
+
+    } else if(slideVisible.index === 2){//끝향
+
+      setPressedFScentIds((prevPressedButtonIds) => {
+        if (pressedFScentIds.some(item => item.btnId === buttonId)) {
+          // 이미 눌린 경우, 제거
+          return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
+        } else {
+          // 눌리지 않은 경우, 추가
+          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+        }
+      });
+    }
+
+    setSlideVisible({index: 0, id: 0, b: false});//모두 초기화
+    setSlideValue(1);
+  };
+
+  const handleScentButton = (index, id) => {
+    if(index === 0){
+      if(pressedScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({index: 0, id: id, b: true});
+    }else if(index === 1){
+      if(pressedMTasteIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({index: 1, id: id, b: true});
+    }else if(index === 2){
+      if(pressedFScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({index: 2, id: id, b: true});
+    }
+  };
+
+  /********************첫향, 중간맛, 끝향 공통********************/
+
   /********************첫향********************/
+  const memoizedScents = useMemo(() => {
+    return Scents.map((button) => (
+      <View key={`${button.id}-${button.name}`} style={{ marginRight: 5 }}>
+        {console.log('id: ' + button.id)}
+        <SeperateColorButton
+          onPress={() => handleScentButton(0, button.id)}
+          onLongPress={() => DeleteScentDialog(button.id-1)}
+          fillColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
+          borderColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
+          percentFilled={pressedScentIds.some(item => item.btnId === button.id) ? pressedScentIds.find(item => item.btnId === button.id).value : 0}
+          text={button.name}
+        />
+      </View>
+    ));
+  }, [Scents, pressedScentIds]);
+
   const addScent = () => {
     //느낌추가
     const newScent = {
       //새로운 버튼 추가
       id: ScentId,
-      name: buttonText,
-      value: 0
+      name: buttonText
     };
     if (buttonText.length === 0) {
       //이름 입력 안하면 종료
@@ -349,20 +435,6 @@ export default function WriteDownNote({ navigation }) {
     ScentId++; //버튼 id 증가
     setshowScentTextInput(showScentTextInput.slice(1)); //textinput 제거
     setButtonText(""); //버튼 이름 초기화
-  };
-
-  const handlePressScent = (buttonId) => {
-    //느낌 버튼을 누른 버튼id
-    // 토글 상태 변경
-    setPressedScentIds((prevPressedButtonIds) => {
-      if (prevPressedButtonIds.includes(buttonId)) {
-        // 이미 눌린 경우, 제거
-        return prevPressedButtonIds.filter((id) => id !== buttonId);
-      } else {
-        // 눌리지 않은 경우, 추가
-        return [...prevPressedButtonIds, buttonId];
-      }
-    });
   };
 
   const writeScent = () => {
@@ -408,13 +480,34 @@ export default function WriteDownNote({ navigation }) {
   /********************첫향********************/
 
   /********************중간맛********************/
+  const memoizedMTastes = useMemo(() => {
+    return MTastes.map((button) => (
+      <View
+      key={`${button.id}-${button.name}`}
+        style={{ marginRight: 5 }}
+      >
+        <SeperateColorButton
+          onPress={() => handleScentButton(1, button.id)}
+          onLongPress={() => DeleteMTasteDialog(button.id-1)}
+          fillColor={pressedMTasteIds.some(item => item.btnId === button.id)
+            ? "rgb(104,201,170)"
+            : "rgb(230,230,230)"}
+          borderColor={pressedMTasteIds.some(item => item.btnId === button.id)
+            ? "rgb(104,201,170)"
+            : "rgb(230,230,230)"}
+          percentFilled={pressedMTasteIds.some(item => item.btnId === button.id) ? pressedMTasteIds.find(item => item.btnId === button.id).value : 0}
+          text={button.name}
+        />
+      </View>
+        ));
+  }, [MTastes, pressedMTasteIds]);
+
   const addMTaste = () => {
     //느낌추가
     const newMTaste = {
       //새로운 버튼 추가
       id: MTasteId,
-      name: buttonText,
-      value: 0
+      name: buttonText
     };
 
     if (buttonText.length === 0) {
@@ -435,22 +528,6 @@ export default function WriteDownNote({ navigation }) {
     if (showMTasteTextInput.length === 0) {
       setshowMTasteTextInput([...showMTasteTextInput, { id: 1 }]);
     }
-  };
-
-  const handlePressMTaste = (buttonId) => {//중간맛 버튼 눌렀을 때
-    // 토글 상태 변경
-    setPressedMTasteIds((prevPressedButtonIds) => {
-      if (prevPressedButtonIds.includes(buttonId)) {
-        // 이미 눌린 경우, 제거
-        return prevPressedButtonIds.filter((id) => id !== buttonId);
-      } else if(pressedMTasteIds.length === 8){
-        Alert.alert('알림', '최대 8개만 선택 가능합니다');
-        return prevPressedButtonIds;
-      } else {
-        // 눌리지 않은 경우, 추가
-        return [...prevPressedButtonIds, buttonId];
-      }
-    });
   };
 
   const DeleteMTasteDialog = (bId) => {
@@ -486,13 +563,34 @@ export default function WriteDownNote({ navigation }) {
   /********************중간맛********************/
 
   /********************끝향********************/
+  const memoizedFScents = useMemo(() => {
+    return FScents.map((button) => (
+      <View
+      key={`${button.id}-${button.name}`}
+        style={{ marginRight: 5 }}
+      >
+        <SeperateColorButton
+          onPress={() => handleScentButton(2, button.id)}
+          onLongPress={() => DeleteFScentDialog(button.id-1)}
+          fillColor={pressedFScentIds.some(item => item.btnId === button.id)
+            ? "rgb(104,201,170)"
+            : "rgb(230,230,230)"}
+          borderColor={pressedFScentIds.some(item => item.btnId === button.id)
+            ? "rgb(104,201,170)"
+            : "rgb(230,230,230)"}
+          percentFilled={pressedFScentIds.some(item => item.btnId === button.id) ? pressedFScentIds.find(item => item.btnId === button.id).value : 0}
+          text={button.name}
+        />
+      </View>
+    ));
+  }, [FScents, pressedFScentIds]);
+
   const addFScent = () => {
     //느낌추가
     const newFScent = {
       //새로운 버튼 추가
       id: FScentId,
-      name: buttonText,
-      value: 0
+      name: buttonText
     };
 
     if (buttonText.length === 0) {
@@ -513,20 +611,6 @@ export default function WriteDownNote({ navigation }) {
     if (showFScentTextInput.length === 0) {
       setshowFScentTextInput([...showFScentTextInput, { id: 1 }]);
     }
-  };
-
-  const handlePressFScent = (buttonId) => {
-    //느낌 버튼을 누른 버튼id
-    // 토글 상태 변경
-    setPressedFScentIds((prevPressedButtonIds) => {
-      if (prevPressedButtonIds.includes(buttonId)) {
-        // 이미 눌린 경우, 제거
-        return prevPressedButtonIds.filter((id) => id !== buttonId);
-      } else {
-        // 눌리지 않은 경우, 추가
-        return [...prevPressedButtonIds, buttonId];
-      }
-    });
   };
 
   const DeleteFScentDialog = (bId) => {
@@ -718,18 +802,17 @@ export default function WriteDownNote({ navigation }) {
   /********************당도********************/
 
   /********************api********************/
-  const getScents = async () => {
+  const getScents = async () => {//느낌 가져오기
     const url = apiUrl + "scent/";
 
     try {
       const response = await axios.get(url);
 
       if (response.data) {
-        const limitedArray = response.data.slice(0, 40);
+        const limitedArray = response.data.slice(0, 30);
         const transformedData = limitedArray.map(item => ({
           id: item.scentNumber,
-          name: item.scentInfo,
-          value: 0
+          name: item.scentInfo
         }));
 
         /*첫향 초기화 */
@@ -748,7 +831,22 @@ export default function WriteDownNote({ navigation }) {
       // API 호출 중 에러가 발생한 경우
       console.log(error);
     }
-  }
+  };
+
+  const saveTasteNote = async () => {//테이스팅노트 저장
+    const url = apiUrl + "";
+
+    try {
+      const response = await axios.get(url);
+
+      if (response.data) {
+
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log(error);
+    }
+  };
   /********************api********************/
 
   useEffect(() => {
@@ -1046,38 +1144,10 @@ export default function WriteDownNote({ navigation }) {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
             style={{ height: 100 }}
           >
             <View style={styles.addScentView}>
-
-            {Scents.map((button) => (
-                <View
-                  key={`${button.id}-${button.name}`}
-                  style={{ marginRight: 5 }}
-                >
-                  <SeperateColorButton
-                    onPress={() => handlePressScent(button.id)}
-                    onLongPress={() => DeleteScentDialog(button.id)}
-                    style={[
-                      styles.ScentTouchableOpacity,
-                      {
-                        backgroundColor: pressedScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 배경색 설정
-                        borderColor: pressedScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 테두리 색상 설정
-                          alignItems: 'center',
-                      },
-                    ]}
-                    percentFilled={7}
-                    text={button.name}
-                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
-                  />
-                </View>
-              ))}
-
+              {memoizedScents}
               {showScentTextInput.map((textinput) => (
                 <TextInput
                   key={textinput.id}
@@ -1137,38 +1207,10 @@ export default function WriteDownNote({ navigation }) {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
             style={{ height: 100 }}
           >
             <View style={styles.addScentView}>
-              {MTastes.map((button) => (
-                <View
-                key={`${button.id}-${button.name}`}
-                  style={{ marginRight: 5 }}
-                >
-                  <SeperateColorButton
-                    onPress={() => handlePressMTaste(button.id)}
-                    onLongPress={() => DeleteMTasteDialog(button.id)}
-                    style={[
-                      styles.MTasteTouchableOpacity,
-                      {
-                        backgroundColor: pressedMTasteIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 배경색 설정
-                        borderColor: pressedMTasteIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 테두리 색상 설정
-                          alignItems: 'center',
-                      },
-                    ]}
-                    fillColor={"rgb(104,201,170)"}
-                    percentFilled={7}
-                    text={button.name}
-                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
-                  />
-                </View>
-                  ))}
-
+              {memoizedMTastes}
               {showMTasteTextInput.map((textinput) => (
                 <TextInput
                   key={textinput.id}
@@ -1228,57 +1270,10 @@ export default function WriteDownNote({ navigation }) {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            nestedScrollEnabled={true} //중첩 스크롤뷰 인식
             style={{ height: 100 }}
           >
             <View style={styles.addScentView}>
-              {FScents.map((button) => (
-                <View
-                key={`${button.id}-${button.name}`}
-                  style={{ marginRight: 5 }}
-                >
-                  <SeperateColorButton
-                    onPress={() => handlePressFScent(button.id)}
-                    onLongPress={() => DeleteFScentDialog(button.id)}
-                    style={[
-                      styles.FScentTouchableOpacity,
-                      {
-                        backgroundColor: pressedFScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 배경색 설정
-                        borderColor: pressedFScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 테두리 색상 설정
-                          alignItems: 'center',
-                      },
-                    ]}
-                    percentFilled={7}
-                    text={button.name}
-                    textStyle={{ fontSize: 20, color: "rgb(80,80,80)" }}
-                  />
-                  {/*<TouchableOpacity
-                    onPress={() => handlePressFScent(button.id)}
-                    onLongPress={() => DeleteFScentDialog(button.id)}
-                    style={[
-                      styles.FScentTouchableOpacity,
-                      {
-                        backgroundColor: pressedFScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 배경색 설정
-                        borderColor: pressedFScentIds.includes(button.id)
-                          ? "rgb(104,201,170)"
-                          : "rgb(230,230,230)", // 테두리 색상 설정
-                          alignItems: 'center',
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 20, color: "rgb(80,80,80)" }}>
-                      {button.name}
-                    </Text>
-                  </TouchableOpacity>*/}
-                </View>
-              ))}
-
+              {memoizedFScents}
               {showFScentTextInput.map((textinput) => (
                 <TextInput
                   key={textinput.id}
@@ -1657,31 +1652,61 @@ export default function WriteDownNote({ navigation }) {
       />
 
       {/********************첫향, 중간맛, 끝향 바 조절 Dialog********************/}
-      <Dialog
-        isVisible={DeleteTaste}
-        onBackdropPress={() => DeleteTasteDialog(0)}
-      >
-        <Dialog.Title
-          title={`${Tastes[DeleteTasteId.bId]?.text}를 삭제하시겠습니까?`}
+      <Dialog isVisible={slideVisible.b} onBackdropPress={() => setSlideVisible({ index: 0, id: 0, b: false })}>
+      <Dialog.Title title={`슬라이더바 삭제하시겠습니까?`} />
+
+        {/* Slider를 다이얼로그 안에 포함 */}
+        <Slider
+          value={slideValue}
+          onValueChange={setSlideValue}
+          maximumValue={10}
+          minimumValue={1}
+          step={1}
+          allowTouchTrack
+          trackStyle={{ height: 5, backgroundColor: "transparent" }}
+          thumbStyle={{
+            height: 20,
+            width: 20,
+            backgroundColor: "transparent",
+          }}
+          thumbProps={{
+            children: (
+              <View
+                style={{
+                  bottom: 15,
+                  right: 16,
+                  width: 50,
+                  height: 50,
+                }}
+              >
+                <Icon
+                  name="water"
+                  type="material-community"
+                  size={50}
+                  color="black"
+                />
+              </View>
+            ),
+          }}
         />
 
-        <Dialog.Actions>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+      <Dialog.Actions>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Dialog.Button
+            title="확인"
+            onPress={() => {
+              handlePressScent();
             }}
-          >
-            <Dialog.Button
-              title="삭제"
-              onPress={() => {
-                DeleteTasteBtn();
-              }}
-            />
-            <Dialog.Button title="취소" onPress={() => DeleteTasteDialog(0)} />
-          </View>
-        </Dialog.Actions>
-      </Dialog>
+          />
+          <Dialog.Button title="취소" onPress={() => setSlideVisible({ index: 0, id: 0, b: false })} />
+        </View>
+      </Dialog.Actions>
+    </Dialog>
 
       {/********************느낌 버튼 삭제 Dialog********************/}
       <Dialog
@@ -1932,22 +1957,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   ScentTouchableOpacity: {
-    marginRight: 4,
-    borderWidth: 1, // 테두리 두께 설정
-    borderRadius: 5, // 테두리의 둥근 정도 설정
-    padding: 2,
-    paddingLeft: 7,
-    paddingRight: 7,
-  },
-  MTasteTouchableOpacity: {
-    marginRight: 4,
-    borderWidth: 1, // 테두리 두께 설정
-    borderRadius: 5, // 테두리의 둥근 정도 설정
-    padding: 2,
-    paddingLeft: 7,
-    paddingRight: 7,
-  },
-  FScentTouchableOpacity: {
     marginRight: 4,
     borderWidth: 1, // 테두리 두께 설정
     borderRadius: 5, // 테두리의 둥근 정도 설정
