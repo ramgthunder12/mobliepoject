@@ -17,7 +17,7 @@ export default function Category({ navigation }) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           
           {/*테이스팅 노트 작성하기*/}
-          <TouchableOpacity onPress={() => navigation.navigate('WriteDownNote')}>
+          <TouchableOpacity onPress={() => navigation.navigate('WriteDownNote', { alcoholId: 0})}>
           <View style={styles.addTasteNoteView}>
             <Icon name="pluscircleo" type="antdesign" size={30} color="rgb(255,255,255)"/>
           </View>

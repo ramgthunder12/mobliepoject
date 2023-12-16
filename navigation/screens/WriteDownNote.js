@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { useRoute } from '@react-navigation/native';
 import * as ImagePicker from "expo-image-picker";
 import React, { useState, useEffect, useRef, useContext, useMemo } from "react";
 import {
@@ -32,11 +33,14 @@ let ScentId = 0; //첫향 버튼 id
 let MTasteId = 0; //중간맛 버튼 id
 let FScentId = 0; //끝향 버튼 id
 let GlassId = 0; //글라스 버튼 id
+let btnName = "";//선택한 버튼 이름
 
 export default function WriteDownNote({ navigation }) {
   const [buttonText, setButtonText] = useState(""); //버튼 이름
   const screenWidth = Dimensions.get("window").width; //화면 가로길이
   const { id, apiUrl } = useContext(AppContext);//전역변수
+  const route = useRoute();
+  const { alcoholId } = route.params;
 
   /*전체공개*/
   const [FullOpen, setFullOpen] = useState(false);
@@ -50,7 +54,7 @@ export default function WriteDownNote({ navigation }) {
 
   /*시음일*/
   const [isTastingDayVisible, setTastingDayVisible] = useState(false); //날짜 및 시간 선택 모달
-  const [TastingDay, setTastingDay] = useState("0000. 00. 00");
+  const [TastingDay, setTastingDay] = useState("");
 
   /*느낌 */
   const [showTasteTextInput, setshowTasteTextInput] = useState([]); //textinput 생성 및 삭제
@@ -71,28 +75,28 @@ export default function WriteDownNote({ navigation }) {
 
   /*첫향*/
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
-  const [DateText, setDateText] = useState("00.00.00 00:00:00");
+  const [DateText, setDateText] = useState("");
   const [showScentTextInput, setshowScentTextInput] = useState([]); //textinput 생성 및 삭제
   const [Scents, setScents] = useState([]); //첫향 버튼 배열 { id, name }
-  const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, value }
+  const [pressedScentIds, setPressedScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, name, value }
   const [DeleteScent, setDeleteScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteScentId, setDeleteScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
   /*중간맛*/
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false); //시간 선택 모달
-  const [TimeText, setTimeText] = useState("00:00");
+  const [TimeText, setTimeText] = useState("");
   const [showMTasteTextInput, setshowMTasteTextInput] = useState([]); //textinput 생성 및 삭제
   const [MTastes, setMTastes] = useState([]); //중간맛 버튼 배열 { id, name }
-  const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id { btnId, value }
+  const [pressedMTasteIds, setPressedMTasteIds] = useState([]); //중간맛 버튼을 누른 버튼id { btnId, name, value }
   const [DeleteMTaste, setDeleteMTaste] = useState(false); //중간맛 버튼 삭제 Dialog on/off
   const [DeleteMTasteId, setDeleteMTasteId] = useState({ bId: 0 }); //삭제 시 중간맛 버튼 id
 
   /*끝향*/
   const [isFTimePickerVisible, setFTimePickerVisibility] = useState(false); //날짜 및 시간 선택 모달
-  const [FTimeText, setFTimeText] = useState("00:00");
+  const [FTimeText, setFTimeText] = useState("");
   const [showFScentTextInput, setshowFScentTextInput] = useState([]); //textinput 생성 및 삭제
   const [FScents, setFScents] = useState([]); //첫향 버튼 배열 { id, name }
-  const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, value }
+  const [pressedFScentIds, setPressedFScentIds] = useState([]); //첫향 버튼을 누른 버튼id { btnId, name, value }
   const [DeleteFScent, setDeleteFScent] = useState(false); //첫향 버튼 삭제 Dialog on/off
   const [DeleteFScentId, setDeleteFScentId] = useState({ bId: 0 }); //삭제 시 첫향 버튼 id
 
@@ -141,11 +145,6 @@ export default function WriteDownNote({ navigation }) {
   const SugarHeightValue = useRef(new Animated.Value(0)).current; //당도 기능 확장 애니메이션
   const [SugarValue, setSugarValue] = useState(0); //당도 값
 
-  const SaveNote = () => {
-    //노트저장
-    console.log("노트저장");
-    navigation.goBack();
-  };
   const NoteExit = () => {
     //노트 나가기
     navigation.goBack();
@@ -229,7 +228,7 @@ export default function WriteDownNote({ navigation }) {
     const month = date.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
     const day = date.getDate();
 
-    setTastingDay(`${year}. ${month}. ${day}`);
+    setTastingDay(`${year}.${month}.${day}`);
 
     setTastingDayVisible(false);
   };
@@ -354,7 +353,7 @@ export default function WriteDownNote({ navigation }) {
           return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
         } else {
           // 눌리지 않은 경우, 추가
-          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+          return [...prevPressedButtonIds, { btnId: buttonId, name: btnName, value: slideValue }];
         }
       });
 
@@ -366,7 +365,7 @@ export default function WriteDownNote({ navigation }) {
           return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
         } else {
           // 눌리지 않은 경우, 추가
-          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+          return [...prevPressedButtonIds, { btnId: buttonId, name: btnName, value: slideValue }];
         }
       });
 
@@ -378,7 +377,7 @@ export default function WriteDownNote({ navigation }) {
           return prevPressedButtonIds.filter((item) => item.btnId !== buttonId);
         } else {
           // 눌리지 않은 경우, 추가
-          return [...prevPressedButtonIds, { btnId: buttonId, value: slideValue }];
+          return [...prevPressedButtonIds, { btnId: buttonId, name: btnName, value: slideValue }];
         }
       });
     }
@@ -387,7 +386,9 @@ export default function WriteDownNote({ navigation }) {
     setSlideValue(1);
   };
 
-  const handleScentButton = (index, id) => {
+  const handleScentButton = (index, id, name) => {
+    btnName=name;
+
     if(index === 0){
       if(pressedScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
       else setSlideVisible({index: 0, id: id, b: true});
@@ -408,7 +409,7 @@ export default function WriteDownNote({ navigation }) {
       <View key={`${button.id}-${button.name}`} style={{ marginRight: 5 }}>
         {console.log('id: ' + button.id)}
         <SeperateColorButton
-          onPress={() => handleScentButton(0, button.id)}
+          onPress={() => handleScentButton(0, button.id, button.name)}
           onLongPress={() => DeleteScentDialog(button.id-1)}
           fillColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
           borderColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
@@ -459,7 +460,7 @@ export default function WriteDownNote({ navigation }) {
     const minutes = date.getMinutes().toString().padStart(2, "0");
     //const seconds = date.getSeconds();//초는 선택불가
 
-    setDateText(`${year}.${month}.${day} ${hours}:${minutes}`);
+    setDateText(`${year}-${month}-${day} ${hours}:${minutes}`);
 
     setDatePickerVisibility(false);
   };
@@ -487,7 +488,7 @@ export default function WriteDownNote({ navigation }) {
         style={{ marginRight: 5 }}
       >
         <SeperateColorButton
-          onPress={() => handleScentButton(1, button.id)}
+          onPress={() => handleScentButton(1, button.id, button.name)}
           onLongPress={() => DeleteMTasteDialog(button.id-1)}
           fillColor={pressedMTasteIds.some(item => item.btnId === button.id)
             ? "rgb(104,201,170)"
@@ -570,7 +571,7 @@ export default function WriteDownNote({ navigation }) {
         style={{ marginRight: 5 }}
       >
         <SeperateColorButton
-          onPress={() => handleScentButton(2, button.id)}
+          onPress={() => handleScentButton(2, button.id, button.name)}
           onLongPress={() => DeleteFScentDialog(button.id-1)}
           fillColor={pressedFScentIds.some(item => item.btnId === button.id)
             ? "rgb(104,201,170)"
@@ -711,7 +712,6 @@ export default function WriteDownNote({ navigation }) {
   };
 
   const DeleteGlassBtn = () => {
-    //느낌 버튼 삭제하기
     const updatedGlasss = Glasss.filter(
       (Glass) => Glass.id !== DeleteGlassId.bId
     );
@@ -802,6 +802,109 @@ export default function WriteDownNote({ navigation }) {
   /********************당도********************/
 
   /********************api********************/
+  const SaveNote = async () => {//노트저장
+    const url = apiUrl + "tastenote/";
+
+    let alcoholNumber;
+    if(alcoholId === 0) alcoholNumber = 1;
+    else alcoholNumber = alcoholId;
+
+    let open;
+    if(FullOpen) open='Y';
+    else open='N';
+
+    const ScentNames = pressedScentIds.map(({ name }) => name);
+    const ScentValues = pressedScentIds.map(({ value }) => value);
+
+    const MTasteNames = pressedMTasteIds.map(({ name }) => name);
+    const MTasteValues = pressedMTasteIds.map(({ value }) => value);
+
+    const FScentNames = pressedFScentIds.map(({ name }) => name);
+    const FScentValues = pressedFScentIds.map(({ value }) => value);
+
+    const GlassList = pressedGlassIds.map((id) => {
+      const glass = Glasss.find((val) => val.id === id);
+      return glass ? glass.text : null;
+    });
+
+    const TasteList = pressedTasteIds.map((id) => {
+      const taste = Tastes.find((val) => val.id === id);
+      return taste ? taste.text : null;
+    });
+
+    const currentDateTime = new Date();//현재 시간
+    const year = currentDateTime.getFullYear();
+    const month = String(currentDateTime.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDateTime.getDate()).padStart(2, '0');
+    const seconds = String(currentDateTime.getSeconds()).padStart(2, '0');
+
+    const formattedCurrentDate = `${year}-${month}-${day}`;//현재 날짜
+
+    const tastingDayForMariaDB = TastingDay.replace(/\./g, '-');//시음일
+
+    const firstscentDate = `${DateText}:${seconds}`;//첫향시간
+
+    const dayParts = DateText.split(" ");
+    const middlescent = `${dayParts[0]} ${TimeText}:${seconds}`;//중간시간
+    const finalscent = `${dayParts[0]} ${FTimeText}:${seconds}`;//끝향시간
+
+    const data = {
+      id: id,
+      alcohol_number: alcoholNumber,//임시
+      creationDate: formattedCurrentDate,
+      taste_number: 4,
+      scent_number: 4,
+      open: open,
+      tastingDay: tastingDayForMariaDB,
+      firstscent: ScentNames,
+    };
+    // const data = {
+    //   id: id,
+    //   alcohol_number: alcoholNumber,//임시
+    //   tastenote_starpoint: ratingValue,
+    //   creationdate: formattedCurrentDate,
+    //   tastenote_info: TasteList,//이게 느낌배열
+    //   tastenote_format: "what the hell",
+    //   taste_number: 4,
+    //   scent_number: 4,
+    //   open: open,
+    //   tasting_day: tastingDayForMariaDB,
+    //   memo: memoText,
+    //   firstscent: ScentNames,
+    //   firstscent_value: ScentValues,
+    //   firstscent_date: firstscentDate,
+    //   middlescent: MTasteNames,
+    //   middlescent_value: MTasteValues,
+    //   middlescent_date: middlescent,
+    //   finalscent: FScentNames,
+    //   finalscent_value: FScentValues,
+    //   finalscent_date: finalscent,
+    //   glass: GlassList,
+    //   color: ColorArray[ColorSelected],
+    //   viscosity: ViscosityValue,
+    //   sugar: SugarValue
+    // };
+
+    const jsonString = JSON.stringify(data);
+
+    console.log(jsonString);
+
+    try {
+      const response = await axios.post(url, jsonString);
+
+      console.log(response.data);
+      if (response.data) {
+        console.log(response.data);
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log(error);
+    }
+
+    console.log("노트저장");
+    navigation.goBack();
+  };
+
   const getScents = async () => {//느낌 가져오기
     const url = apiUrl + "scent/";
 
@@ -832,25 +935,23 @@ export default function WriteDownNote({ navigation }) {
       console.log(error);
     }
   };
-
-  const saveTasteNote = async () => {//테이스팅노트 저장
-    const url = apiUrl + "";
-
-    try {
-      const response = await axios.get(url);
-
-      if (response.data) {
-
-      }
-    } catch (error) {
-      // API 호출 중 에러가 발생한 경우
-      console.log(error);
-    }
-  };
   /********************api********************/
 
   useEffect(() => {
     requestImagePermission(); //이미지 접근 권한 요청
+
+    /*날짜 초기화*/
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 1을 더해줍니다.
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    setDateText(`${year}-${month}-${day} ${hours}:${minutes}`);
+    setTimeText(`${hours}:${minutes}`);
+    setFTimeText(`${hours}:${minutes}`);
+    setTastingDay(`${year}.${month}.${day}`);
 
     /*느낌 초기화 */
     const TasteData = [
