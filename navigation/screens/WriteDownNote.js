@@ -70,7 +70,7 @@ export default function WriteDownNote({ navigation }) {
   const [memoText, setMemoText] = useState(""); //메모 내용
 
   /*첫중끝 공통*/
-  const [slideVisible, setSlideVisible] = useState({index: 0, id: 0, b: false});//첫중끝 구별, 버튼id, 슬라이더보이게
+  const [slideVisible, setSlideVisible] = useState({ index: 0, id: 0, b: false });//첫중끝 구별, 버튼id, 슬라이더보이게
   const [slideValue, setSlideValue] = useState(1);//슬라이더로 받은 값
 
   /*첫향*/
@@ -303,7 +303,7 @@ export default function WriteDownNote({ navigation }) {
   /********************별점********************/
 
   /********************반절 색칠하는 버튼 UI********************/
-  const SeperateColorButton = ({ onPress, onLongPress, percentFilled, fillColor, borderColor, text}) => {//1~10
+  const SeperateColorButton = ({ onPress, onLongPress, percentFilled, fillColor, borderColor, text }) => {//1~10
     const containerStyle = {
       flexDirection: 'row',
       justifyContent: 'center',
@@ -315,20 +315,20 @@ export default function WriteDownNote({ navigation }) {
       borderRadius: 5, // 테두리의 둥근 정도 설정
       overflow: 'hidden',
     };
-  
+
     const filledAreaStyle = {
       flex: percentFilled / 10,
       backgroundColor: fillColor, // 채워진 영역의 배경 색상
       borderColor: borderColor,
     };
-  
+
     const emptyAreaStyle = {
       flex: (10 - percentFilled) / 10,
       backgroundColor: 'transparent', // 비어있는 영역의 배경 색상
     };
 
-    const textStyle={ fontSize: 20, color: "rgb(80,80,80)", backgroundColor: 'transparent', position: 'absolute'};
-  
+    const textStyle = { fontSize: 20, color: "rgb(80,80,80)", backgroundColor: 'transparent', position: 'absolute' };
+
     return (
       <TouchableOpacity onPress={onPress} onLongPress={onLongPress} style={containerStyle}>
         <View style={filledAreaStyle}></View>
@@ -344,8 +344,8 @@ export default function WriteDownNote({ navigation }) {
   const handlePressScent = () => {//value : 슬라이더로 받은 값
     //느낌 버튼을 누른 버튼id
     const buttonId = slideVisible.id;
-    
-    if(slideVisible.index === 0){//첫 향
+
+    if (slideVisible.index === 0) {//첫 향
 
       setPressedScentIds((prevPressedButtonIds) => {
         if (pressedScentIds.some(item => item.btnId === buttonId)) {
@@ -357,7 +357,7 @@ export default function WriteDownNote({ navigation }) {
         }
       });
 
-    } else if(slideVisible.index === 1){//중간맛
+    } else if (slideVisible.index === 1) {//중간맛
 
       setPressedMTasteIds((prevPressedButtonIds) => {
         if (pressedMTasteIds.some(item => item.btnId === buttonId)) {
@@ -369,7 +369,7 @@ export default function WriteDownNote({ navigation }) {
         }
       });
 
-    } else if(slideVisible.index === 2){//끝향
+    } else if (slideVisible.index === 2) {//끝향
 
       setPressedFScentIds((prevPressedButtonIds) => {
         if (pressedFScentIds.some(item => item.btnId === buttonId)) {
@@ -382,22 +382,22 @@ export default function WriteDownNote({ navigation }) {
       });
     }
 
-    setSlideVisible({index: 0, id: 0, b: false});//모두 초기화
+    setSlideVisible({ index: 0, id: 0, b: false });//모두 초기화
     setSlideValue(1);
   };
 
   const handleScentButton = (index, id, name) => {
-    btnName=name;
+    btnName = name;
 
-    if(index === 0){
-      if(pressedScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
-      else setSlideVisible({index: 0, id: id, b: true});
-    }else if(index === 1){
-      if(pressedMTasteIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
-      else setSlideVisible({index: 1, id: id, b: true});
-    }else if(index === 2){
-      if(pressedFScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
-      else setSlideVisible({index: 2, id: id, b: true});
+    if (index === 0) {
+      if (pressedScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({ index: 0, id: id, b: true });
+    } else if (index === 1) {
+      if (pressedMTasteIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({ index: 1, id: id, b: true });
+    } else if (index === 2) {
+      if (pressedFScentIds.length === 8) Alert.alert('알림', '최대 8개만 선택 가능합니다');
+      else setSlideVisible({ index: 2, id: id, b: true });
     }
   };
 
@@ -410,7 +410,7 @@ export default function WriteDownNote({ navigation }) {
         {console.log('id: ' + button.id)}
         <SeperateColorButton
           onPress={() => handleScentButton(0, button.id, button.name)}
-          onLongPress={() => DeleteScentDialog(button.id-1)}
+          onLongPress={() => DeleteScentDialog(button.id - 1)}
           fillColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
           borderColor={pressedScentIds.some(item => item.btnId === button.id) ? "rgb(104,201,170)" : "rgb(230,230,230)"}
           percentFilled={pressedScentIds.some(item => item.btnId === button.id) ? pressedScentIds.find(item => item.btnId === button.id).value : 0}
@@ -484,12 +484,12 @@ export default function WriteDownNote({ navigation }) {
   const memoizedMTastes = useMemo(() => {
     return MTastes.map((button) => (
       <View
-      key={`${button.id}-${button.name}`}
+        key={`${button.id}-${button.name}`}
         style={{ marginRight: 5 }}
       >
         <SeperateColorButton
           onPress={() => handleScentButton(1, button.id, button.name)}
-          onLongPress={() => DeleteMTasteDialog(button.id-1)}
+          onLongPress={() => DeleteMTasteDialog(button.id - 1)}
           fillColor={pressedMTasteIds.some(item => item.btnId === button.id)
             ? "rgb(104,201,170)"
             : "rgb(230,230,230)"}
@@ -500,7 +500,7 @@ export default function WriteDownNote({ navigation }) {
           text={button.name}
         />
       </View>
-        ));
+    ));
   }, [MTastes, pressedMTasteIds]);
 
   const addMTaste = () => {
@@ -567,12 +567,12 @@ export default function WriteDownNote({ navigation }) {
   const memoizedFScents = useMemo(() => {
     return FScents.map((button) => (
       <View
-      key={`${button.id}-${button.name}`}
+        key={`${button.id}-${button.name}`}
         style={{ marginRight: 5 }}
       >
         <SeperateColorButton
           onPress={() => handleScentButton(2, button.id, button.name)}
-          onLongPress={() => DeleteFScentDialog(button.id-1)}
+          onLongPress={() => DeleteFScentDialog(button.id - 1)}
           fillColor={pressedFScentIds.some(item => item.btnId === button.id)
             ? "rgb(104,201,170)"
             : "rgb(230,230,230)"}
@@ -806,12 +806,12 @@ export default function WriteDownNote({ navigation }) {
     const url = apiUrl + "tastenote/";
 
     let alcoholNumber;
-    if(alcoholId === 0) alcoholNumber = 1;
+    if (alcoholId === 0) alcoholNumber = 1;
     else alcoholNumber = alcoholId;
 
     let open;
-    if(FullOpen) open='Y';
-    else open='N';
+    if (FullOpen) open = 'Y';
+    else open = 'N';
 
     const ScentNames = pressedScentIds.map(({ name }) => name);
     const ScentValues = pressedScentIds.map(({ value }) => value);
@@ -920,15 +920,15 @@ export default function WriteDownNote({ navigation }) {
 
         /*첫향 초기화 */
         setScents(transformedData);
-        ScentId=transformedData.length;
+        ScentId = transformedData.length;
 
         /*중간맛 초기화 */
         setMTastes(transformedData);
-        MTasteId=transformedData.length;
+        MTasteId = transformedData.length;
 
         /*끝향 초기화 */
         setFScents(transformedData);
-        FScentId=transformedData.length;
+        FScentId = transformedData.length;
       }
     } catch (error) {
       // API 호출 중 에러가 발생한 경우
@@ -1110,7 +1110,7 @@ export default function WriteDownNote({ navigation }) {
 
         {/********************느낌********************/}
         <Card.Divider style={{ marginTop: 10 }} />
-        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
+        <View style={[styles.noteTitleView, { marginTop: -10, }]}>
           <Text style={styles.noteTitleText}>어떤 느낌이었나요?</Text>
         </View>
         <Card containerStyle={{ marginTop: 10 }}>
@@ -1162,7 +1162,7 @@ export default function WriteDownNote({ navigation }) {
 
         {/********************별점********************/}
         <Card.Divider style={{ marginTop: 10 }} />
-        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
+        <View style={[styles.noteTitleView, { marginTop: -10, }]}>
           <Text style={styles.noteTitleText}>별점을 선택해주세요</Text>
         </View>
         <Rating
@@ -1172,9 +1172,9 @@ export default function WriteDownNote({ navigation }) {
         />
 
         {/********************메모********************/}
-        <Card.Divider/>
+        <Card.Divider />
 
-        <View style={[styles.noteTitleView, {marginTop: -10,}]}>
+        <View style={[styles.noteTitleView, { marginTop: -10, }]}>
           <Text style={styles.noteTitleText}>메모를 작성해주세요</Text>
         </View>
 
@@ -1403,7 +1403,7 @@ export default function WriteDownNote({ navigation }) {
           <TouchableOpacity
             onPress={handleGlassAnimate}
           >
-            <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+            <View style={[styles.noteExpandTitle, { width: screenWidth }]}>
               <Text
                 style={[
                   styles.noteTitleText,
@@ -1492,7 +1492,7 @@ export default function WriteDownNote({ navigation }) {
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
           <TouchableOpacity onPress={handleColorAnimate}>
-          <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+            <View style={[styles.noteExpandTitle, { width: screenWidth }]}>
               <Text
                 style={[
                   styles.noteTitleText,
@@ -1544,7 +1544,7 @@ export default function WriteDownNote({ navigation }) {
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
           <TouchableOpacity onPress={handleViscosityAnimate}>
-            <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+            <View style={[styles.noteExpandTitle, { width: screenWidth }]}>
               <Text
                 style={[
                   styles.noteTitleText,
@@ -1633,7 +1633,7 @@ export default function WriteDownNote({ navigation }) {
         <Card.Divider style={{ marginTop: 9 }} />
         <View style={styles.noteExpandView}>
           <TouchableOpacity onPress={handleSugarAnimate}>
-          <View style={[styles.noteExpandTitle, {width: screenWidth}]}>
+            <View style={[styles.noteExpandTitle, { width: screenWidth }]}>
               <Text
                 style={[
                   styles.noteTitleText,
@@ -1754,7 +1754,7 @@ export default function WriteDownNote({ navigation }) {
 
       {/********************첫향, 중간맛, 끝향 바 조절 Dialog********************/}
       <Dialog isVisible={slideVisible.b} onBackdropPress={() => setSlideVisible({ index: 0, id: 0, b: false })}>
-      <Dialog.Title title={`슬라이더바 삭제하시겠습니까?`} />
+        <Dialog.Title title={`슬라이더바 삭제하시겠습니까?`} />
 
         {/* Slider를 다이얼로그 안에 포함 */}
         <Slider
@@ -1791,23 +1791,23 @@ export default function WriteDownNote({ navigation }) {
           }}
         />
 
-      <Dialog.Actions>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <Dialog.Button
-            title="확인"
-            onPress={() => {
-              handlePressScent();
+        <Dialog.Actions>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
             }}
-          />
-          <Dialog.Button title="취소" onPress={() => setSlideVisible({ index: 0, id: 0, b: false })} />
-        </View>
-      </Dialog.Actions>
-    </Dialog>
+          >
+            <Dialog.Button
+              title="확인"
+              onPress={() => {
+                handlePressScent();
+              }}
+            />
+            <Dialog.Button title="취소" onPress={() => setSlideVisible({ index: 0, id: 0, b: false })} />
+          </View>
+        </Dialog.Actions>
+      </Dialog>
 
       {/********************느낌 버튼 삭제 Dialog********************/}
       <Dialog

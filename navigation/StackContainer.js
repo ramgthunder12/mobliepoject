@@ -19,21 +19,21 @@ const Stack = createStackNavigator();
 export default function StackContainer() {
   return (
     <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name={'TabContainer'} component={TabContainer}/>
-        <Stack.Screen name={'Home'} component={Home}/>
-        <Stack.Screen name={'Search'} component={Search}/>
-        <Stack.Screen name={'TasteNote'} component={TasteNote}/>
-        <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
-        <Stack.Screen name={'Detail'} component={Detail}/>
-        <Stack.Screen name={'MyPage'} component={MyPage}/>
-        <Stack.Screen name={'UserInfo'} component={UserInfo}/>
-        <Stack.Screen name={'ViewTasteNote'} component={ViewTasteNote}/>
-        <Stack.Screen name={'Login'} component={Login}/>
-        <Stack.Screen name={'Signup'} component={Signup}/>
+      <Stack.Screen name={'TabContainer'} component={TabContainer} />
+      <Stack.Screen name={'Home'} component={Home} />
+      <Stack.Screen name={'Search'} component={Search} />
+      <Stack.Screen name={'TasteNote'} component={TasteNote} />
+      <Stack.Screen name={'WriteDownNote'} component={WriteDownNote} />
+      <Stack.Screen name={'Detail'} component={Detail} />
+      <Stack.Screen name={'MyPage'} component={MyPage} />
+      <Stack.Screen name={'UserInfo'} component={UserInfo} />
+      <Stack.Screen name={'ViewTasteNote'} component={ViewTasteNote} />
+      <Stack.Screen name={'Login'} component={Login} />
+      <Stack.Screen name={'Signup'} component={Signup} />
     </Stack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
-  
+
 });

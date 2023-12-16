@@ -43,12 +43,12 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
-  const { setId, apiUrl, setNickname, setGrade ,setPoint, setCommon, setView_Num, setTastenote_Num, setStar_Point} = useContext(AppContext);//전역변수
+  const { setId, apiUrl, setNickname, setGrade, setPoint, setCommon, setView_Num, setTastenote_Num, setStar_Point } = useContext(AppContext);//전역변수
 
   const handleLogin = async (credentials, setSubmitting) => {
     //이메일, 비밀번호 확인
     handleMessage(null);
-    const url = apiUrl+"members/login";
+    const url = apiUrl + "members/login";
 
     const data = {
       id: credentials.id,
@@ -60,13 +60,13 @@ const Login = ({ navigation }) => {
       console.log(response.data);
 
       if (response.data) {
-        const getUserUrl = apiUrl+"members/"+credentials.id;
+        const getUserUrl = apiUrl + "members/" + credentials.id;
 
-        try{
+        try {
           const UserResponse = await axios.get(getUserUrl);
 
-          if(UserResponse){
-            
+          if (UserResponse) {
+
             const data = UserResponse.data;
             setId(data.id);
             setPoint(data.point);
@@ -76,17 +76,17 @@ const Login = ({ navigation }) => {
             setView_Num(data.view_num);
             setTastenote_Num(data.tastenote_num);
             setStar_Point(data.starpoint);
-          
-          
+
+
           }
-        } catch(error){
+        } catch (error) {
           console.log(error);
         }
 
         setId(credentials.id);//전역변수 id 저장
         navigation.navigate('TabContainer');
       }
-      else{
+      else {
         handleMessage("No user information");
       }
       setSubmitting(false);
@@ -198,7 +198,7 @@ const MyTextInput = ({
 }) => {
   return (
     <View>
-      <LeftIcon style={{top: 35, left: 10}}>
+      <LeftIcon style={{ top: 35, left: 10 }}>
         <MaterialIcons name={icon} size={30} color={brand} />
       </LeftIcon>
       <StyledInputLabel>{label}</StyledInputLabel>

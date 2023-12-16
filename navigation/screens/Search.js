@@ -20,19 +20,19 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-    <SearchBar
-      platform="android"
-      onChangeText={updateSearch}
-      onClearText={() => console.log('onClearText()')}
-      containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5, width: '80%'}}
-      inputContainerStyle={{backgroundColor: 'white'}}
-      placeholder="검색어를 입력하세요..."
-      placeholderTextColor="#888"
-      cancelButtonTitle="Cancel"
-      onCancel={() => console.log('onCancel()')}
-      value={search}
-      
-    />
+      <SearchBar
+        platform="android"
+        onChangeText={updateSearch}
+        onClearText={() => console.log('onClearText()')}
+        containerStyle={{ backgroundColor: 'white', borderWidth: 1, borderRadius: 5, width: '80%' }}
+        inputContainerStyle={{ backgroundColor: 'white' }}
+        placeholder="검색어를 입력하세요..."
+        placeholderTextColor="#888"
+        cancelButtonTitle="Cancel"
+        onCancel={() => console.log('onCancel()')}
+        value={search}
+
+      />
     </View>
   );
 }

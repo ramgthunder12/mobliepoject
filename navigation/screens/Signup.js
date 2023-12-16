@@ -48,7 +48,7 @@ const Signup = ({ navigation }) => {
   const handleSignup = async (credentials, setSubmitting) => {
     //회원가입 시키기
     handleMessage(null);
-    const url = apiUrl+"members/signup";
+    const url = apiUrl + "members/signup";
 
     const data = {
       nickname: credentials.nickname,
@@ -183,7 +183,7 @@ const Signup = ({ navigation }) => {
                   placeholder="010-0000-0000"
                   placeholderTextColor={darkLight}
                   onChangeText={handlePhoneChange}
-                  onBlur={() => {}}
+                  onBlur={() => { }}
                   value={phoneNumber}
                   icon="phone"
                   type="antdesign"

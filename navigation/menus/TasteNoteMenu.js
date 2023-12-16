@@ -4,7 +4,7 @@ import TasteNote from '../screens/TasteNote'
 export default function TasteNoteMenu({ navigation }) {
   return (
     <View style={styles.container}>
-      <TasteNote navigation={navigation}/>
+      <TasteNote navigation={navigation} />
     </View>
   );
 }

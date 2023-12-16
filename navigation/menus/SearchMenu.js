@@ -4,7 +4,7 @@ import Search from '../screens/Search';
 export default function SearchMenu({ navigation }) {
   return (
     <View style={styles.container}>
-      <Search navigation={navigation}/>
+      <Search navigation={navigation} />
     </View>
   );
 }

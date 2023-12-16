@@ -41,41 +41,41 @@ export default function UserInfo() {
 
         {/*프로필 상단*/}
         <View style={styles.titleView}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{
-              flexDirection: "row",
-              justifyContent: "flex-start",
-              margin: 10,
-            }}>
-              <Icon name="chevron-back" type="ionicon" size={30}/>
-            </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            margin: 10,
+          }}>
+            <Icon name="chevron-back" type="ionicon" size={30} />
+          </TouchableOpacity>
         </View>
 
         {/*프로필*/}
         <View style={styles.profileView}>
-            <View
-              style={{
-                width: 70,
-                height: 70,
-                position: "relative",
-                marginLeft: 15
-              }}
-            >
-              {showImage()}
-            </View>
-          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-start", height: 70, marginLeft: 15,}}>
-            <Text style={{fontSize: 27, fontWeight: "500"}}>닉네임</Text>
-            <View style={{flexDirection: "row"}}>
-              <Text style={{fontSize: 20, color: '#33cc33'}}>LV.1 </Text>
-              <Text style={{fontSize: 20, }}>알콜프리 근데 취해</Text>
+          <View
+            style={{
+              width: 70,
+              height: 70,
+              position: "relative",
+              marginLeft: 15
+            }}
+          >
+            {showImage()}
+          </View>
+          <View style={{ flexDirection: "column", justifyContent: "center", alignItems: "flex-start", height: 70, marginLeft: 15, }}>
+            <Text style={{ fontSize: 27, fontWeight: "500" }}>닉네임</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={{ fontSize: 20, color: '#33cc33' }}>LV.1 </Text>
+              <Text style={{ fontSize: 20, }}>알콜프리 근데 취해</Text>
             </View>
           </View>
         </View>
 
         {/*테이스팅 노트*/}
-          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "center", margin: 20,}}>
-            <Text style={{fontSize: 22,}}>테이스팅노트</Text>
-            <Text style={{fontSize: 22,}}>0</Text>
-          </View>
+        <View style={{ flexDirection: "column", justifyContent: "center", alignItems: "center", margin: 20, }}>
+          <Text style={{ fontSize: 22, }}>테이스팅노트</Text>
+          <Text style={{ fontSize: 22, }}>0</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

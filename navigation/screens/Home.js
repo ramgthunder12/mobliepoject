@@ -15,6 +15,7 @@ import { Tab, TabView } from "@rneui/themed";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
 
+
 function MenuSeparator() {
   return <View style={styles.menuSeparator} />;
 }
@@ -67,7 +68,7 @@ export default function Home({ navigation }) {
 
       if (response.data) {
         const allAlcohols = response.data;
-        
+
         setAlcohols(allAlcohols);//전체 입력
 
         // 카테고리에 따라 분류된 배열 생성
@@ -105,8 +106,8 @@ export default function Home({ navigation }) {
     setMessageType(type);
   };
 
-  const handleMenuItemPress = (itemId) => {
-    navigation.navigate("Detail", { alcholId: itemId });
+  const handleMenuItemPress = (menuItem) => {
+    navigation.navigate("Detail", { alcohol: menuItem });
   };
 
   const handleAdditionalMenuPress = (menuIndex) => {
@@ -132,47 +133,47 @@ export default function Home({ navigation }) {
   const getMenuItems = () => {
     switch (index) {
       case 0://이름순
-        if(CategoryIndex === 0){//전체
+        if (CategoryIndex === 0) {//전체
           return handleItemsToSortName(alcohols);
-        } else if(CategoryIndex === 1){//맥주
+        } else if (CategoryIndex === 1) {//맥주
           return handleItemsToSortName(beers);
-        } else if(CategoryIndex === 2){//리큐르
+        } else if (CategoryIndex === 2) {//리큐르
           return handleItemsToSortName(liqueurs);
-        } else if(CategoryIndex === 3){//와인
+        } else if (CategoryIndex === 3) {//와인
           return handleItemsToSortName(wines);
-        } else if(CategoryIndex === 4){//막걸리
+        } else if (CategoryIndex === 4) {//막걸리
           return handleItemsToSortName(makgeollis);
-        } else if(CategoryIndex === 5){//위스키
+        } else if (CategoryIndex === 5) {//위스키
           return handleItemsToSortName(whiskeys);
         }
       case 1://별점순
-      if(CategoryIndex === 0){//전체
-        return handleItemsToSortStar(alcohols);
-      } else if(CategoryIndex === 1){//맥주
-        return handleItemsToSortStar(beers);
-      } else if(CategoryIndex === 2){//리큐르
-        return handleItemsToSortStar(liqueurs);
-      } else if(CategoryIndex === 3){//와인
-        return handleItemsToSortStar(wines);
-      } else if(CategoryIndex === 4){//막걸리
-        return handleItemsToSortStar(makgeollis);
-      } else if(CategoryIndex === 5){//위스키
-        return handleItemsToSortStar(whiskeys);
-      }
+        if (CategoryIndex === 0) {//전체
+          return handleItemsToSortStar(alcohols);
+        } else if (CategoryIndex === 1) {//맥주
+          return handleItemsToSortStar(beers);
+        } else if (CategoryIndex === 2) {//리큐르
+          return handleItemsToSortStar(liqueurs);
+        } else if (CategoryIndex === 3) {//와인
+          return handleItemsToSortStar(wines);
+        } else if (CategoryIndex === 4) {//막걸리
+          return handleItemsToSortStar(makgeollis);
+        } else if (CategoryIndex === 5) {//위스키
+          return handleItemsToSortStar(whiskeys);
+        }
       case 2://리뷰순
-      if(CategoryIndex === 0){//전체
-        return alcohols;
-      } else if(CategoryIndex === 1){//맥주
-        return beers;
-      } else if(CategoryIndex === 2){//리큐르
-        return liqueurs;
-      } else if(CategoryIndex === 3){//와인
-        return wines;
-      } else if(CategoryIndex === 4){//막걸리
-        return makgeollis;
-      } else if(CategoryIndex === 5){//위스키
-        return whiskeys;
-      }
+        if (CategoryIndex === 0) {//전체
+          return alcohols;
+        } else if (CategoryIndex === 1) {//맥주
+          return beers;
+        } else if (CategoryIndex === 2) {//리큐르
+          return liqueurs;
+        } else if (CategoryIndex === 3) {//와인
+          return wines;
+        } else if (CategoryIndex === 4) {//막걸리
+          return makgeollis;
+        } else if (CategoryIndex === 5) {//위스키
+          return whiskeys;
+        }
 
       default:
         return [];
@@ -211,10 +212,19 @@ export default function Home({ navigation }) {
     }
   };
 
+  const imagePrint = (url) => {
+    if (url === null) {
+      return null;
+    } else {
+      return { uri: url };
+    }
+  };
+
+
   useEffect(() => {
     getAllAlcohols();
 
-    return () => {};
+    return () => { };
   }, []);
 
   return (
@@ -285,7 +295,7 @@ export default function Home({ navigation }) {
         <ScrollView style={styles.scrollView}>
           <MenuSeparator />
 
-{/*
+          {/*
   데이터 형태
   {
         "alcoholNumber": 2,
@@ -305,26 +315,30 @@ export default function Home({ navigation }) {
 
   */}
 
-          
+
           {getMenuItems().map((menuItem) => (
-            <View key={menuItem.alcoholNumber} style={{flexDirection: "row", justifyContent: "flex-start", marginBottom: 20, marginLeft: 20,}}>
-            <TouchableOpacity
-              onPress={() => handleMenuItemPress(menuItem.alcoholNumber)/*이부분 수정 필요*/}
-            >
-              <View style={styles.menuItemContent}>
-                <Image source={require("../../images/alcholicons/sd.jpg")} style={styles.menuItemImage} />
-                <View style={{flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start"}}>
-                  <Text style={{fontSize: 20, color: "black"}}>{menuItem.name}</Text>
-                  <Text style={{fontSize: 20, color: "rgb(255,100,100)"}}>{`${menuItem.price}원`}</Text>
-                  <Text style={{fontSize: 20, color: "black"}}>{`용량 : ${menuItem.volume}mL`}</Text>
-                  <Text style={{fontSize: 20, color: "black"}}>{`도수 : ${menuItem.content}`}</Text>
-                  <Text style={{fontSize: 20, color: "black"}}>{`별점 : ${menuItem.avgStar}`}</Text>
+            <View key={menuItem.alcoholNumber} style={{ flexDirection: "row", justifyContent: "flex-start", marginBottom: 20, marginLeft: 20, }}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleMenuItemPress(menuItem)/*이부분 수정 필요*/;
+                }}
+
+              >
+                <View style={styles.menuItemContent}>
+                  <Image source={imagePrint(menuItem.picture)} style={styles.coverImage} />
+
+                  <View style={{ flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start" }}>
+                    <Text style={{ fontSize: 20, color: "black" }}>{menuItem.name}</Text>
+                    <Text style={{ fontSize: 20, color: "rgb(255,100,100)" }}>{`${menuItem.price}원`}</Text>
+                    <Text style={{ fontSize: 20, color: "black" }}>{`용량 : ${menuItem.volume}mL`}</Text>
+                    <Text style={{ fontSize: 20, color: "black" }}>{`도수 : ${menuItem.content}`}</Text>
+                    <Text style={{ fontSize: 20, color: "black" }}>{`별점 : ${menuItem.avgStar}`}</Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
             </View>
           ))}
-          
+
           <MenuSeparator />
         </ScrollView>
       </ScrollView>
@@ -360,9 +374,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
   },
-  menuItemImage: {
-    width: 140, // 큰 이미지 크기로 조절
-    height: 140, // 큰 이미지 크기로 조절
+  coverImage: {
+    width: 100, // 큰 이미지 크기로 조절
+    height: 170, // 큰 이미지 크기로 조절
     marginRight: 20,
   },
   tab: {

@@ -10,6 +10,7 @@ import {
   ImageBackground,
   FlatList,
   Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useRef } from "react";
@@ -22,31 +23,31 @@ import {
   Slider,
   Switch,
 } from "@rneui/themed";
-import { Rating } from "react-native-ratings";
+import { useRoute } from '@react-navigation/native';
 
 export default function ViewTasteNote({ navigation }) {
+  const route = useRoute();
+  const { note } = route.params;
+
+  useEffect(() => {
+    console.log(note);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <Header
         leftComponent={
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={NoteExit}>
+            <TouchableOpacity>
               <Icon name="chevron-left" color="black" size={30} />
-            </TouchableOpacity>
-          </View>
-        }
-        rightComponent={
-          <View style={styles.headerRight}>
-            <TouchableOpacity onPress={SaveNote}>
-              <Text style={styles.headerSideText}>완료</Text>
             </TouchableOpacity>
           </View>
         }
         centerComponent={
           <View style={styles.heading}>
             <Text style={styles.headerSideText}>테이스팅 노트</Text>
-            <TouchableOpacity onPress={NoteExit} style={{ marginLeft: 5 }}>
+            <TouchableOpacity style={{ marginLeft: 5 }}>
               <Icon
                 name="question-circle-o"
                 type="font-awesome"
@@ -63,12 +64,7 @@ export default function ViewTasteNote({ navigation }) {
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
       >
-        {/********************전체공개********************/}
-        <View style={{ flexDirection: "row", justifyContent: "flex-start" }}>
-          <Text style={[styles.noteTitleText, { marginLeft: 20 }]}>
-            전체공개
-          </Text>
-        </View>
+
       </ScrollView>
 
     </SafeAreaView>
