@@ -24,6 +24,8 @@ const Detail  = ({ navigation }) => {
   const [add_review, setAdd_review] = useState([]);
 
   const [review, setReview] = useState('');
+  const [addReviewText, setAddReviewText] = useState('');
+
   const itemDetail = {
     id: 1,
     image: require('../../images/alcholicons/sd.jpg'),
@@ -31,6 +33,55 @@ const Detail  = ({ navigation }) => {
     price: 10000,
     description: '가상의 술에 대한 설명이 들어갑니다.',
   };
+  // const fetchReviews = async () => {//주류 리뷰 데이터 불러오기
+  //   const url = apiUrl+"review/"+alcholId;
+
+  //   try {
+  //     const response = await axios.get(url);
+      
+
+  //     if (response.data) {
+  //       const fetchedReviews = response.data;
+  //       setReviews(fetchedReviews);
+  //       const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+  //       setVisibleReviews(firstVisibleReviews);
+  //       setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+       
+  //     }
+  //   } catch (error) {
+  //     // API 호출 중 에러가 발생한 경우
+  //   }
+
+  // };
+
+  // const addReviews = async (common, starpoint, num, info) => {//리뷰 등록
+  //   const url = apiUrl+"review/";
+
+  //   const data={
+  //     id: id,
+  //     common : common,
+  //     review_starpoint : starpoint,
+  //     creation_date : "2023-12-10T00:00:00",//시간 데이터 넣을수있는지
+  //     alcohol_number : num,
+  //     review_info : info
+  //   };
+
+  //   try {
+  //     const response = await axios.post(url, data);
+
+  //     if (response.data) {
+  //       const fetchedReviews = response.data;
+  //       setReviews(fetchedReviews);
+  //       const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+  //       setVisibleReviews(firstVisibleReviews);
+  //       setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+       
+  //     }
+  //   } catch (error) {
+  //     // API 호출 중 에러가 발생한 경우
+  //   }
+
+  // };
  
   // 리뷰 목록과 리뷰 작성 상태
 
@@ -44,7 +95,34 @@ const Detail  = ({ navigation }) => {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   };
-  // 리뷰 제출 함수
+  // // 리뷰 제출 함수
+  // const handleReviewSubmit = () => {
+  //   // 리뷰 목록 업데이트
+  //   const newReview = {
+  //     id: reviews.length + 1,
+  //     rating: ratingValue,
+  //     comment: review,
+  //   };
+
+  //   setReviews([...reviews, newReview]);
+
+  //   // 리뷰 작성 후 필요한 로직을 추가하세요.
+  //   console.log('Submitted Review:', newReview);
+
+  //   // 평균 별점 업데이트
+  //   const averageRating = calculateAverageRating().toFixed(1);
+  //   Alert.alert('리뷰가 제출되었습니다.', `평균 별점: ${averageRating}`, [
+  //     { text: '확인' },
+  //   ]);
+  // };
+  // // Like function
+  // const handleLike = (reviewId) => {
+  //   // Find the review by ID
+  //   const updatedReviews = reviews.map((review) =>
+  //     reviews.id === reviewId
+  //       ? { ...reviews, liked: !review.liked }
+  //       : reviews
+  //   );
   const addReview = async () => {
     //data 요청 보내는 값
     const rqdata = {id : id, common : common, review_starpoint : ratingValue, alcohol_number : alcholId, review_info : review.text};
@@ -206,6 +284,11 @@ const Detail  = ({ navigation }) => {
         <Text style={styles.reviewItemText}>
           별점: {item.rating}, 리뷰: {item.review_info}
         </Text>  
+              <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
+          <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+            style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}
+          />
+        </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
           <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
             style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}

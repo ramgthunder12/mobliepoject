@@ -57,6 +57,7 @@ const Login = ({ navigation }) => {
 
     try {
       const response = await axios.post(url, data);
+      console.log(response.data);
 
       if (response.data) {
         const getUserUrl = apiUrl+"members/"+credentials.id;
