@@ -5,7 +5,7 @@ const AppContext = createContext();
 const AppProvider = ({ children }) => {
   const [id, setId] = useState('');
   const [profileImage, setProfileImage] = useState(null);
-  const apiUrl = "https://36aa-210-119-34-14.ngrok-free.app/";
+  const apiUrl = "https://876f-210-119-34-14.ngrok-free.app/";
   const [nickname, setNickname] = useState('');
   const [grade, setGrade] = useState('');
   const [point, setPoint] = useState('');

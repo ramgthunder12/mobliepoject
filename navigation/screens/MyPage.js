@@ -14,6 +14,7 @@ import {
 import { Text, Icon } from "@rneui/themed";
 import ProgressBar from 'react-native-progress/Bar';
 import * as ImagePicker from "expo-image-picker";
+import { Button, Card } from "@rneui/themed";
 
 /*로그아웃, 뒤로가기*/
 
@@ -172,7 +173,22 @@ export default function MyPage() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+      <View style={styles.header}>
+         <Image source={require('../../images/menuicons/note_focus.png')} style={{ width: 25, height: 25, marginRight: 10, margin: 10,}} />
+         <Text style={styles.headerText}>테이스팅 노트</Text>
+       </View>
+       <View style={{height: 200,}}>
+         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+           
+           {/*테이스팅 노트 작성하기*/}
+           <TouchableOpacity onPress={() => navigation.navigate('WriteDownNote')}>
+           <View style={styles.addTasteNoteView}>
+             <Icon name="pluscircleo" type="antdesign" size={30} color="rgb(255,255,255)"/>
+           </View>
+           </TouchableOpacity>
+         </ScrollView>
+       </View>
+     </SafeAreaView>
   );
 }
 
@@ -208,4 +224,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 30,
   },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    margin: 10,
+  },
+  headerText: {
+    fontSize: 30,
+    marginTop: 5,
+  },
+  addTasteNoteView: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgb(230,230,230)", 
+    height: "100%", 
+    width: 130,
+    borderRadius: 10,
+    marginLeft: 15, 
+  }
 });

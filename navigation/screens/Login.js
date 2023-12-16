@@ -43,7 +43,7 @@ const Login = ({ navigation }) => {
   const [message, setMessage] = useState();
   const [messageType, setMessageType] = useState();
 
-  const { setId, apiUrl, setNickname, setGrade ,setPoint, setCommon, setView_Num, setTastenote_Num, setStar_point} = useContext(AppContext);//전역변수
+  const { setId, apiUrl, setNickname, setGrade ,setPoint, setCommon, setView_Num, setTastenote_Num, setStar_Point} = useContext(AppContext);//전역변수
 
   const handleLogin = async (credentials, setSubmitting) => {
     //이메일, 비밀번호 확인
