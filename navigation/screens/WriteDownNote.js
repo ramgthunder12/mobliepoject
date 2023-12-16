@@ -856,7 +856,7 @@ export default function WriteDownNote({ navigation }) {
       scent_number: 4,
       open: open,
       tastingDay: tastingDayForMariaDB,
-      firstscent: ScentNames,
+      firstscent: JSON.stringify(ScentNames),
     };
     // const data = {
     //   id: id,
