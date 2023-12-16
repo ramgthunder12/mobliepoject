@@ -805,6 +805,12 @@ export default function WriteDownNote({ navigation }) {
   const SaveNote = async () => {//노트저장
     const url = apiUrl + "tastenote/";
 
+    /*Not Null 거르기*/
+    if(pressedTasteIds.length === 0) {
+      Alert.alert("알림", "느낌 버튼을 터치해주세요. 필수 입력사항입니다.");
+      return;
+    }
+
     let alcoholNumber;
     if(alcoholId === 0) alcoholNumber = 1;
     else alcoholNumber = alcoholId;
@@ -851,46 +857,36 @@ export default function WriteDownNote({ navigation }) {
     const data = {
       id: id,
       alcohol_number: alcoholNumber,//임시
-      creationDate: formattedCurrentDate,
+      tastenote_starpoint: ratingValue,
+      creationdate: formattedCurrentDate,
+      tastenote_info: TasteList.join(","),//이게 느낌배열
+      tastenote_format: "what the hell",
       taste_number: 4,
       scent_number: 4,
       open: open,
-      tastingDay: tastingDayForMariaDB,
-      firstscent: JSON.stringify(ScentNames),
+      tasting_day: tastingDayForMariaDB,
+      memo: memoText,
+      firstscent: ScentNames.join(","),
+      firstscent_value: ScentValues.join(","),
+      firstscent_date: firstscentDate,
+      middlescent: MTasteNames.join(","),
+      middlescent_value: MTasteValues.join(","),
+      middlescent_date: middlescent,
+      finalscent: FScentNames.join(","),
+      finalscent_value: FScentValues.join(","),
+      finalscent_date: finalscent,
+      glass: GlassList.join(","),
+      color: ColorArray[ColorSelected],
+      viscosity: ViscosityValue,
+      sugar: SugarValue
     };
-    // const data = {
-    //   id: id,
-    //   alcohol_number: alcoholNumber,//임시
-    //   tastenote_starpoint: ratingValue,
-    //   creationdate: formattedCurrentDate,
-    //   tastenote_info: TasteList,//이게 느낌배열
-    //   tastenote_format: "what the hell",
-    //   taste_number: 4,
-    //   scent_number: 4,
-    //   open: open,
-    //   tasting_day: tastingDayForMariaDB,
-    //   memo: memoText,
-    //   firstscent: ScentNames,
-    //   firstscent_value: ScentValues,
-    //   firstscent_date: firstscentDate,
-    //   middlescent: MTasteNames,
-    //   middlescent_value: MTasteValues,
-    //   middlescent_date: middlescent,
-    //   finalscent: FScentNames,
-    //   finalscent_value: FScentValues,
-    //   finalscent_date: finalscent,
-    //   glass: GlassList,
-    //   color: ColorArray[ColorSelected],
-    //   viscosity: ViscosityValue,
-    //   sugar: SugarValue
-    // };
 
     const jsonString = JSON.stringify(data);
 
     console.log(jsonString);
 
     try {
-      const response = await axios.post(url, jsonString);
+      const response = await axios.post(url, data);
 
       console.log(response.data);
       if (response.data) {
@@ -1185,7 +1181,8 @@ export default function WriteDownNote({ navigation }) {
               multiline
               numberOfLines={5}
               maxLength={1000}
-              onEndEditing={(event) => setMemoText(event.nativeEvent.text)}
+              onChangeText={(text) => setMemoText(text)}
+              value={memoText}
               style={{
                 fontSize: 20,
                 textAlignVertical: "top",
