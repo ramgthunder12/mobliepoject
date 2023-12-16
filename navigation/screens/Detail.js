@@ -9,17 +9,19 @@ import { AppContext } from "../../AppContext";
 import axios from "axios";
 
 const Detail  = ({ navigation }) => {
-  const { id, apiUrl } = useContext(AppContext);//전역변수
-
+  
+  const { id, apiUrl, common } = useContext(AppContext);//전역변수
+  const url = apiUrl+"review/";
   const route = useRoute();
   const { alcholId } = route.params;
-
+          
 
   const [reviews, setReviews] = useState([]); // 리뷰 목록을 저장할 상태
   const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
   const [ratingValue, setRatingValue] = useState(1);
-  const [visibleReviewCount, setVisibleReviewCount] = useState(2); // 초기에 보이는 리뷰 개수
+  const [visibleReviewCount, setVisibleReviewCount] = useState([]); // 초기에 보이는 리뷰 개수
   const [showLoadMore, setShowLoadMore] = useState(true); // 더 불러오기 버튼 보이기 여부
+  const [add_review, setAdd_review] = useState([]);
 
   const [review, setReview] = useState('');
   const [addReviewText, setAddReviewText] = useState('');
@@ -31,56 +33,56 @@ const Detail  = ({ navigation }) => {
     price: 10000,
     description: '가상의 술에 대한 설명이 들어갑니다.',
   };
-  const fetchReviews = async () => {//주류 리뷰 데이터 불러오기
-    const url = apiUrl+"review/"+alcholId;
+  // const fetchReviews = async () => {//주류 리뷰 데이터 불러오기
+  //   const url = apiUrl+"review/"+alcholId;
 
-    try {
-      const response = await axios.get(url);
+  //   try {
+  //     const response = await axios.get(url);
       
 
-      if (response.data) {
-        const fetchedReviews = response.data;
-        setReviews(fetchedReviews);
-        const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
-        setVisibleReviews(firstVisibleReviews);
-        setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+  //     if (response.data) {
+  //       const fetchedReviews = response.data;
+  //       setReviews(fetchedReviews);
+  //       const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+  //       setVisibleReviews(firstVisibleReviews);
+  //       setShowLoadMore(visibleReviewCount < fetchedReviews.length);
        
-      }
-    } catch (error) {
-      // API 호출 중 에러가 발생한 경우
-    }
+  //     }
+  //   } catch (error) {
+  //     // API 호출 중 에러가 발생한 경우
+  //   }
 
-  };
+  // };
 
-  const addReviews = async (common, starpoint, num, info) => {//리뷰 등록
-    const url = apiUrl+"review/";
+  // const addReviews = async (common, starpoint, num, info) => {//리뷰 등록
+  //   const url = apiUrl+"review/";
 
-    const data={
-      id: id,
-      common : common,
-      review_starpoint : starpoint,
-      creation_date : "2023-12-10T00:00:00",//시간 데이터 넣을수있는지
-      alcohol_number : num,
-      review_info : info
-    };
+  //   const data={
+  //     id: id,
+  //     common : common,
+  //     review_starpoint : starpoint,
+  //     creation_date : "2023-12-10T00:00:00",//시간 데이터 넣을수있는지
+  //     alcohol_number : num,
+  //     review_info : info
+  //   };
 
-    try {
-      const response = await axios.post(url, data);
+  //   try {
+  //     const response = await axios.post(url, data);
 
-      if (response.data) {
-        const fetchedReviews = response.data;
-        setReviews(fetchedReviews);
-        const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
-        setVisibleReviews(firstVisibleReviews);
-        setShowLoadMore(visibleReviewCount < fetchedReviews.length);
+  //     if (response.data) {
+  //       const fetchedReviews = response.data;
+  //       setReviews(fetchedReviews);
+  //       const firstVisibleReviews = fetchedReviews.slice(0, visibleReviewCount);
+  //       setVisibleReviews(firstVisibleReviews);
+  //       setShowLoadMore(visibleReviewCount < fetchedReviews.length);
        
-      }
-    } catch (error) {
-      // API 호출 중 에러가 발생한 경우
-    }
+  //     }
+  //   } catch (error) {
+  //     // API 호출 중 에러가 발생한 경우
+  //   }
 
-  };
-
+  // };
+ 
   // 리뷰 목록과 리뷰 작성 상태
 
 
@@ -93,40 +95,95 @@ const Detail  = ({ navigation }) => {
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   };
+  // // 리뷰 제출 함수
+  // const handleReviewSubmit = () => {
+  //   // 리뷰 목록 업데이트
+  //   const newReview = {
+  //     id: reviews.length + 1,
+  //     rating: ratingValue,
+  //     comment: review,
+  //   };
 
-  // 리뷰 제출 함수
-  const handleReviewSubmit = () => {
-    // 리뷰 목록 업데이트
-    const newReview = {
-      id: reviews.length + 1,
-      rating: ratingValue,
-      comment: review,
-    };
+  //   setReviews([...reviews, newReview]);
 
-    setReviews([...reviews, newReview]);
+  //   // 리뷰 작성 후 필요한 로직을 추가하세요.
+  //   console.log('Submitted Review:', newReview);
 
-    // 리뷰 작성 후 필요한 로직을 추가하세요.
-    console.log('Submitted Review:', newReview);
-
-    // 평균 별점 업데이트
-    const averageRating = calculateAverageRating().toFixed(1);
-    Alert.alert('리뷰가 제출되었습니다.', `평균 별점: ${averageRating}`, [
-      { text: '확인' },
-    ]);
-  };
-  // Like function
-  const handleLike = (reviewId) => {
-    // Find the review by ID
-    const updatedReviews = reviews.map((review) =>
-      reviews.id === reviewId
-        ? { ...reviews, liked: !review.liked }
-        : reviews
-    );
+  //   // 평균 별점 업데이트
+  //   const averageRating = calculateAverageRating().toFixed(1);
+  //   Alert.alert('리뷰가 제출되었습니다.', `평균 별점: ${averageRating}`, [
+  //     { text: '확인' },
+  //   ]);
+  // };
+  // // Like function
+  // const handleLike = (reviewId) => {
+  //   // Find the review by ID
+  //   const updatedReviews = reviews.map((review) =>
+  //     reviews.id === reviewId
+  //       ? { ...reviews, liked: !review.liked }
+  //       : reviews
+  //   );
+  const addReview = async () => {
+    //data 요청 보내는 값
+    const rqdata = {id : id, common : common, review_starpoint : ratingValue, alcohol_number : alcholId, review_info : review.text};
   
-    // Update the reviews state
-    setReviews(updatedReviews);
+    try {
+      const response = await axios.post(url, rqdata);
+
+      //리뷰목록 전체 업데이트 하기
+      
+      //리뷰 목록 보여주기
+      
+      //response.data는 응답 온 값  
+      // const data = {
+      //   id: id,
+      //   common: response.common,
+      //   review_starpoint: response.starpoint,
+      //   creation_date: response.date,
+      //   comment: response.comment,
+      //   alcohol_number: response.num,
+      //   review_info: response.info,
+      // };
+      
+      // 리뷰 등록 API 호출
+  
+      // 리뷰 작성 후 필요한 로직을 추가하세요.
+      console.log('Submitted Review:', addReview);
+  
+      // 평균 별점 업데이트
+      const averageRating = calculateAverageRating(5).toFixed(1);
+      Alert.alert('리뷰가 제출되었습니다.', `평균 별점: ${averageRating}`, [
+        { text: '확인' },
+      ]);
+    } catch (error) {
+      console.log(error);
+      console.error('Error submitting review:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
+    
   };
   
+  const fetchReviews = async () => {
+    try {
+      // '/review/alcholId'에 GET 요청을 보냅니다.
+      const response = await axios.get(`url${alcholId}`);
+      // 가져온 리뷰 목록을 상태에 업데이트합니다.
+      setReviews(response.data);
+      // 초기에는 몇 개의 리뷰를 보여줄지 설정합니다.
+      setVisibleReviewCount(2);
+      setShowLoadMore(response.data.length > 2);
+      // 첫 번째로 보일 리뷰들을 설정합니다.
+      setVisibleReviews(response.data.slice(0, 2));
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
+  };
+  // 컴포넌트가 처음 로드될 때 리뷰 목록을 가져옵니다.
+  useEffect(() => {
+    fetchReviews();
+  }, []); // 빈 배열을 전달하여 컴포넌트가 처음 로드될 때 한 번만 실행되게 합니다.
+
 
   // Load more reviews function
   const loadMoreReviews = () => {
@@ -200,19 +257,20 @@ const Detail  = ({ navigation }) => {
           placeholder="리뷰를 작성하세요"
           multiline
           value={review}
-          onChangeText={(text) => setReview(text)}
+          onChangeText={(review) => setReview(review.text)}
         />
         <TouchableOpacity
           style={styles.reviewButton}
-          onPress={handleReviewSubmit}
+          onPress={addReview}
         >
+          
           <Text style={styles.reviewButtonText}>리뷰 작성 완료</Text>
         </TouchableOpacity>
         <Text style={styles.reviewListTitle}>리뷰 목록</Text>
         <FlatList
     scrollEnabled={false}
     data={visibleReviews}
-    keyExtractor={(item) => item.id.toString()}
+    keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
     renderItem={({ item }) => (
       <View style={styles.reviewItem}>
                 <TouchableOpacity onPress={() => navigation.navigate('MyPage')}>
@@ -224,13 +282,11 @@ const Detail  = ({ navigation }) => {
               </TouchableOpacity>
 
         <Text style={styles.reviewItemText}>
-          별점: {item.rating}, 리뷰: {item.comment}
+          별점: {item.rating}, 리뷰: {item.review_info}
         </Text>  
-        <TouchableOpacity onPress={() => handleLike(item.id)}>
-          <Ionicons
-            name={'heart'}
-            size={24}
-            color={item.liked ? 'red' : 'black'}
+              <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
+          <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
+            style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}
           />
         </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate('UserInfo')}>
@@ -241,20 +297,12 @@ const Detail  = ({ navigation }) => {
       </View>
      )}
       
-        />
-        {showLoadMore ? (
-          <TouchableOpacity onPress={loadMoreReviews}>
-            <Text style={{ color: 'blue', marginTop: 10 }}>더 보기</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity onPress={closeReviews}>
-            <Text style={{ color: 'red', marginTop: 10 }}>닫기</Text>
-          </TouchableOpacity>
-        )}
-        <Button
-          title="테이스팅노트 작성"
-          onPress={() => navigation.navigate('WriteDownNote')}
-        />
+        />   
+        
+        
+      <TouchableOpacity onPress={loadMoreReviews}>
+      <Text style={{ color: 'blue', marginTop: 10 }}>더 보기</Text>
+      </TouchableOpacity>
       </View>
     </ScrollView>
   );
