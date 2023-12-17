@@ -40,7 +40,7 @@ export default function WriteDownNote({ navigation }) {
   const screenWidth = Dimensions.get("window").width; //화면 가로길이
   const { id, apiUrl } = useContext(AppContext);//전역변수
   const route = useRoute();
-  const { alcoholId } = route.params;
+  const { alcoholId, alcoholName, alcoholImage } = route.params;
 
   /*전체공개*/
   const [FullOpen, setFullOpen] = useState(false);
@@ -812,7 +812,7 @@ export default function WriteDownNote({ navigation }) {
     }
 
     let alcoholNumber;
-    if(alcoholId === 0) alcoholNumber = 1;
+    if(alcoholId === 0) alcoholNumber = 1;//주류 번호
     else alcoholNumber = alcoholId;
 
     let open;
@@ -978,6 +978,15 @@ export default function WriteDownNote({ navigation }) {
       setGlasss((prevGlasss) => [...prevGlasss, Glass]); //첫향 버튼 추가
       GlassId++; //버튼 id 증가
     });
+
+    /*route로 가져온 값 적용*/
+    if(alcoholName !== null) {//주류 이름
+      setName(alcoholName);
+    }
+
+    if(alcoholImage !== null) {//주류 이미지
+      setSelectedImage(alcoholImage);
+    }
 
     return () => {
       setDeleteTaste(false);

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useRoute } from '@react-navigation/native';
-import { View, Image, StyleSheet, TextInput, Alert, FlatList, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, TextInput, Alert, FlatList, ScrollView, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Text, Card } from "@rneui/themed";
+import { Button, Text, Card, Icon } from "@rneui/themed";
 import { Rating } from "react-native-ratings";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
@@ -11,8 +11,6 @@ import axios from "axios";
 const Detail = ({ navigation }) => {
 
   const { id, apiUrl, common } = useContext(AppContext);//전역변수
-  const url = apiUrl + "review/";
-  const alcoholOneUrl = apiUrl + "alcohols/"
   const route = useRoute();
   const { alcohol } = route.params;
 
@@ -20,53 +18,29 @@ const Detail = ({ navigation }) => {
   const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
   const [ratingValue, setRatingValue] = useState(0.0);
   const [visibleReviewCount, setVisibleReviewCount] = useState(3); // 초기에 보이는 리뷰
-  const [showLoadMore, setShowLoadMore] = useState(true); // 더 불러오기 버튼 보이기 여부
-  const [add_review, setAdd_review] = useState([]);
-
-  const [TasteNotes, setTasteNotes] = useState([]); //테이스팅노트
-  const [alcoholImage, setAlcoholImage] = useState({}); //alcoholId : url
 
   const [review, setReview] = useState({ text: '' });
-  const [addReviewText, setAddReviewText] = useState('');
 
-  const responseAlcoholData = "";
-  
-  if (!alcohol || typeof alcohol !== 'object' || !alcohol.alcoholNumber) {
-    // alcohol이 정의되지 않았거나 alcohol.alcoholNumber 속성이 없는 경우
-    // 에러 처리 또는 기본값 설정을 추가하세요.
-    console.error('Invalid alcohol data:', alcohol);
-    // 또는 기본값을 설정하려면 다음과 같이 사용합니다.
-    // const alcohol = { alcoholNumber: 'default' };
-  }
-  const fetchReviews = async () => {
+  const fetchReviews = async () => {//리뷰 불러오기
+    const url = apiUrl + "review/";
     try {
-      const response = await reviewListUpdate();
+      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
+      console.log('리뷰 업데이트 : '+response.data);
+
       setReviews(response.data); // 리뷰 목록을 상태에 설정
       // 초기에 보이는 리뷰 개수 설정
       const initialVisibleReviews = response.data.slice(0, visibleReviewCount);
       setVisibleReviews(initialVisibleReviews);
-      // "Load More" 버튼 토글 설정
-      setShowLoadMore(visibleReviewCount < response.data.length);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       // 에러 처리 로직을 추가하세요.
     }
   };
 
-  useEffect(() => {
-    fetchReviews();
-  }, []);
-
-  const imagePrint = (url) => {
-    if (url === null) {
-      return null;
-    } else {
-      return { uri: url };
-    }
-  };
   const alcoholInfoRefresh = async () => {
+    const url = apiUrl + "alcohols/"
     try {
-      const response = await axios.get(`${alcoholOneUrl}/${alcohol.alcoholNumber}`);
+      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
       //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
       itemDetail.avgStar = response.avgStar;
 
@@ -76,18 +50,7 @@ const Detail = ({ navigation }) => {
       // 에러 처리 로직을 추가하세요.
     }
   };
-  const reviewListUpdate = async () => {
-    try {
-      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
-      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!reviewListUpdate 확인");
-      console.log(response.data);
-      return response;
-    } catch (error) {
-      console.log(error);
-      console.error('Error submitting reviewListUpdate:', error);
-      // 에러 처리 로직을 추가하세요.
-    }
-  };
+
   let itemDetail = {
     number: alcohol.alcoholNumber,
     image: alcohol.picture,
@@ -98,8 +61,10 @@ const Detail = ({ navigation }) => {
     picture: alcohol.picture
   };
 
-  const addReview = async () => {
+  const addReview = async () => {//리뷰 추가
     //data 요청 보내는 값
+    const url = apiUrl + "review/";
+
     const requestData = { 
       id: id, 
       common: common, 
@@ -108,15 +73,16 @@ const Detail = ({ navigation }) => {
       review_info: review.text 
     };
     console.log(requestData);
+
     try {
       const response = await axios.post(url, requestData);
 
-      console.log('Submitted Review:', addReview);
+      if(response.data){
+        console.log('리뷰 제출');
+      }
 
-      // 평균 별점 업데이트
-      const averageRating = alcoholInfoRefresh();
-      // 리뷰 목록 업데이트
-      reviewListUpdate();
+      alcoholInfoRefresh();// 평균 별점 업데이트
+
       Alert.alert('리뷰가 제출되었습니다.');
     } catch (error) {
       console.log(error);
@@ -127,102 +93,51 @@ const Detail = ({ navigation }) => {
   };
 
 
-  // Load more reviews function
-  const loadMoreReviews = () => {
+  const loadMoreReviews = () => {//리뷰 더 불러오기
     const nextVisibleReviewCount = visibleReviewCount + 5; // Increase the count by 2
     setVisibleReviewCount(nextVisibleReviewCount);
 
     // Update the visible reviews based on the new count
     const nextVisibleReviews = reviews.slice(0, nextVisibleReviewCount);
     setVisibleReviews(nextVisibleReviews);
-
-    // Toggle the "Load More" button based on whether more reviews are available
-    setShowLoadMore(nextVisibleReviewCount < reviews.length);
   };
 
-  // Close reviews function
-  const closeReviews = () => {
-    setVisibleReviewCount(2); // Reset to the initial count
-    const firstVisibleReviews = reviews.slice(0, visibleReviewCount);
-    setVisibleReviews(firstVisibleReviews);
-
-    // Toggle the "Load More" button
-    setShowLoadMore(true);
-
-
-    
-  };
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const formattedDate = new Date(dateString).toLocaleDateString('ko-KR', options);
     return formattedDate;
   };
-  const handleMenuItemPress = (menuItem) => {
-    navigation.navigate("UserInfo", { alcohol: menuItem});
-  };
-  const imagePrintUsingTastenote = async (num) => {
-    //노트 주류 사진 가져오기
-    const url = apiUrl + "alcohols/" + num;
+
+  const handleTasteNotePress = async (id, num) => {//사용자 노트 가져오기
+    const url = apiUrl + "/tastenote/alcohols/";
+
+    const requestData = { 
+      id: id, 
+      alcohol_number: num
+    };
+
+    console.log(requestData);
 
     try {
-      const response = await axios.get(url);
 
-      if (response.data && response.data.picture !== null) {
-        setAlcoholName((prevImage) => ({
-          ...prevImage,
-          [num]: response.data.name,
-        }));
-
-        setAlcoholStar((prevImage) => ({
-          ...prevImage,
-          [num]: response.data.avgStar,
-        }));
-
-        return response.data.picture;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      // API 호출 중 에러가 발생한 경우
-      console.log("error : " + error);
-    }
-  };
-  const handleTasteNotePress = async (menuItem) => {
-    //note얻으려면 id랑 주류번호 -> list<tastenote>
-    //통신 -> list얻으면 -> 주류 번호 해당 된것만 다시 저장-> list 주루륵 뿌려줌
-    //새로운 api -> list얻으면 -> viewTasteNote 주루룩 뿌려줌
-    try {
-
-      const response = await axios.get(`${apiUrl}/tastenote/${item.id}`);
+      const response = await axios.post(url, requestData);
       if (response.data) {
-        setTasteNotes(response.data);
-
-        const promises = response.data.map(async (item) => {
-          const num = parseInt(item.alcohol_number, 10);
-          if (alcoholImage[num] === undefined) {
-            const image = await imagePrintUsingTastenote(num);
-            setAlcoholImage((prevImage) => ({
-              ...prevImage,
-              [num]: image,
-            }));
-          }
-        });
-        await Promise.all(promises);
+        navigation.navigate("ViewTasteNote", { note: response.data[0], image: itemDetail.image, name: itemDetail.name, avgStar: itemDetail.avgStar});
       }
-      
-      //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
-      itemDetail.avgStar = response.avgStar;
 
     } catch (error) {
       console.log(error);
-      console.error('Error submitting alcoholInfoRefresh:', error);
-      // 에러 처리 로직을 추가하세요.
     }
-    navigation.navigate("ViewTasteNote", { alcohol: menuItem});//tasteNote에note를 줘야함
   };
+
+  useEffect(() => {
+    fetchReviews();//리뷰 불러오기
+  }, []);
+
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 15}}>
         <TouchableOpacity
           style={styles.homeButton}
           onPress={() => navigation.goBack()}
@@ -230,6 +145,15 @@ const Detail = ({ navigation }) => {
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>술 상세 정보</Text>
+        <TouchableOpacity
+          onPress={()=>navigation.navigate("WriteDownNote", { alcoholId: itemDetail.number, alcoholName: itemDetail.name, alcoholImage: itemDetail.image })}
+          style={{flexDirection: "row", marginTop: 8, padding: 7, marginRight: -10}}
+        >
+          <Icon name="note" type='simple-line-icon' size={28}/>
+        </TouchableOpacity>
+        </View>
+        
+        
         <View style={styles.containerCenter}>
           <Image source={{ uri: alcohol.picture }} style={styles.coverImage} resizeMode="cover" />
         </View>
@@ -274,13 +198,14 @@ const Detail = ({ navigation }) => {
           value={review.text}
           onChangeText={(reviewText) => setReview({ text: reviewText })}
         />
+        <View style={{flexDirection: "row", justifyContent: "center"}}>
         <TouchableOpacity
           style={styles.reviewButton}
           onPress={addReview}
         >
-
           <Text style={styles.reviewButtonText}>리뷰 작성 완료</Text>
         </TouchableOpacity>
+        </View>
         <Text style={styles.reviewListTitle}>리뷰 목록</Text>
         <FlatList
           scrollEnabled={false}
@@ -288,7 +213,7 @@ const Detail = ({ navigation }) => {
           keyExtractor={(item, index) => item.reviewNumber.toString()}
           renderItem={({ item }) => (
             <View style={styles.reviewItem}>
-              <TouchableOpacity onPress={() => {handleTasteNotePress()}}>
+              <TouchableOpacity onPress={() => navigation.navigate("UserInfo", { id: item.id})}>
                 <Text>
                   <Image
                     source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
@@ -319,7 +244,7 @@ const Detail = ({ navigation }) => {
               <Text style={styles.reviewItemText}>
                 {item.reviewInfo}
               </Text>
-              <TouchableOpacity onPress={() => {handleTasteNotePress()}}/* 해당 남의 테이스팅노트 */> 
+              <TouchableOpacity onPress={() => handleTasteNotePress(item.id, item.alcohol_number)}/* 해당 남의 테이스팅노트 */> 
                 <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
                   style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}
                 />
@@ -347,8 +272,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
     textAlign: 'center',
+    marginTop: 15,
   },
   image: {
     width: '100%',
@@ -381,7 +306,7 @@ const styles = StyleSheet.create({
   reviewButton: {
     backgroundColor: '#4CAF50',
     padding: 10,
-    width: 350,
+    width: Dimensions.get("window").width-50,
     borderRadius: 5,
     alignItems: 'center',
     height: 50,

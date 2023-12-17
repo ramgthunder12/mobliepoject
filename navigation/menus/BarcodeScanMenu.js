@@ -89,9 +89,6 @@ export default function BarcodeScanMenu({ navigation }) {
           }}
         />
       </View>
-      {scanned && (
-        <Button title={"다시 찍으시겠습니까?"} onPress={() => setScanned(false)} />
-      )}
     </View>
   );
 }

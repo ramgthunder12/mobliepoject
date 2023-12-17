@@ -53,10 +53,10 @@ export default function ViewTasteNote({ navigation }) {
       result.push({ [scentArray[i]]: parseFloat(valuesArray[i]/10) });
     }
     if(result.length < 3){
-      result.push({"": 0});
+      result.push({"=": 0});
     }
     if(result.length < 3){
-      result.push({"": 0});
+      result.push({"-": 0});
     }
 
     console.log([Object.assign({}, ...result)]);
@@ -95,7 +95,7 @@ export default function ViewTasteNote({ navigation }) {
     if(note.glass !== "") {//글라스
       setGlassVisible(true);
     }
-    if(note.color !== "") {//색상
+    if(note.color !== "" && note.color !== null) {//색상
       setColorVisible(true);
     }
     if(note.viscosity !== 0) {//점도

@@ -55,7 +55,7 @@ export default function UserInfo({navigation}) {
 
       if (response.data) {
         const filteredNotes = response.data.filter((note) => note.open === "Y");
-      setTasteNotes(filteredNotes);
+        setTasteNotes(filteredNotes);
 
         const promises = response.data.map(async (item) => {
           const num = parseInt(item.alcohol_number, 10);

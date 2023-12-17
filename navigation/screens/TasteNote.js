@@ -184,7 +184,7 @@ export default function Category({ navigation }) {
             <View style={{ height: 250 }}>
               <TouchableOpacity
                 onPress={() =>
-                  navigation.navigate("WriteDownNote", { alcoholId: 1 })
+                  navigation.navigate("WriteDownNote", { alcoholId: 1, alcoholName: null, alcoholImage: null })
                 }
               >
                 <View style={styles.addTasteNoteView}>

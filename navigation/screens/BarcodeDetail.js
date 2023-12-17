@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useRoute } from '@react-navigation/native';
-import { View, Image, StyleSheet, TextInput, Alert, FlatList, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, TextInput, Alert, FlatList, ScrollView, Dimensions } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Text, Card } from "@rneui/themed";
+import { Button, Text, Card, Icon } from "@rneui/themed";
 import { Rating } from "react-native-ratings";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
 
-const BarcodeDetail = ({ navigation }) => {
+const Detail = ({ navigation }) => {
 
   const { id, apiUrl, common } = useContext(AppContext);//전역변수
-  const url = apiUrl + "review/";
   const route = useRoute();
   const { code } = route.params;
   const [alcohol, setAlcohol] = useState({});
@@ -20,67 +19,37 @@ const BarcodeDetail = ({ navigation }) => {
   const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
   const [ratingValue, setRatingValue] = useState(0.0);
   const [visibleReviewCount, setVisibleReviewCount] = useState(3); // 초기에 보이는 리뷰
-  const [showLoadMore, setShowLoadMore] = useState(true); // 더 불러오기 버튼 보이기 여부
-  const [add_review, setAdd_review] = useState([]);
 
-  const [review, setReview] = useState({ text: '' });
-  const [addReviewText, setAddReviewText] = useState('');
+  const [review, setReview] = useState("");
 
-  const fetchReviews = async () => {
+  const fetchReviews = async (num) => {//리뷰 불러오기
+    const url = apiUrl + "review/"+num;
     try {
-      const response = await reviewListUpdate();
+      const response = await axios.get(url);
+      console.log('리뷰 업데이트 : '+response.data);
+
       setReviews(response.data); // 리뷰 목록을 상태에 설정
       // 초기에 보이는 리뷰 개수 설정
       const initialVisibleReviews = response.data.slice(0, visibleReviewCount);
       setVisibleReviews(initialVisibleReviews);
-      // "Load More" 버튼 토글 설정
-      setShowLoadMore(visibleReviewCount < response.data.length);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       // 에러 처리 로직을 추가하세요.
     }
   };
 
-  const getAlcohol = async () => {//바코드로 알콜정보 불러오기
-    //자신의 노트 가져오기
-    const alcoholUrl = apiUrl+"serch/"+code;
-
-    try {
-      const response = await axios.get(alcoholUrl);
-
-      if (response.data) {
-        const res = response.data;
-        setAlcohol({
-          alcoholNumber: res.alcoholNumber,
-          picture: res.picture,
-          name: res.name,
-          price: res.price,
-          tasteDetail: res.tasteDetail,
-          avgStar: res.avgStar,
-        });
-        console.log(res);
-      }
-    } catch (error) {
-      // API 호출 중 에러가 발생한 경우
-      console.log("error : " + error);
-    }
-  };
-
-  useEffect(() => {
-    fetchReviews();
-    getAlcohol();
-  }, []);
-
-  const imagePrint = (url) => {
-    if (url === null) {
-      return null;
-    } else {
-      return { uri: url };
-    }
+  let itemDetail = {
+    number: alcohol.alcoholNumber,
+    image: alcohol.picture,
+    name: alcohol.name,
+    price: alcohol.price,
+    description: alcohol.tasteDetail,
+    avgStar: alcohol.avgStar,
+    picture: alcohol.picture
   };
 
   const alcoholInfoRefresh = async () => {//알콜정보
-    const alcoholUrl = apiUrl+"serch/"+code
+    const alcoholUrl = apiUrl+"alcohols/serch/"+code
     try {
       const response = await axios.get(alcoholUrl);
       //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
@@ -92,47 +61,29 @@ const BarcodeDetail = ({ navigation }) => {
       // 에러 처리 로직을 추가하세요.
     }
   };
-  const reviewListUpdate = async () => {
-    try {
-      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
-      console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!reviewListUpdate 확인");
-      console.log(response.data);
-      return response;
-    } catch (error) {
-      console.log(error);
-      console.error('Error submitting reviewListUpdate:', error);
-      // 에러 처리 로직을 추가하세요.
-    }
-  };
-  let itemDetail = {
-    number: alcohol.alcoholNumber,
-    image: alcohol.picture,
-    name: alcohol.name,
-    price: alcohol.price,
-    description: alcohol.tasteDetail,
-    avgStar: alcohol.avgStar,
-    picture: alcohol.picture
-  };
 
-  const addReview = async () => {
+  const addReview = async () => {//리뷰 추가
     //data 요청 보내는 값
+    const url = apiUrl + "review/";
+
     const requestData = { 
       id: id, 
       common: common, 
       review_starpoint: ratingValue, 
       alcohol_number: itemDetail.number, 
-      review_info: review.text 
+      review_info: review
     };
     console.log(requestData);
+
     try {
       const response = await axios.post(url, requestData);
 
-      console.log('Submitted Review:', addReview);
+      if(response.data){
+        console.log('리뷰 제출');
+      }
 
-      // 평균 별점 업데이트
-      const averageRating = alcoholInfoRefresh();
-      // 리뷰 목록 업데이트
-      reviewListUpdate();
+      alcoholInfoRefresh();// 평균 별점 업데이트
+
       Alert.alert('리뷰가 제출되었습니다.');
     } catch (error) {
       console.log(error);
@@ -143,46 +94,79 @@ const BarcodeDetail = ({ navigation }) => {
   };
 
 
-  // Load more reviews function
-  const loadMoreReviews = () => {
+  const loadMoreReviews = () => {//리뷰 더 불러오기
     const nextVisibleReviewCount = visibleReviewCount + 5; // Increase the count by 2
     setVisibleReviewCount(nextVisibleReviewCount);
 
     // Update the visible reviews based on the new count
     const nextVisibleReviews = reviews.slice(0, nextVisibleReviewCount);
     setVisibleReviews(nextVisibleReviews);
-
-    // Toggle the "Load More" button based on whether more reviews are available
-    setShowLoadMore(nextVisibleReviewCount < reviews.length);
   };
 
-  // Close reviews function
-  const closeReviews = () => {
-    setVisibleReviewCount(2); // Reset to the initial count
-    const firstVisibleReviews = reviews.slice(0, visibleReviewCount);
-    setVisibleReviews(firstVisibleReviews);
-
-    // Toggle the "Load More" button
-    setShowLoadMore(true);
-
-
-    
-  };
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const formattedDate = new Date(dateString).toLocaleDateString('ko-KR', options);
     return formattedDate;
   };
-  const handleMenuItemPress = (userId) => {
-    navigation.navigate("UserInfo", { id: userId});
+
+  const handleTasteNotePress = async (id, num) => {//사용자 노트 가져오기
+    const url = apiUrl + "/tastenote/alcohols/";
+
+    const requestData = { 
+      id: id, 
+      alcohol_number: num
+    };
+
+    console.log(requestData);
+
+    try {
+
+      const response = await axios.post(url, requestData);
+      if (response.data) {
+        navigation.navigate("ViewTasteNote", { note: response.data[0], image: itemDetail.image, name: itemDetail.name, avgStar: itemDetail.avgStar});
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   };
-  const handleTasteNotePress = (menuItem) => {
-    //note얻으려면, 아이디랑, 주류아이디 
-    navigation.navigate("ViewTasteNote", { alcohol: menuItem});//tasteNote에note를 줘야함
+
+  const getAlcohol = async () => {//바코드로 알콜정보 불러오기
+    //자신의 노트 가져오기
+    console.log('알콜정보 가져오기');
+    const alcoholUrl = apiUrl+"alcohols/serch/"+code;
+
+    try {
+      const response = await axios.get(alcoholUrl);
+
+      console.log(response.data);
+
+      if (response.data) {
+        const res = response.data;
+        setAlcohol({
+          alcoholNumber: res.alcoholNumber,
+          picture: res.picture,
+          name: res.name,
+          price: res.price,
+          tasteDetail: res.tasteDetail,
+          avgStar: res.avgStar,
+        });
+        fetchReviews(res.alcoholNumber);//리뷰 불러오기
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log("error : " + error);
+    }
   };
+
+  useEffect(() => {
+    getAlcohol();//주류 불러오기
+  }, []);
+
   return (
     <ScrollView style={{ flex: 1 }}>
       <View style={styles.container}>
+        <View style={{flexDirection: "row", justifyContent: "space-between", marginBottom: 15}}>
         <TouchableOpacity
           style={styles.homeButton}
           onPress={() => navigation.goBack()}
@@ -190,6 +174,15 @@ const BarcodeDetail = ({ navigation }) => {
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>술 상세 정보</Text>
+        <TouchableOpacity
+          onPress={()=>navigation.navigate("WriteDownNote", { alcoholId: itemDetail.number, alcoholName: itemDetail.name, alcoholImage: itemDetail.image })}
+          style={{flexDirection: "row", marginTop: 8, padding: 7, marginRight: -10}}
+        >
+          <Icon name="note" type='simple-line-icon' size={28}/>
+        </TouchableOpacity>
+        </View>
+        
+        
         <View style={styles.containerCenter}>
           <Image source={{ uri: alcohol.picture }} style={styles.coverImage} resizeMode="cover" />
         </View>
@@ -204,7 +197,7 @@ const BarcodeDetail = ({ navigation }) => {
             imageSize={20}
           />
           <Text style={styles.averageRatingNumber}>
-            ({itemDetail.avgStar.toFixed(1)})
+            {itemDetail.avgStar}
           </Text>
         </View>
         <Text style={styles.detailText}>
@@ -231,16 +224,17 @@ const BarcodeDetail = ({ navigation }) => {
           style={styles.reviewInput}
           placeholder="리뷰를 작성하세요"
           multiline
-          value={review.text}
-          onChangeText={(reviewText) => setReview({ text: reviewText })}
+          value={review}
+          onChangeText={(text) => setReview(text)}
         />
+        <View style={{flexDirection: "row", justifyContent: "center"}}>
         <TouchableOpacity
           style={styles.reviewButton}
           onPress={addReview}
         >
-
           <Text style={styles.reviewButtonText}>리뷰 작성 완료</Text>
         </TouchableOpacity>
+        </View>
         <Text style={styles.reviewListTitle}>리뷰 목록</Text>
         <FlatList
           scrollEnabled={false}
@@ -248,7 +242,7 @@ const BarcodeDetail = ({ navigation }) => {
           keyExtractor={(item, index) => item.reviewNumber.toString()}
           renderItem={({ item }) => (
             <View style={styles.reviewItem}>
-              <TouchableOpacity onPress={() => {handleMenuItemPress(item.id)}}>
+              <TouchableOpacity onPress={() => navigation.navigate("UserInfo", { id: item.id})}>
                 <Text>
                   <Image
                     source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.
@@ -279,7 +273,7 @@ const BarcodeDetail = ({ navigation }) => {
               <Text style={styles.reviewItemText}>
                 {item.reviewInfo}
               </Text>
-              <TouchableOpacity onPress={() => {handleTasteNotePress()}}/* 해당 남의 테이스팅노트 */> 
+              <TouchableOpacity onPress={() => handleTasteNotePress(item.id, item.alcohol_number)}/* 해당 남의 테이스팅노트 */> 
                 <Image source={require('../../images/profile/note.png')} // 이미지의 경로를 정확히 지정해야 합니다.
                   style={{ width: 24, height: 24, padding: 10, marginTop: 5, }}
                 />
@@ -307,8 +301,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
     textAlign: 'center',
+    marginTop: 15,
   },
   image: {
     width: '100%',
@@ -341,7 +335,7 @@ const styles = StyleSheet.create({
   reviewButton: {
     backgroundColor: '#4CAF50',
     padding: 10,
-    width: 350,
+    width: Dimensions.get("window").width-50,
     borderRadius: 5,
     alignItems: 'center',
     height: 50,
@@ -419,4 +413,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BarcodeDetail;
+export default Detail;
