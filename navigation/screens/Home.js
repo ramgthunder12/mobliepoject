@@ -15,6 +15,7 @@ import { Tab, TabView } from "@rneui/themed";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
 
+
 function MenuSeparator() {
   return <View style={styles.menuSeparator} />;
 }
@@ -105,8 +106,8 @@ export default function Home({ navigation }) {
     setMessageType(type);
   };
 
-  const handleMenuItemPress = (itemId) => {
-    navigation.navigate("Detail", { alcholId: itemId });
+  const handleMenuItemPress = (menuItem) => {
+    navigation.navigate("Detail", { alcohol: menuItem});
   };
 
   const handleAdditionalMenuPress = (menuIndex) => {
@@ -211,6 +212,15 @@ export default function Home({ navigation }) {
     }
   };
 
+  const imagePrint = (url) => {
+    if (url === null) {
+      return null;
+    } else {
+      return { uri: url };
+    }
+  };
+  
+
   useEffect(() => {
     getAllAlcohols();
 
@@ -309,10 +319,14 @@ export default function Home({ navigation }) {
           {getMenuItems().map((menuItem) => (
             <View key={menuItem.alcoholNumber} style={{flexDirection: "row", justifyContent: "flex-start", marginBottom: 20, marginLeft: 20,}}>
             <TouchableOpacity
-              onPress={() => handleMenuItemPress(menuItem.alcoholNumber)/*이부분 수정 필요*/}
+              onPress={() => {
+                handleMenuItemPress(menuItem)/*이부분 수정 필요*/;
+            }}
+            
             >
               <View style={styles.menuItemContent}>
-                <Image source={require("../../images/alcholicons/sd.jpg")} style={styles.menuItemImage} />
+              <Image source={imagePrint(menuItem.picture)} style={styles.coverImage} />
+
                 <View style={{flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start"}}>
                   <Text style={{fontSize: 20, color: "black"}}>{menuItem.name}</Text>
                   <Text style={{fontSize: 20, color: "rgb(255,100,100)"}}>{`${menuItem.price}원`}</Text>
@@ -360,9 +374,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
   },
-  menuItemImage: {
-    width: 140, // 큰 이미지 크기로 조절
-    height: 140, // 큰 이미지 크기로 조절
+  coverImage: {
+    width: 100, // 큰 이미지 크기로 조절
+    height: 170, // 큰 이미지 크기로 조절
     marginRight: 20,
   },
   tab: {
