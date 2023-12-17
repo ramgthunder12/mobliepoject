@@ -13,6 +13,7 @@ import UserInfo from './screens/UserInfo';
 import ViewTasteNote from './screens/ViewTasteNote';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
+import BarcodeDetail from './screens/BarcodeDetail';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,7 @@ export default function StackContainer() {
         <Stack.Screen name={'TasteNote'} component={TasteNote}/>
         <Stack.Screen name={'WriteDownNote'} component={WriteDownNote}/>
         <Stack.Screen name={'Detail'} component={Detail}/>
+        <Stack.Screen name={'BarcodeDetail'} component={BarcodeDetail}/>
         <Stack.Screen name={'MyPage'} component={MyPage}/>
         <Stack.Screen name={'UserInfo'} component={UserInfo}/>
         <Stack.Screen name={'ViewTasteNote'} component={ViewTasteNote}/>

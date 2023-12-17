@@ -181,7 +181,7 @@ export default function Category({ navigation }) {
             ))}
 
             {/*테이스팅 노트 작성하기*/}
-            <View style={{ height: 200 }}>
+            <View style={{ height: 250 }}>
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate("WriteDownNote", { alcoholId: 1 })
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgb(230,230,230)",
+    backgroundColor: "rgb(240,240,240)",
     height: "100%",
     width: Dimensions.get("window").width / 2 - 20,
     borderRadius: 15,

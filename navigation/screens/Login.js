@@ -50,20 +50,20 @@ const Login = ({ navigation }) => {
     handleMessage(null);
     const url = apiUrl+"members/login";
 
-    const data = {
+    const data = {//POST 방식으로 보낼 데이터
       id: credentials.id,
       password: credentials.password
     };
 
     try {
-      const response = await axios.post(url, data);
+      const response = await axios.post(url, data);//api 호출 : POST 방식
       console.log(response.data);
 
       if (response.data) {
         const getUserUrl = apiUrl+"members/"+credentials.id;
 
         try{
-          const UserResponse = await axios.get(getUserUrl);
+          const UserResponse = await axios.get(getUserUrl);//api 호출 : GET 방식
 
           if(UserResponse){
             

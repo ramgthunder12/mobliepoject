@@ -8,13 +8,13 @@ import { Rating } from "react-native-ratings";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
 
-const Detail = ({ navigation }) => {
+const BarcodeDetail = ({ navigation }) => {
 
   const { id, apiUrl, common } = useContext(AppContext);//전역변수
   const url = apiUrl + "review/";
-  const alcoholOneUrl = apiUrl + "alcohols/"
   const route = useRoute();
-  const { alcohol } = route.params;
+  const { code } = route.params;
+  const [alcohol, setAlcohol] = useState({});
 
   const [reviews, setReviews] = useState([]); // 리뷰 목록을 저장할 상태
   const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
@@ -26,15 +26,6 @@ const Detail = ({ navigation }) => {
   const [review, setReview] = useState({ text: '' });
   const [addReviewText, setAddReviewText] = useState('');
 
-  const responseAlcoholData = "";
-  
-  if (!alcohol || typeof alcohol !== 'object' || !alcohol.alcoholNumber) {
-    // alcohol이 정의되지 않았거나 alcohol.alcoholNumber 속성이 없는 경우
-    // 에러 처리 또는 기본값 설정을 추가하세요.
-    console.error('Invalid alcohol data:', alcohol);
-    // 또는 기본값을 설정하려면 다음과 같이 사용합니다.
-    // const alcohol = { alcoholNumber: 'default' };
-  }
   const fetchReviews = async () => {
     try {
       const response = await reviewListUpdate();
@@ -50,8 +41,34 @@ const Detail = ({ navigation }) => {
     }
   };
 
+  const getAlcohol = async () => {//바코드로 알콜정보 불러오기
+    //자신의 노트 가져오기
+    const alcoholUrl = apiUrl+"serch/"+code;
+
+    try {
+      const response = await axios.get(alcoholUrl);
+
+      if (response.data) {
+        const res = response.data;
+        setAlcohol({
+          alcoholNumber: res.alcoholNumber,
+          picture: res.picture,
+          name: res.name,
+          price: res.price,
+          tasteDetail: res.tasteDetail,
+          avgStar: res.avgStar,
+        });
+        console.log(res);
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log("error : " + error);
+    }
+  };
+
   useEffect(() => {
     fetchReviews();
+    getAlcohol();
   }, []);
 
   const imagePrint = (url) => {
@@ -61,9 +78,11 @@ const Detail = ({ navigation }) => {
       return { uri: url };
     }
   };
-  const alcoholInfoRefresh = async () => {
+
+  const alcoholInfoRefresh = async () => {//알콜정보
+    const alcoholUrl = apiUrl+"serch/"+code
     try {
-      const response = await axios.get(`${alcoholOneUrl}/${alcohol.alcoholNumber}`);
+      const response = await axios.get(alcoholUrl);
       //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
       itemDetail.avgStar = response.avgStar;
 
@@ -400,4 +419,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Detail;
+export default BarcodeDetail;

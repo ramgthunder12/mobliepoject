@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Image, Dimensions } from "react-native";
+import { View, StyleSheet, Image, Dimensions, Alert } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { Button, Text } from "@rneui/themed";
 
-export default function BarcodeScanMenu() {
+export default function BarcodeScanMenu({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-
-  //인식할 수 있는 타입 선정
-  //barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
 
   const requestCameraPermission = async () => {
     //카메라 권한 요청
@@ -23,10 +20,29 @@ export default function BarcodeScanMenu() {
     requestCameraPermission();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = ({ type, data }) => {//바코드 스캔 시  data = 바코드값
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-  };
+
+    Alert.alert(
+      `바코드 : ${data} 가 맞습니까?`,
+      undefined,
+      [
+        {
+          text: '취소',
+          onPress: () => {
+            setScanned(false);
+          },
+          style: 'cancel',
+        },
+        {
+          text: '확인',
+          onPress: () => {
+            navigation.navigate("BarcodeDetail", { code: data });
+          },
+        },
+      ]
+    );
+};
 
   if (hasPermission === null) {
     return (
@@ -74,7 +90,7 @@ export default function BarcodeScanMenu() {
         />
       </View>
       {scanned && (
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
+        <Button title={"다시 찍으시겠습니까?"} onPress={() => setScanned(false)} />
       )}
     </View>
   );

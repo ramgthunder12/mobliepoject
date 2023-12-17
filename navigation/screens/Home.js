@@ -106,8 +106,8 @@ export default function Home({ navigation }) {
     setMessageType(type);
   };
 
-  const handleMenuItemPress = (itemId) => {
-    navigation.navigate("Detail", { alcholId: itemId });
+  const handleMenuItemPress = (menuItem) => {
+    navigation.navigate("Detail", { alcohol: menuItem});
   };
 
   const handleAdditionalMenuPress = (menuIndex) => {
@@ -319,10 +319,13 @@ export default function Home({ navigation }) {
           {getMenuItems().map((menuItem) => (
             <View key={menuItem.alcoholNumber} style={{flexDirection: "row", justifyContent: "flex-start", marginBottom: 20, marginLeft: 20,}}>
             <TouchableOpacity
-              onPress={() => handleMenuItemPress(menuItem.alcoholNumber)/*이부분 수정 필요*/}
+              onPress={() => {
+                handleMenuItemPress(menuItem)/*이부분 수정 필요*/;
+            }}
+            
             >
               <View style={styles.menuItemContent}>
-              <Image source={imagePrint(menuItem.picture)} style={styles.menuItemImage} />
+              <Image source={imagePrint(menuItem.picture)} style={styles.coverImage} />
 
                 <View style={{flexDirection: "column", justifyContent: "flex-start", alignItems: "flex-start"}}>
                   <Text style={{fontSize: 20, color: "black"}}>{menuItem.name}</Text>
@@ -371,9 +374,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
   },
-  menuItemImage: {
+  coverImage: {
     width: 100, // 큰 이미지 크기로 조절
-    height: 100, // 큰 이미지 크기로 조절
+    height: 170, // 큰 이미지 크기로 조절
     marginRight: 20,
   },
   tab: {
