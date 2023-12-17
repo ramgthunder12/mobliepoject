@@ -23,6 +23,9 @@ const Detail = ({ navigation }) => {
   const [showLoadMore, setShowLoadMore] = useState(true); // 더 불러오기 버튼 보이기 여부
   const [add_review, setAdd_review] = useState([]);
 
+  const [TasteNotes, setTasteNotes] = useState([]); //테이스팅노트
+  const [alcoholImage, setAlcoholImage] = useState({}); //alcoholId : url
+
   const [review, setReview] = useState({ text: '' });
   const [addReviewText, setAddReviewText] = useState('');
 
@@ -154,11 +157,67 @@ const Detail = ({ navigation }) => {
     const formattedDate = new Date(dateString).toLocaleDateString('ko-KR', options);
     return formattedDate;
   };
-  const handleMenuItemPress = (userId) => {
-    navigation.navigate("UserInfo", { id: userId});
+  const handleMenuItemPress = (menuItem) => {
+    navigation.navigate("UserInfo", { alcohol: menuItem});
   };
-  const handleTasteNotePress = (menuItem) => {
-    //note얻으려면, 아이디랑, 주류아이디 
+  const imagePrintUsingTastenote = async (num) => {
+    //노트 주류 사진 가져오기
+    const url = apiUrl + "alcohols/" + num;
+
+    try {
+      const response = await axios.get(url);
+
+      if (response.data && response.data.picture !== null) {
+        setAlcoholName((prevImage) => ({
+          ...prevImage,
+          [num]: response.data.name,
+        }));
+
+        setAlcoholStar((prevImage) => ({
+          ...prevImage,
+          [num]: response.data.avgStar,
+        }));
+
+        return response.data.picture;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log("error : " + error);
+    }
+  };
+  const handleTasteNotePress = async (menuItem) => {
+    //note얻으려면 id랑 주류번호 -> list<tastenote>
+    //통신 -> list얻으면 -> 주류 번호 해당 된것만 다시 저장-> list 주루륵 뿌려줌
+    //새로운 api -> list얻으면 -> viewTasteNote 주루룩 뿌려줌
+    try {
+
+      const response = await axios.get(`${apiUrl}/tastenote/${item.id}`);
+      if (response.data) {
+        setTasteNotes(response.data);
+
+        const promises = response.data.map(async (item) => {
+          const num = parseInt(item.alcohol_number, 10);
+          if (alcoholImage[num] === undefined) {
+            const image = await imagePrintUsingTastenote(num);
+            setAlcoholImage((prevImage) => ({
+              ...prevImage,
+              [num]: image,
+            }));
+          }
+        });
+        await Promise.all(promises);
+      }
+      
+      //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
+      itemDetail.avgStar = response.avgStar;
+
+    } catch (error) {
+      console.log(error);
+      console.error('Error submitting alcoholInfoRefresh:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
     navigation.navigate("ViewTasteNote", { alcohol: menuItem});//tasteNote에note를 줘야함
   };
   return (
@@ -229,7 +288,7 @@ const Detail = ({ navigation }) => {
           keyExtractor={(item, index) => item.reviewNumber.toString()}
           renderItem={({ item }) => (
             <View style={styles.reviewItem}>
-              <TouchableOpacity onPress={() => {handleMenuItemPress(item.id)}}>
+              <TouchableOpacity onPress={() => {handleTasteNotePress()}}>
                 <Text>
                   <Image
                     source={require('../../images/profile/defaultProfile.png')} // 이미지의 경로를 정확히 지정해야 합니다.

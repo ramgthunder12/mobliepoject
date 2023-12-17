@@ -168,13 +168,10 @@ const Signup = ({ navigation }) => {
                   type="octicon"
                 />
                 <MyTextInput
-                  label="id"
-                  placeholder="andyj@gmail.com"
-                  placeholderTextColor={darkLight}
+                  label="Id"
                   onChangeText={handleChange("id")}
                   onBlur={handleBlur("id")}
                   value={values.id}
-                  keyboardType="email-address"
                   icon="identifier"
                   type="material-community"
                 />
