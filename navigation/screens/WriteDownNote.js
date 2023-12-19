@@ -220,6 +220,30 @@ export default function WriteDownNote({ navigation }) {
   };
   /********************주류 이미지********************/
 
+  /********************주류 이름********************/
+  const searchAlcoholName = async () => {//주류 이름 검색
+    const url = apiUrl+"alcohols/";
+
+    const data = {
+      name: Name
+    };
+
+    try {
+      const response = await axios.post(url, data);
+
+      if (response.data) {
+        const res = response.data;
+        setName(res[0].name);
+        setSelectedImage(res[0].picture);
+      }
+      console.log(response.data);
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      Alert.alert("알림", "해당 주류명이 목록에 존재하지 않습니다");
+    }
+  };
+  /********************주류 이름********************/
+
   /********************시음일********************/
   const TastingDayConfirm = (date) => {
     //날짜 선택한 값
@@ -1068,7 +1092,15 @@ export default function WriteDownNote({ navigation }) {
               marginRight: 18,
             }}
           >
+            <View style={{flexDirection: "row", justifyContent: "space-between"}}>
             <Text style={styles.noteTitleText}>주류명</Text>
+            <TouchableOpacity onPress={() => searchAlcoholName()} style={{borderWidth: 1, borderRadius: 5, padding: 5, marginTop: -3}}>
+              <View style={{flexDirection: "row", justifyContent: "flex-start"}}>
+                <Icon name="search" type="font-awesome" size={15}/>
+                <Text style={{fontSize: 18, marginLeft: 3, marginTop: -3, fontWeight: "bold"}}>검색</Text>
+              </View>
+            </TouchableOpacity>
+            </View>
             <TextInput
               autoFocus={false}
               onChangeText={(text) => setName(text)}
@@ -1760,9 +1792,10 @@ export default function WriteDownNote({ navigation }) {
 
       {/********************첫향, 중간맛, 끝향 바 조절 Dialog********************/}
       <Dialog isVisible={slideVisible.b} onBackdropPress={() => setSlideVisible({ index: 0, id: 0, b: false })}>
-      <Dialog.Title title={`슬라이더바 삭제하시겠습니까?`} />
+      <Dialog.Title title={`${btnName}의 정도(값)를 조절해주세요`} />
 
         {/* Slider를 다이얼로그 안에 포함 */}
+        <View style={{flexDirection: "column", justifyContent: "center"}}>
         <Slider
           value={slideValue}
           onValueChange={setSlideValue}
@@ -1793,9 +1826,30 @@ export default function WriteDownNote({ navigation }) {
                   color="black"
                 />
               </View>
+              
+              
             ),
           }}
         />
+        <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Icon name="numeric-1" type="material-community" size={21} />
+              <Icon name="numeric-2" type="material-community" size={21} />
+              <Icon name="numeric-3" type="material-community" size={21} />
+              <Icon name="numeric-4" type="material-community" size={21} />
+              <Icon name="numeric-5" type="material-community" size={21} />
+              <Icon name="numeric-6" type="material-community" size={21} />
+              <Icon name="numeric-7" type="material-community" size={21} />
+              <Icon name="numeric-8" type="material-community" size={21} />
+              <Icon name="numeric-9" type="material-community" size={21} />
+              <Icon name="numeric-10" type="material-community" size={21} />
+            </View>
+            </View>
 
       <Dialog.Actions>
         <View
@@ -1810,7 +1864,7 @@ export default function WriteDownNote({ navigation }) {
               handlePressScent();
             }}
           />
-          <Dialog.Button title="취소" onPress={() => setSlideVisible({ index: 0, id: 0, b: false })} />
+          <Dialog.Button title="취소" onPress={() => {setSlideVisible({ index: 0, id: 0, b: false }); setSlideValue(1);}} />
         </View>
       </Dialog.Actions>
     </Dialog>

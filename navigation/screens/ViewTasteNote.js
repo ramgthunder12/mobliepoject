@@ -131,7 +131,7 @@ export default function ViewTasteNote({ navigation }) {
         <View style={{flexDirection: "row", justifyContent: "flex-start"}}>
           <Image source={{uri: image}} style={{marginLeft: 15, height: 200, width: 150, }} />
           <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
-            <Text style={{fontSize: 25}}>{note.tastingDay}</Text>
+            <Text style={{fontSize: 25}}>{note.tasting_day}</Text>
             <View style={{flexDirection: "row", justifyContent: "flex-start"}}>
             <Icon name="star" type="font-awesome" color="#FFCC00" size={30} style={{marginTop: 10, marginRight: 10}}/>
             <Text style={{fontSize: 40}}>{`${note.tastenote_starpoint}/${avgStar}`}</Text>

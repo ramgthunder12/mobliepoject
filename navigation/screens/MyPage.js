@@ -40,7 +40,7 @@ export default function MyPage({navigation}) {
   // ProgressBar의 원하는 너비 계산
   const progressBarWidth = screenWidth * 0.9;
 
-  const { id, apiUrl, profileImage , setProfileImage, point, tastenote_num } = useContext(AppContext);//전역변수
+  const { id, apiUrl, profileImage , setProfileImage, point, tastenote_num, nickname } = useContext(AppContext);//전역변수
 
   /*프로필 이미지*/
   const requestImagePermission = async () => {
@@ -199,7 +199,7 @@ export default function MyPage({navigation}) {
             </View>
           </TouchableOpacity>
           <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-start", height: 70, marginLeft: 15,}}>
-            <Text style={{fontSize: 27, fontWeight: "500"}}>닉네임</Text>
+            <Text style={{fontSize: 27, fontWeight: "500"}}>{nickname}</Text>
             <View style={{flexDirection: "row"}}>
               <Text style={{fontSize: 20, color: '#33cc33'}}>LV.1 </Text>
               <Text style={{fontSize: 20, }}>알콜프리 근데 취해</Text>
@@ -226,7 +226,7 @@ export default function MyPage({navigation}) {
             <Text style={{fontSize: 22,}}>{`포인트 : ${point}`}</Text>
         </View>
         <View style={{flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: 10}}>
-            <Text style={{fontSize: 22,}}>{`테이스팅노트 : ${tastenote_num} 개`}</Text>
+            <Text style={{fontSize: 22,}}>{`테이스팅노트 : 1 개`}</Text>
           </View>
 
           {/*테이스팅노트*/}

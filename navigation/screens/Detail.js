@@ -58,7 +58,8 @@ const Detail = ({ navigation }) => {
     price: alcohol.price,
     description: alcohol.tasteDetail,
     avgStar: alcohol.avgStar,
-    picture: alcohol.picture
+    picture: alcohol.picture,
+    detail: alcohol.detail
   };
 
   const addReview = async () => {//리뷰 추가
@@ -67,7 +68,7 @@ const Detail = ({ navigation }) => {
 
     const requestData = { 
       id: id, 
-      common: common, 
+      common: 'Y', 
       review_starpoint: ratingValue, 
       alcohol_number: itemDetail.number, 
       review_info: review.text 
@@ -78,8 +79,10 @@ const Detail = ({ navigation }) => {
       const response = await axios.post(url, requestData);
 
       if(response.data){
-        console.log('리뷰 제출');
+        console.log('리뷰제출');
       }
+
+      fetchReviews();
 
       alcoholInfoRefresh();// 평균 별점 업데이트
 
@@ -113,7 +116,7 @@ const Detail = ({ navigation }) => {
 
     const requestData = { 
       id: id, 
-      alcohol_number: num
+      alcohol_number: num,//tasting_day
     };
 
     console.log(requestData);
@@ -178,7 +181,7 @@ const Detail = ({ navigation }) => {
           <Text style={styles.labelText}>가격:</Text> ₩{itemDetail.price}
         </Text>
         <Text style={styles.detailText}>
-          <Text style={styles.labelText}>설명:</Text> {itemDetail.description}
+          <Text style={styles.labelText}>설명:</Text> {itemDetail.detail}
         </Text>
         <Card.Divider style={{ marginTop: 20 }} />
         <View style={styles.noteTitleView}>

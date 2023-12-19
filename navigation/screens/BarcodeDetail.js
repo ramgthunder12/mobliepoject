@@ -38,6 +38,22 @@ const Detail = ({ navigation }) => {
     }
   };
 
+  const updateFetchReviews = async () => {//리뷰 불러오기
+    const url = apiUrl + "review/";
+    try {
+      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
+      console.log('리뷰 업데이트 : '+response.data);
+
+      setReviews(response.data); // 리뷰 목록을 상태에 설정
+      // 초기에 보이는 리뷰 개수 설정
+      const initialVisibleReviews = response.data.slice(0, visibleReviewCount);
+      setVisibleReviews(initialVisibleReviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
+  };
+
   let itemDetail = {
     number: alcohol.alcoholNumber,
     image: alcohol.picture,
@@ -45,7 +61,8 @@ const Detail = ({ navigation }) => {
     price: alcohol.price,
     description: alcohol.tasteDetail,
     avgStar: alcohol.avgStar,
-    picture: alcohol.picture
+    picture: alcohol.picture,
+    detail: alcohol.detail
   };
 
   const alcoholInfoRefresh = async () => {//알콜정보
@@ -78,9 +95,8 @@ const Detail = ({ navigation }) => {
     try {
       const response = await axios.post(url, requestData);
 
-      if(response.data){
-        console.log('리뷰 제출');
-      }
+      //fetchReviews(itemDetail.number);
+      updateFetchReviews();
 
       alcoholInfoRefresh();// 평균 별점 업데이트
 
@@ -114,7 +130,7 @@ const Detail = ({ navigation }) => {
 
     const requestData = { 
       id: id, 
-      alcohol_number: num
+      alcohol_number: num,
     };
 
     console.log(requestData);
@@ -127,7 +143,7 @@ const Detail = ({ navigation }) => {
       }
 
     } catch (error) {
-      console.log(error);
+      console.log('dddd'+error);
     }
   };
 
@@ -207,7 +223,7 @@ const Detail = ({ navigation }) => {
           <Text style={styles.labelText}>가격:</Text> ₩{itemDetail.price}
         </Text>
         <Text style={styles.detailText}>
-          <Text style={styles.labelText}>설명:</Text> {itemDetail.description}
+          <Text style={styles.labelText}>설명:</Text> {itemDetail.detail}
         </Text>
         <Card.Divider style={{ marginTop: 20 }} />
         <View style={styles.noteTitleView}>
