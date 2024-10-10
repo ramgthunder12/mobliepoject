@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
@@ -9,29 +10,52 @@ import {
   Dimensions,
 } from "react-native";
 import { Button, Text, Card, Icon } from "@rneui/themed";
-import { useRoute, useIsFocused } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { AppContext } from "../../AppContext";
 import axios from "axios";
 
-export default function Category({ navigation }) {
-  const [TasteNotes, setTasteNotes] = useState([]); //테이스팅노트
-  const { apiUrl, id } = useContext(AppContext); //전역변수
+export default function UserInfo({navigation}) {
   const route = useRoute();
-  const isFocused = useIsFocused(); //navigation.goBack으로 화면 돌아왔을 때 호출
+  const { id } = route.params;
+  /*프로필 이미지*/
+  const [SelectedImage, setSelectedImage] = useState(null);
+  const [TasteNotes, setTasteNotes] = useState([]); //테이스팅노트
+  const { apiUrl } = useContext(AppContext); //전역변수
   const screenWidth = Dimensions.get("window").width; //화면 가로길이
+
   const [alcoholImage, setAlcoholImage] = useState({}); //alcoholId : url
   const [alcoholName, setAlcoholName] = useState({}); //alcoholId : name
   const [alcoholStar, setAlcoholStar] = useState({}); //alcoholId : name
 
+  const showImage = () => {
+    //이미지 출력
+    if (SelectedImage) {
+      return (
+        <Image
+          source={{ uri: SelectedImage }}
+          style={{ width: "100%", height: "100%", borderRadius: 50 }}
+        />
+      );
+    } else {
+      return (
+        <Image
+          source={require("../../images/profile/defaultProfile.png")}
+          style={{ width: "100%", height: "100%" }}
+        />
+      );
+    }
+  };
+
   const getTastingNote = async () => {
     //자신의 노트 가져오기
-    const url = apiUrl + "tastenote/" + id;
+    const url = apiUrl + "tastenote/" + id;//여기에 사용자 id 넣기
 
     try {
       const response = await axios.get(url);
 
       if (response.data) {
-        setTasteNotes(response.data);
+        const filteredNotes = response.data.filter((note) => note.open === "Y");
+        setTasteNotes(filteredNotes);
 
         const promises = response.data.map(async (item) => {
           const num = parseInt(item.alcohol_number, 10);
@@ -82,24 +106,52 @@ export default function Category({ navigation }) {
   useEffect(() => {
     //화면 돌아왔을 때
     getTastingNote();
-    console.log("새로고침");
-  }, [isFocused]);
+  }, []);
 
   return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Image
-            source={require("../../images/menuicons/note_focus.png")}
-            style={{ width: 25, height: 25, marginRight: 10, margin: 10 }}
-          />
-          <Text style={styles.headerText}>테이스팅 노트</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+
+        {/*프로필 상단*/}
+        <View style={styles.titleView}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              margin: 10,
+            }}>
+              <Icon name="chevron-back" type="ionicon" size={30}/>
+            </TouchableOpacity>
         </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{ backgroundColor: "white" }}
-        >
-          <View
+
+        {/*프로필*/}
+        <View style={styles.profileView}>
+            <View
+              style={{
+                width: 70,
+                height: 70,
+                position: "relative",
+                marginLeft: 15
+              }}
+            >
+              {showImage()}
+            </View>
+          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "flex-start", height: 70, marginLeft: 15,}}>
+            <Text style={{fontSize: 27, fontWeight: "500"}}>닉네임</Text>
+            <View style={{flexDirection: "row"}}>
+              <Text style={{fontSize: 20, color: '#33cc33'}}>LV.1 </Text>
+              <Text style={{fontSize: 20, }}>알콜프리 근데 취해</Text>
+            </View>
+          </View>
+        </View>
+
+        {/*테이스팅 노트*/}
+          <View style={{flexDirection: "column", justifyContent: "center", alignItems: "center", margin: 20,}}>
+            <Text style={{fontSize: 22,}}>테이스팅노트</Text>
+            <Text style={{fontSize: 22,}}>0</Text>
+          </View>
+
+        {/*테이스팅 노트 보여주기*/}
+        <View
             style={{
               flexDirection: "row",
               justifyContent: "flex-start",
@@ -107,7 +159,6 @@ export default function Category({ navigation }) {
               width: screenWidth,
             }}
           >
-            {/*자신의 테이스팅 노트*/}
             {TasteNotes.map((note) => (
               <View
                 key={note.tastenote_number}
@@ -179,54 +230,42 @@ export default function Category({ navigation }) {
                 </TouchableOpacity>
               </View>
             ))}
-
-            {/*테이스팅 노트 작성하기*/}
-            <View style={{ height: 250 }}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("WriteDownNote", { alcoholId: 1, alcoholName: null, alcoholImage: null })
-                }
-              >
-                <View style={styles.addTasteNoteView}>
-                  <Icon
-                    name="pluscircleo"
-                    type="antdesign"
-                    size={30}
-                    color="rgb(255,255,255)"
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    width: "100%",
+    paddingTop: StatusBar.currentHeight,
+    backgroundColor: "#FFFFFF",
   },
-  header: {
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    marginTop: 20, // 상단 여백 추가
+  },
+  titleView: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  profileView: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    margin: 10,
   },
-  headerText: {
-    fontSize: 30,
-    marginTop: 5,
-  },
-  addTasteNoteView: {
+  penIconView: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgb(240,240,240)",
-    height: "100%",
-    width: Dimensions.get("window").width / 2 - 20,
-    borderRadius: 15,
-    marginLeft: 10,
+    width: 30,
+    height: 30,
+    position: "absolute",
+    bottom: -4,
+    right: -4,
+    margin: 3,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 30,
   },
 });

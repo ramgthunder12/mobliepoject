@@ -12,16 +12,33 @@ const Detail = ({ navigation }) => {
 
   const { id, apiUrl, common } = useContext(AppContext);//전역변수
   const route = useRoute();
-  const { alcohol } = route.params;
+  const { code } = route.params;
+  const [alcohol, setAlcohol] = useState({});
 
   const [reviews, setReviews] = useState([]); // 리뷰 목록을 저장할 상태
   const [visibleReviews, setVisibleReviews] = useState([]); // 화면에 보이는 리뷰 목록
   const [ratingValue, setRatingValue] = useState(0.0);
   const [visibleReviewCount, setVisibleReviewCount] = useState(3); // 초기에 보이는 리뷰
 
-  const [review, setReview] = useState({ text: '' });
+  const [review, setReview] = useState("");
 
-  const fetchReviews = async () => {//리뷰 불러오기
+  const fetchReviews = async (num) => {//리뷰 불러오기
+    const url = apiUrl + "review/"+num;
+    try {
+      const response = await axios.get(url);
+      console.log('리뷰 업데이트 : '+response.data);
+
+      setReviews(response.data); // 리뷰 목록을 상태에 설정
+      // 초기에 보이는 리뷰 개수 설정
+      const initialVisibleReviews = response.data.slice(0, visibleReviewCount);
+      setVisibleReviews(initialVisibleReviews);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
+  };
+
+  const updateFetchReviews = async () => {//리뷰 불러오기
     const url = apiUrl + "review/";
     try {
       const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
@@ -37,20 +54,6 @@ const Detail = ({ navigation }) => {
     }
   };
 
-  const alcoholInfoRefresh = async () => {
-    const url = apiUrl + "alcohols/"
-    try {
-      const response = await axios.get(`${url}/${alcohol.alcoholNumber}`);
-      //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
-      itemDetail.avgStar = response.avgStar;
-
-    } catch (error) {
-      console.log(error);
-      console.error('Error submitting alcoholInfoRefresh:', error);
-      // 에러 처리 로직을 추가하세요.
-    }
-  };
-
   let itemDetail = {
     number: alcohol.alcoholNumber,
     image: alcohol.picture,
@@ -62,27 +65,38 @@ const Detail = ({ navigation }) => {
     detail: alcohol.detail
   };
 
+  const alcoholInfoRefresh = async () => {//알콜정보
+    const alcoholUrl = apiUrl+"alcohols/serch/"+code
+    try {
+      const response = await axios.get(alcoholUrl);
+      //이거 값 들어가는지 확인하기 ->그래서 const itemDetail에서 let itemDetail로 바꿈
+      itemDetail.avgStar = response.avgStar;
+
+    } catch (error) {
+      console.log(error);
+      console.error('Error submitting alcoholInfoRefresh:', error);
+      // 에러 처리 로직을 추가하세요.
+    }
+  };
+
   const addReview = async () => {//리뷰 추가
     //data 요청 보내는 값
     const url = apiUrl + "review/";
 
     const requestData = { 
       id: id, 
-      common: 'Y', 
+      common: common, 
       review_starpoint: ratingValue, 
       alcohol_number: itemDetail.number, 
-      review_info: review.text 
+      review_info: review
     };
     console.log(requestData);
 
     try {
       const response = await axios.post(url, requestData);
 
-      if(response.data){
-        console.log('리뷰제출');
-      }
-
-      fetchReviews();
+      //fetchReviews(itemDetail.number);
+      updateFetchReviews();
 
       alcoholInfoRefresh();// 평균 별점 업데이트
 
@@ -116,7 +130,7 @@ const Detail = ({ navigation }) => {
 
     const requestData = { 
       id: id, 
-      alcohol_number: num,//tasting_day
+      alcohol_number: num,
     };
 
     console.log(requestData);
@@ -129,12 +143,40 @@ const Detail = ({ navigation }) => {
       }
 
     } catch (error) {
-      console.log(error);
+      console.log('dddd'+error);
+    }
+  };
+
+  const getAlcohol = async () => {//바코드로 알콜정보 불러오기
+    //자신의 노트 가져오기
+    console.log('알콜정보 가져오기');
+    const alcoholUrl = apiUrl+"alcohols/serch/"+code;
+
+    try {
+      const response = await axios.get(alcoholUrl);
+
+      console.log(response.data);
+
+      if (response.data) {
+        const res = response.data;
+        setAlcohol({
+          alcoholNumber: res.alcoholNumber,
+          picture: res.picture,
+          name: res.name,
+          price: res.price,
+          tasteDetail: res.tasteDetail,
+          avgStar: res.avgStar,
+        });
+        fetchReviews(res.alcoholNumber);//리뷰 불러오기
+      }
+    } catch (error) {
+      // API 호출 중 에러가 발생한 경우
+      console.log("error : " + error);
     }
   };
 
   useEffect(() => {
-    fetchReviews();//리뷰 불러오기
+    getAlcohol();//주류 불러오기
   }, []);
 
   return (
@@ -171,7 +213,7 @@ const Detail = ({ navigation }) => {
             imageSize={20}
           />
           <Text style={styles.averageRatingNumber}>
-            ({itemDetail.avgStar.toFixed(1)})
+            {itemDetail.avgStar}
           </Text>
         </View>
         <Text style={styles.detailText}>
@@ -198,8 +240,8 @@ const Detail = ({ navigation }) => {
           style={styles.reviewInput}
           placeholder="리뷰를 작성하세요"
           multiline
-          value={review.text}
-          onChangeText={(reviewText) => setReview({ text: reviewText })}
+          value={review}
+          onChangeText={(text) => setReview(text)}
         />
         <View style={{flexDirection: "row", justifyContent: "center"}}>
         <TouchableOpacity
