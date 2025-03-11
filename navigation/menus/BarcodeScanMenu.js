@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, Dimensions, Alert } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+//import { BarCodeScanner } from "expo-barcode-scanner";
 import { Button, Text } from "@rneui/themed";
 
 export default function BarcodeScanMenu({ navigation }) {
@@ -65,7 +65,7 @@ export default function BarcodeScanMenu({ navigation }) {
     <View style={styles.container}>
       <View style={StyleSheet.absoluteFillObject}>
         <Text style={{
-          fontSize: 30, 
+          fontSize: 30,
           fontWeight: "bold",
           position: "absolute",
           top: 70,

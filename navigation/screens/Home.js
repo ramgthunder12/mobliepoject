@@ -189,7 +189,7 @@ export default function Home({ navigation }) {
           style={{
             width: 40,
             height: 40,
-            borderRadius: 20,
+            // borderRadius: 20,
             marginRight: 10,
             marginTop: 10,
             borderRadius: 50,
@@ -349,7 +349,7 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
     paddingTop: -10,
   },
   scrollView: {
